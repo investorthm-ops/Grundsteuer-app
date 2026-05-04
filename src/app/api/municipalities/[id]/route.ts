@@ -1,0 +1,96 @@
+import { NextResponse, type NextRequest } from 'next/server'
+import { z } from 'zod'
+import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { isAdmin } from '@/lib/supabase/is-admin'
+import { municipalityUpdateSchema } from '@/lib/validation/municipality'
+
+const idSchema = z.string().uuid()
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
+  if (!idSchema.safeParse(id).success) {
+    return NextResponse.json({ error: 'Invalid id' }, { status: 400 })
+  }
+
+  const supabase = await createSupabaseServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  if (!(await isAdmin(supabase, user.id))) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
+  let body: unknown
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
+
+  const parsed = municipalityUpdateSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: 'Validation failed', issues: parsed.error.issues },
+      { status: 400 }
+    )
+  }
+
+  if (Object.keys(parsed.data).length === 0) {
+    return NextResponse.json({ error: 'Empty update' }, { status: 400 })
+  }
+
+  const { data, error } = await supabase
+    .from('municipalities')
+    .update(parsed.data)
+    .eq('id', id)
+    .select('*')
+    .single()
+
+  if (error) {
+    if (error.code === 'PGRST116') {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
+    return NextResponse.json({ error: 'Database error' }, { status: 500 })
+  }
+
+  return NextResponse.json({ data })
+}
+
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
+  if (!idSchema.safeParse(id).success) {
+    return NextResponse.json({ error: 'Invalid id' }, { status: 400 })
+  }
+
+  const supabase = await createSupabaseServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  if (!(await isAdmin(supabase, user.id))) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
+  const { error, count } = await supabase
+    .from('municipalities')
+    .delete({ count: 'exact' })
+    .eq('id', id)
+
+  if (error) {
+    return NextResponse.json({ error: 'Database error' }, { status: 500 })
+  }
+  if (!count) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  }
+
+  return new NextResponse(null, { status: 204 })
+}
