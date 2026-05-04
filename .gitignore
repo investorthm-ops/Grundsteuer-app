@@ -5,17 +5,40 @@ desktop.ini
 .vscode/
 .idea/
 
-# Lokale Exporte und Testdaten
+# Abhaengigkeiten
+node_modules/
+/node_modules
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# Next.js und Build-Ausgaben
+/.next/
+/out/
+dist/
+build/
+/build
+next-env.d.ts
+*.tsbuildinfo
+
+# Tests und Logs
+/coverage
 *.tmp
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Lokale Exporte und Testdaten
 grundsteuer-monitor-export*.csv
 grundsteuer-monitor-daten*.json
 apppro_backup_*.json
 
-# Abhaengigkeiten, falls spaeter ein Build-Projekt entsteht
-node_modules/
-dist/
-build/
+# Secrets und lokale Konfiguration
 .env
 .env.*
-
+.env*.local
+*.pem
+.mcp.json
+.vercel
+.claude/settings.local.json
