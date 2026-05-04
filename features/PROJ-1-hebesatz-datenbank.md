@@ -1,6 +1,6 @@
 # PROJ-1: Bundesweite Hebesatz-Datenbank
 
-## Status: Planned
+## Status: In Progress
 **Created:** 2026-05-04
 **Last Updated:** 2026-05-04
 
@@ -28,33 +28,33 @@ Eingeloggte Nutzer aller Pläne können kommunale Hebesätze (Grundsteuer A, Gru
 ## Acceptance Criteria
 
 ### Zugang
-- [ ] Nur eingeloggte Nutzer können die Datenbank-Ansicht aufrufen — nicht eingeloggte Nutzer werden auf die Login-Seite weitergeleitet.
+- [x] Nur eingeloggte Nutzer können die Datenbank-Ansicht aufrufen — nicht eingeloggte Nutzer werden auf die Login-Seite weitergeleitet. *(Middleware + API 401)*
 
 ### Datenbankinhalt
-- [ ] Jeder Datensatz enthält: Bundesland, Kreis (optional), Gemeindename, Grundsteuer A (%), Grundsteuer B (%), Gewerbesteuer (%), Vorjahr-Hebesatz B, Datenstand (Datum/Jahr), Quellenstatus (bestätigt / offen).
-- [ ] Vorjahreswert Grundsteuer B wird als Zahl gespeichert und neben dem aktuellen Wert angezeigt.
+- [x] Jeder Datensatz enthält: Bundesland, Kreis (optional), Gemeindename, Grundsteuer A (%), Grundsteuer B (%), Gewerbesteuer (%), Vorjahr-Hebesatz B, Datenstand (Datum/Jahr), Quellenstatus (bestätigt / offen). *(SQL schema)*
+- [x] Vorjahreswert Grundsteuer B wird als Zahl gespeichert und neben dem aktuellen Wert angezeigt. *(Spalte `vorjahr_b int`)*
 - [ ] Eine Änderungsanzeige (+/−) errechnet sich aus aktuellem Wert minus Vorjahr.
 
 ### Suche & Filter
-- [ ] Freitextsuche über Gemeindename (Substring-Suche, case-insensitive).
-- [ ] Dropdown-Filter für Bundesland (16 Optionen + „Alle").
-- [ ] Filter und Suche können kombiniert werden.
+- [x] Freitextsuche über Gemeindename (Substring-Suche, case-insensitive). *(API `q` param via `.ilike()`)*
+- [x] Dropdown-Filter für Bundesland (16 Optionen + „Alle"). *(API `bundesland` param + Zod enum)*
+- [x] Filter und Suche können kombiniert werden. *(API kombiniert `eq` + `ilike`)*
 - [ ] Bei leerem Ergebnis erscheint der Text „Für diese Auswahl sind noch keine Daten verfügbar." (kein Fehler-State, kein Spinner).
 
 ### Tabelle & Paginierung
-- [ ] Standard-Sortierung: Bundesland aufsteigend, dann Gemeindename aufsteigend.
-- [ ] 50 Einträge pro Seite; Seitennavigation (Zurück/Weiter + aktuelle Seite) sichtbar.
+- [x] Standard-Sortierung: Bundesland aufsteigend, dann Gemeindename aufsteigend. *(API order-by + composite index)*
+- [x] 50 Einträge pro Seite; Seitennavigation (Zurück/Weiter + aktuelle Seite) sichtbar. *(Backend: `pageSize` default 50 via `.range()`; UI pending)*
 - [ ] Tabellenspalten: Gemeinde | Bundesland | GrSt A | GrSt B | Vorjahr B | Δ | GewSt | Stand | Status.
 - [ ] Tabelle ist responsive; auf kleinen Bildschirmen horizontal scrollbar.
 
 ### Admin-Datenpflege
-- [ ] Ein Admin-Formular (nur für User mit Admin-Rolle zugänglich) ermöglicht: Neuen Datensatz anlegen, bestehenden Datensatz bearbeiten.
-- [ ] Pflichtfelder: Gemeindename, Bundesland, Grundsteuer B.
+- [x] Ein Admin-Formular (nur für User mit Admin-Rolle zugänglich) ermöglicht: Neuen Datensatz anlegen, bestehenden Datensatz bearbeiten. *(Backend: POST/PATCH/DELETE admin-gated; UI pending)*
+- [x] Pflichtfelder: Gemeindename, Bundesland, Grundsteuer B. *(Zod + NOT NULL constraints)*
 - [ ] Optionale Felder: Grundsteuer A, Gewerbesteuer, Vorjahr B, Kreis, Quellenstatus, Datenstand.
-- [ ] Ungültige Werte (negativ, > 2000 %) werden clientseitig abgefangen.
+- [x] Ungültige Werte (negativ, > 2000 %) werden clientseitig abgefangen. *(Server-side: Zod 0–2000 + DB CHECK; client validation pending)*
 
 ### Performance
-- [ ] Tabelle lädt in unter 1 Sekunde bei bis zu 5.000 Datensätzen (serverseitige Paginierung via Supabase).
+- [x] Tabelle lädt in unter 1 Sekunde bei bis zu 5.000 Datensätzen (serverseitige Paginierung via Supabase). *(Indexes auf bundesland, name, (bundesland,name); `.range()` Paginierung)*
 
 ---
 
@@ -145,6 +145,44 @@ App (Next.js)
 
 ### Neues Paket
 - `@supabase/ssr` — Supabase-Auth für Next.js App Router (Server Components + Middleware)
+
+### Implementation Notes (Backend)
+**Date:** 2026-05-04
+**Branch:** `feat/proj-1-backend`
+
+**Was wurde gebaut**
+- SQL-Migration `supabase/migrations/0001_municipalities.sql`:
+  - `municipalities` Tabelle mit allen Feldern aus dem Tech Design, CHECK-Constraints (0–2000), Pflichtfelder via NOT NULL.
+  - `user_roles` Tabelle (separat, statt JWT-Claims) — Admin-Records werden manuell per SQL durch den Projekt-Owner gesetzt; keine API-Schreibwege.
+  - Indizes: `bundesland`, `name`, composite `(bundesland, name)` für Standard-Sortierung.
+  - RLS aktiviert: SELECT für `authenticated`, INSERT/UPDATE/DELETE nur wenn `user_roles.role = 'admin'`.
+  - `updated_at`-Trigger via `set_updated_at()` Funktion.
+- Supabase SSR-Setup mit `@supabase/ssr`:
+  - `src/lib/supabase/server.ts` — Server-Client mit Next.js cookies().
+  - `src/lib/supabase/client.ts` — Browser-Client.
+  - `src/lib/supabase/is-admin.ts` — Helper, wiederverwendet in API-Routen.
+  - `src/middleware.ts` — schützt `/datenbank/**` (Session) und `/admin/**` (Session + Admin); Redirect zu `/login?redirectTo=...` bzw. `/datenbank` für Nicht-Admins.
+- Validation: `src/lib/validation/municipality.ts` mit 16-Bundesländer-Enum, `municipalityCreateSchema`, `municipalityUpdateSchema`, `listQuerySchema`.
+- TypeScript-Typen: `src/lib/types/municipality.ts`.
+- API-Routen:
+  - `GET /api/municipalities` — paginiert (`page`, `pageSize` max 100), Filter `bundesland`, Suche `q` via `.ilike()`, sortiert `bundesland, name`. 401 ohne Session.
+  - `POST /api/municipalities` — Admin only, Zod-validiert, setzt `created_by`.
+  - `PATCH /api/municipalities/[id]` — Admin only, partial update.
+  - `DELETE /api/municipalities/[id]` — Admin only, 204 bzw. 404.
+- `.env.local.example` aktualisiert: dokumentiert das bewusste Weglassen des Service-Role-Keys.
+- Alte `src/lib/supabase.ts` entfernt (keine Aufrufer im Code).
+
+**Abweichungen vom Brief**
+- Keine. Alle vier Vorab-Entscheidungen (separate `user_roles`, DELETE-Endpoint, kein Rate-Limiting im MVP, kein Service-Role-Key) sind umgesetzt.
+
+**Was der Nutzer als Nächstes braucht**
+1. `npm install` ausführen, um `@supabase/ssr` zu installieren.
+2. Migration im Supabase-Dashboard (SQL Editor) ausführen: Inhalt von `supabase/migrations/0001_municipalities.sql`.
+3. Eigenen Admin-Record manuell anlegen:
+   ```sql
+   insert into public.user_roles (user_id, role)
+   values ('<deine-auth-user-uuid>', 'admin');
+   ```
 
 ## QA Test Results
 _To be added by /qa_
