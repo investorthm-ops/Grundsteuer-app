@@ -84,7 +84,67 @@ Eingeloggte Nutzer aller Pläne können kommunale Hebesätze (Grundsteuer A, Gru
 ---
 
 ## Tech Design (Solution Architect)
-_To be added by /architecture_
+**Erstellt:** 2026-05-04
+
+### Seitenstruktur & Komponenten
+```
+App (Next.js)
+│
+├── /login                          ← Login-Seite
+│
+├── /datenbank                      ← Geschützte Hauptseite (nur eingeloggt)
+│   ├── FilterLeiste
+│   │   ├── BundeslandAuswahl       ← Dropdown (16 Länder + "Alle")
+│   │   └── Suchfeld                ← Freitextsuche (Gemeindename)
+│   ├── HebesatzTabelle
+│   │   ├── Tabellenkopf            ← Gemeinde | Land | GrSt A | GrSt B | Vorjahr | Δ | GewSt | Stand | Status
+│   │   ├── Tabellenzeilen          ← 50/Seite, sortiert Bundesland → Gemeinde
+│   │   └── Leerzustand             ← "Noch nicht verfügbar" wenn keine Treffer
+│   ├── SeitenNavigation            ← Zurück / Weiter / Seitennummer
+│   └── AdminLink                   ← Nur für Admin-Nutzer sichtbar → führt zu /admin/datenbank
+│
+├── /admin/datenbank                ← Eigene Admin-Seite (nur Admin-Rolle)
+│   ├── DatensatzListe              ← Übersicht aller Einträge mit Bearbeiten/Löschen
+│   └── AdminFormular
+│       ├── Pflicht: Gemeindename, Bundesland, Grundsteuer B
+│       └── Optional: GrSt A, GewSt, Vorjahr B, Kreis, Quellenstatus, Datenstand
+│
+└── Middleware                      ← Prüft Session + Rolle:
+                                      /datenbank        → eingeloggt erforderlich
+                                      /admin/datenbank  → Admin-Rolle erforderlich
+```
+
+### Datenspeicherung
+**Wo:** Supabase PostgreSQL (zentral, kein localStorage)
+
+| Feld | Beschreibung | Pflicht |
+|---|---|---|
+| ID | Automatisch generiert | — |
+| Gemeindename | z.B. "Münster" | Ja |
+| Bundesland | z.B. "Nordrhein-Westfalen" | Ja |
+| Kreis | z.B. "Kreis Steinfurt" | Nein |
+| Grundsteuer A (%) | Hebesatz landwirtschaftliche Grundstücke | Nein |
+| Grundsteuer B (%) | Haupthebesatz Wohn-/Gewerbeimmobilien | Ja |
+| Gewerbesteuer (%) | Hebesatz Gewerbe | Nein |
+| Vorjahr Grundsteuer B | Vorjahreswert für Δ-Berechnung | Nein |
+| Datenstand | Jahr/Datum der Quelle | Nein |
+| Quellenstatus | "bestätigt" oder "offen" | Nein |
+| Zeitstempel | Erstellt / Geändert (automatisch) | — |
+
+**Sicherheit:** RLS direkt in der Datenbank — eingeloggte Nutzer dürfen lesen, nur Admins dürfen schreiben.
+
+### Tech-Entscheidungen
+| Entscheidung | Begründung |
+|---|---|
+| Supabase PostgreSQL | Bereits eingerichtet, bringt Auth + RLS |
+| Serverseitige Paginierung | 11.000+ Gemeinden bundesweit — alles laden wäre zu langsam |
+| Next.js Middleware für Auth | Schützt Routen server-seitig, bevor Seite geladen wird |
+| Admin-Bereich als eigene Seite (`/admin/datenbank`) | Klare Trennung Nutzer- vs. Admin-Workflow, eigene URL für Bookmarks, Listen-Übersicht hat Platz |
+| Δ-Berechnung im Frontend | Einfache Subtraktion, kein Datenbankjob nötig |
+| shadcn/ui Komponenten | Table, Select, Input, Dialog, Pagination bereits installiert |
+
+### Neues Paket
+- `@supabase/ssr` — Supabase-Auth für Next.js App Router (Server Components + Middleware)
 
 ## QA Test Results
 _To be added by /qa_
