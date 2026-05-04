@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grundsteuer-Monitor — Kunden-Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
+<style>
+:root {
+  --teal: #0A7B6C;
+  --teal-light: #0D9E8B;
+  --navy: #0D1B2A;
+  --gold: #D4A017;
+  --bg: #F4F7F6;
+  --card: #ffffff;
+  --text: #1E293B;
+  --muted: #64748B;
+  --border: #E2EAE8;
+  --positive: #16a34a;
+  --negative: #dc2626;
+  --gap: 16px;
+  --radius: 10px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
+
+/* HEADER */
+.header {
+  background: var(--navy);
+  padding: 16px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.header-left { display:flex; align-items:center; gap:14px; }
+.logo { font-size:20px; font-weight:700; color:#fff; letter-spacing:0.5px; }
+.logo span { color: var(--teal-light); }
+.badge { background: var(--teal); color:#fff; font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; letter-spacing:1px; }
+.header-right { display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+.filter-group { display:flex; align-items:center; gap:7px; }
+.filter-group label { font-size:12px; color:rgba(255,255,255,0.6); }
+.filter-group select {
+  padding:6px 10px; border:1px solid rgba(255,255,255,0.2);
+  border-radius:6px; background:rgba(255,255,255,0.1); color:#fff;
+  font-size:13px; cursor:pointer;
+}
+.filter-group select option { background: var(--navy); }
+.update-info { font-size:11px; color:rgba(255,255,255,0.45); }
+
+/* MAIN */
+.main { max-width:1400px; margin:0 auto; padding: var(--gap); }
+
+/* ALERT BANNER */
+.alert-banner {
+  background: linear-gradient(90deg, #0A7B6C15, #D4A01715);
+  border: 1px solid var(--teal);
+  border-left: 4px solid var(--gold);
+  border-radius: var(--radius);
+  padding: 12px 20px;
+  margin-bottom: var(--gap);
+  display:flex; align-items:center; gap:12px; font-size:13px; color: var(--text);
+}
+.alert-icon { font-size:18px; }
+
+/* KPI ROW */
+.kpi-row { display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: var(--gap); margin-bottom: var(--gap); }
+.kpi-card {
+  background: var(--card); border-radius: var(--radius);
+  padding:20px 22px; box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  border-top: 3px solid var(--teal);
+}
+.kpi-card.gold { border-top-color: var(--gold); }
+.kpi-card.alert { border-top-color: #ef4444; }
+.kpi-label { font-size:11px; color: var(--muted); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px; }
+.kpi-value { font-size:30px; font-weight:700; color: var(--text); margin-bottom:4px; }
+.kpi-sub { font-size:12px; color: var(--muted); }
+.kpi-change { font-size:12px; font-weight:600; margin-top:4px; }
+.up { color: var(--positive); }
+.down { color: var(--negative); }
+
+/* CHART ROW */
+.chart-row { display:grid; grid-template-columns: 2fr 1fr; gap: var(--gap); margin-bottom: var(--gap); }
+.chart-card {
+  background: var(--card); border-radius: var(--radius);
+  padding:20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+}
+.chart-card h3 { font-size:14px; font-weight:600; color: var(--text); margin-bottom:16px; }
+.chart-card canvas { max-height:280px; }
+
+/* TABLE */
+.table-card {
+  background: var(--card); border-radius: var(--radius);
+  padding:20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  margin-bottom: var(--gap); overflow-x:auto;
+}
+.table-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px; }
+.table-header h3 { font-size:14px; font-weight:600; }
+.search-box {
+  padding:6px 12px; border:1px solid var(--border); border-radius:6px;
+  font-size:13px; width:220px; outline:none;
+}
+.search-box:focus { border-color: var(--teal); }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+thead th {
+  text-align:left; padding:10px 12px;
+  border-bottom:2px solid var(--border);
+  color: var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:0.6px;
+  cursor:pointer; user-select:none; white-space:nowrap;
+}
+thead th:hover { color: var(--text); background:#f8fafa; }
+tbody td { padding:10px 12px; border-bottom:1px solid #f0f3f2; }
+tbody tr:hover { background:#f8fafa; }
+.trend-up { color: var(--negative); font-weight:600; }
+.trend-down { color: var(--positive); font-weight:600; }
+.trend-flat { color: var(--muted); }
+.tag {
+  display:inline-block; padding:2px 8px; border-radius:12px;
+  font-size:11px; font-weight:600; letter-spacing:0.3px;
+}
+.tag-new { background:#dcfce7; color:#15803d; }
+.tag-changed { background:#fef9c3; color:#a16207; }
+.tag-stable { background:#f1f5f9; color: var(--muted); }
+
+/* BOTTOM ROW */
+.bottom-row { display:grid; grid-template-columns:1fr 1fr; gap: var(--gap); margin-bottom: var(--gap); }
+
+/* FOOTER */
+.footer {
+  text-align:center; font-size:11px; color: var(--muted);
+  padding: 16px 0 8px; border-top:1px solid var(--border);
+}
+.footer strong { color: var(--teal); }
+
+/* EXPORT BTN */
+.btn {
+  padding:7px 16px; border:none; border-radius:6px; cursor:pointer;
+  font-size:13px; font-weight:600; transition:opacity 0.15s;
+}
+.btn:hover { opacity:0.85; }
+.btn-teal { background: var(--teal); color:#fff; }
+.btn-outline { background:transparent; border:1px solid var(--border); color: var(--text); }
+
+/* RESPONSIVE */
+@media(max-width:900px) {
+  .chart-row { grid-template-columns:1fr; }
+  .bottom-row { grid-template-columns:1fr; }
+}
+@media(max-width:600px) {
+  .kpi-row { grid-template-columns:1fr 1fr; }
+  .header { flex-direction:column; align-items:flex-start; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo">Grundsteuer<span>-Monitor</span></div>
+    <div class="badge">LIVE</div>
+  </div>
+  <div class="header-right">
+    <div class="filter-group">
+      <label>Bundesland</label>
+      <select id="filter-bl" onchange="applyFilter()">
+        <option value="alle">Alle Bundesländer</option>
+        <option value="NRW">Nordrhein-Westfalen</option>
+        <option value="Bayern">Bayern</option>
+        <option value="Baden-Württemberg">Baden-Württemberg</option>
+        <option value="Sachsen">Sachsen</option>
+        <option value="Niedersachsen">Niedersachsen</option>
+        <option value="Hessen">Hessen</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Trend</label>
+      <select id="filter-trend" onchange="applyFilter()">
+        <option value="alle">Alle</option>
+        <option value="gestiegen">Gestiegen</option>
+        <option value="gesunken">Gesunken</option>
+        <option value="neu">Neu 2025</option>
+      </select>
+    </div>
+    <div class="update-info">Zuletzt aktualisiert: heute, 06:15 Uhr</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ALERT -->
+  <div class="alert-banner">
+    <span class="alert-icon">⚠️</span>
+    <span><strong>3 neue Änderungen heute:</strong> München (+47 Punkte), Köln (+30 Punkte), Dresden (erstmalige Reform-Festsetzung). <a href="#" style="color:var(--teal);font-weight:600;">Direkt zur Änderungsübersicht ↓</a></span>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-label">Kommunen erfasst</div>
+      <div class="kpi-value" id="kpi-kommunen">—</div>
+      <div class="kpi-sub">von 11.014 gesamt</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Ø Hebesatz (B)</div>
+      <div class="kpi-value" id="kpi-avg">—</div>
+      <div class="kpi-change up" id="kpi-avg-change">—</div>
+    </div>
+    <div class="kpi-card gold">
+      <div class="kpi-label">Höchster Hebesatz</div>
+      <div class="kpi-value" id="kpi-max">—</div>
+      <div class="kpi-sub" id="kpi-max-name">—</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Niedrigster Hebesatz</div>
+      <div class="kpi-value" id="kpi-min">—</div>
+      <div class="kpi-sub" id="kpi-min-name">—</div>
+    </div>
+    <div class="kpi-card alert">
+      <div class="kpi-label">Änderungen heute</div>
+      <div class="kpi-value">3</div>
+      <div class="kpi-sub">+47 Kommunen diese Woche</div>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="chart-row">
+    <div class="chart-card">
+      <h3>Entwicklung Ø Hebesatz B — letzte 12 Monate</h3>
+      <canvas id="chart-trend"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Verteilung nach Hebesatz-Klassen</h3>
+      <canvas id="chart-dist"></canvas>
+    </div>
+  </div>
+
+  <!-- MAIN TABLE -->
+  <div class="table-card">
+    <div class="table-header">
+      <h3>Hebesatz-Datenbank <span style="color:var(--muted);font-weight:400;font-size:13px;" id="table-count"></span></h3>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="text" class="search-box" id="search-box" placeholder="🔍  Kommune suchen..." oninput="applyFilter()">
+        <button class="btn btn-teal" onclick="exportCSV()">⬇ CSV Export</button>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th onclick="sortTable('kommune')">Kommune ↕</th>
+          <th onclick="sortTable('bl')">Bundesland ↕</th>
+          <th onclick="sortTable('hebesatz_b')">Hebesatz B ↕</th>
+          <th onclick="sortTable('hebesatz_a')">Hebesatz A ↕</th>
+          <th onclick="sortTable('aenderung')">Änderung ↕</th>
+          <th onclick="sortTable('gueltig_ab')">Gültig ab ↕</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+    <div style="padding:12px 0 4px;font-size:12px;color:var(--muted);" id="table-footer"></div>
+  </div>
+
+  <!-- BOTTOM ROW -->
+  <div class="bottom-row">
+    <div class="chart-card">
+      <h3>Top 10 höchste Hebesätze (Grundsteuer B)</h3>
+      <canvas id="chart-top10"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Bundesland-Vergleich Ø Hebesatz B</h3>
+      <canvas id="chart-bl"></canvas>
+    </div>
+  </div>
+
+  <div class="footer">
+    <strong>Grundsteuer-Monitor</strong> — Alle Daten aus öffentlichen Quellen. Aktualisierung täglich 06:00 Uhr. |
+    Datenstand: <strong id="data-stand">25.03.2026</strong> |
+    Ihr Abo: <strong>Professional (5 Bundesländer)</strong>
+  </div>
+</div>
+
+<script>
+// ─── DEMO-DATEN ───────────────────────────────────────────────────
+const ALLE_DATEN = [
+  {kommune:"München",bl:"Bayern",hebesatz_b:835,hebesatz_a:310,aenderung:+47,gueltig_ab:"01.01.2025",status:"changed"},
+  {kommune:"Köln",bl:"NRW",hebesatz_b:730,hebesatz_a:280,aenderung:+30,gueltig_ab:"01.01.2025",status:"changed"},
+  {kommune:"Frankfurt am Main",bl:"Hessen",hebesatz_b:690,hebesatz_a:250,aenderung:+15,gueltig_ab:"01.01.2025",status:"changed"},
+  {kommune:"Hamburg",bl:"Hamburg",hebesatz_b:650,hebesatz_a:220,aenderung:0,gueltig_ab:"01.01.2025",status:"stable"},
+  {kommune:"Stuttgart",bl:"Baden-Württemberg",hebesatz_b:620,hebesatz_a:210,aenderung:+10,gueltig_ab:"01.01.2025",status:"changed"},
+  {kommune:"Düsseldorf",bl:"NRW",hebesatz_b:610,hebesatz_a:230,aenderung:0,gueltig_ab:"01.01.2025",status:"stable"},
+  {kommune:"Dortmund",bl:"NRW",hebesatz_b:860,hebesatz_a:240,aenderung:+60,gueltig_ab:"01.03.2025",status:"changed"},
+  {kommune:"Essen",bl:"NRW",hebesatz_b:790,hebesatz_a:250,aenderung:+40,gueltig_ab:"01.01.2025",status:"changed"},
+  {kommune:"Leipzig",bl:"Sachsen",hebesatz_b:650,hebesatz_a:300,aenderung:+20,gueltig_ab:"01.01.2025",status:"changed"},
+  {kommune:"Dresden",bl:"Sachsen",hebesatz_b:640,hebesatz_a:290,aenderung:0,gueltig_ab:"01.01.2025",status:"new"},
+  {kommune:"Hannover",bl:"Niedersachsen",hebesatz_b:600,hebesatz_a:220,aenderung:+5,gueltig_ab:"01.01.2025",status:"stable"},
+  {kommune:"Nürnberg",bl:"Bayern",hebesatz_b:555,hebesatz_a:200,aenderung:0,gueltig_ab:"01.01.2025",status:"stable"},
+  {kommune:"Augsburg",bl:"Bayern",hebesatz_b:540,hebesatz_a:195,aenderung:-10,gueltig_ab:"01.01.2025",status:"changed"},
+  {kommune:"Wiesbaden",bl:"Hessen",hebesatz_b:515,hebesatz_a:185,aenderung:0,gueltig_ab:"01.01.2025",status:"stable"},
+  {kommune:"Münster",bl:"NRW",hebesatz_b:490,hebesatz_a:190,aenderung:+5,gueltig_ab:"01.01.2025",status:"stable"},
+  {kommune:"Karlsruhe",bl:"Baden-Württemberg",hebesatz_b:480,hebesatz_a:175,aenderung:0,gueltig_ab:"01.01.2025",status:"stable"},
+  {kommune:"Mannheim",bl:"Baden-Württemberg",hebesatz_b:475,hebesatz_a:170,aenderung:+25,gueltig_ab:"01.02.2025",status:"changed"},
+  {kommune:"Bonn",bl:"NRW",hebesatz_b:600,hebesatz_a:200,aenderung:+20,gueltig_ab:"01.01.2025",status:"changed"},
+  {kommune:"Bochum",bl:"NRW",hebesatz_b:855,hebesatz_a:255,aenderung:+55,gueltig_ab:"01.01.2025",status:"changed"},
+  {kommune:"Wuppertal",bl:"NRW",hebesatz_b:880,hebesatz_a:260,aenderung:+80,gueltig_ab:"01.01.2025",status:"changed"},
+  {kommune:"Bielefeld",bl:"NRW",hebesatz_b:590,hebesatz_a:210,aenderung:0,gueltig_ab:"01.01.2025",status:"stable"},
+  {kommune:"Ingolstadt",bl:"Bayern",hebesatz_b:390,hebesatz_a:150,aenderung:-5,gueltig_ab:"01.01.2025",status:"changed"},
+  {kommune:"Regensburg",bl:"Bayern",hebesatz_b:430,hebesatz_a:160,aenderung:0,gueltig_ab:"01.01.2025",status:"stable"},
+  {kommune:"Chemnitz",bl:"Sachsen",hebesatz_b:620,hebesatz_a:270,aenderung:+15,gueltig_ab:"01.01.2025",status:"changed"},
+  {kommune:"Erfurt",bl:"Thüringen",hebesatz_b:560,hebesatz_a:240,aenderung:+10,gueltig_ab:"01.01.2025",status:"stable"},
+  {kommune:"Kassel",bl:"Hessen",hebesatz_b:580,hebesatz_a:220,aenderung:+20,gueltig_ab:"01.01.2025",status:"changed"},
+  {kommune:"Freiburg",bl:"Baden-Württemberg",hebesatz_b:500,hebesatz_a:180,aenderung:0,gueltig_ab:"01.01.2025",status:"stable"},
+  {kommune:"Heidelberg",bl:"Baden-Württemberg",hebesatz_b:490,hebesatz_a:175,aenderung:0,gueltig_ab:"01.01.2025",status:"stable"},
+  {kommune:"Braunschweig",bl:"Niedersachsen",hebesatz_b:570,hebesatz_a:200,aenderung:+10,gueltig_ab:"01.01.2025",status:"changed"},
+  {kommune:"Oberhausen",bl:"NRW",hebesatz_b:840,hebesatz_a:245,aenderung:+40,gueltig_ab:"01.01.2025",status:"changed"},
+];
+
+// ─── TRENDVERLAUF (12 Monate) ─────────────────────────────────────
+const TREND_LABELS = ["Apr'25","Mai'25","Jun'25","Jul'25","Aug'25","Sep'25","Okt'25","Nov'25","Dez'25","Jan'26","Feb'26","Mär'26"];
+const TREND_NRW    = [620,625,630,635,640,650,660,670,680,690,700,712];
+const TREND_BY     = [410,415,418,420,425,428,430,435,440,445,450,458];
+const TREND_BW     = [390,392,395,395,400,402,405,408,410,412,415,418];
+const TREND_GESAMT = [480,484,487,490,495,499,504,509,514,519,524,530];
+
+// ─── STATE ────────────────────────────────────────────────────────
+let filteredData = [...ALLE_DATEN];
+let sortCol = "hebesatz_b";
+let sortDir = "desc";
+let charts = {};
+
+// ─── FILTER ──────────────────────────────────────────────────────
+function applyFilter() {
+  const bl = document.getElementById("filter-bl").value;
+  const trend = document.getElementById("filter-trend").value;
+  const search = document.getElementById("search-box").value.toLowerCase();
+
+  filteredData = ALLE_DATEN.filter(d => {
+    if (bl !== "alle" && d.bl !== bl) return false;
+    if (trend === "gestiegen" && d.aenderung <= 0) return false;
+    if (trend === "gesunken" && d.aenderung >= 0) return false;
+    if (trend === "neu" && d.status !== "new") return false;
+    if (search && !d.kommune.toLowerCase().includes(search) && !d.bl.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  renderKPIs();
+  renderTable();
+  updateCharts();
+}
+
+// ─── KPIs ─────────────────────────────────────────────────────────
+function renderKPIs() {
+  const data = filteredData.length ? filteredData : ALLE_DATEN;
+  const avg = Math.round(data.reduce((s,d)=>s+d.hebesatz_b,0)/data.length);
+  const maxD = data.reduce((a,b)=>a.hebesatz_b>b.hebesatz_b?a:b);
+  const minD = data.reduce((a,b)=>a.hebesatz_b<b.hebesatz_b?a:b);
+
+  document.getElementById("kpi-kommunen").textContent = data.length.toLocaleString("de");
+  document.getElementById("kpi-avg").textContent = avg + " %";
+  document.getElementById("kpi-avg-change").textContent = "▲ +28 Pkt. seit Jan 2025";
+  document.getElementById("kpi-max").textContent = maxD.hebesatz_b + " %";
+  document.getElementById("kpi-max-name").textContent = maxD.kommune;
+  document.getElementById("kpi-min").textContent = minD.hebesatz_b + " %";
+  document.getElementById("kpi-min-name").textContent = minD.kommune;
+}
+
+// ─── TABLE ────────────────────────────────────────────────────────
+function renderTable() {
+  const sorted = [...filteredData].sort((a,b) => {
+    const av = a[sortCol], bv = b[sortCol];
+    const cmp = av < bv ? -1 : av > bv ? 1 : 0;
+    return sortDir === "asc" ? cmp : -cmp;
+  });
+
+  const show = sorted.slice(0, 100);
+  const tbody = document.getElementById("table-body");
+  tbody.innerHTML = show.map(d => {
+    const aendSign = d.aenderung > 0 ? "+" : "";
+    const aendClass = d.aenderung > 0 ? "trend-up" : d.aenderung < 0 ? "trend-down" : "trend-flat";
+    const statusTag = d.status === "new"
+      ? '<span class="tag tag-new">NEU 2025</span>'
+      : d.status === "changed"
+      ? '<span class="tag tag-changed">GEÄNDERT</span>'
+      : '<span class="tag tag-stable">Stabil</span>';
+    return `<tr>
+      <td><strong>${d.kommune}</strong></td>
+      <td>${d.bl}</td>
+      <td><strong>${d.hebesatz_b} %</strong></td>
+      <td>${d.hebesatz_a} %</td>
+      <td class="${aendClass}">${aendSign}${d.aenderung} Pkt.</td>
+      <td>${d.gueltig_ab}</td>
+      <td>${statusTag}</td>
+    </tr>`;
+  }).join("");
+
+  document.getElementById("table-count").textContent = `(${filteredData.length} Kommunen)`;
+  document.getElementById("table-footer").textContent =
+    filteredData.length > 100
+      ? `Zeige 100 von ${filteredData.length} Ergebnissen. Nutze Filter oder Suche um einzugrenzen.`
+      : `${filteredData.length} Kommunen angezeigt.`;
+}
+
+function sortTable(col) {
+  if (sortCol === col) sortDir = sortDir === "asc" ? "desc" : "asc";
+  else { sortCol = col; sortDir = "desc"; }
+  renderTable();
+}
+
+// ─── CHARTS ──────────────────────────────────────────────────────
+function initCharts() {
+  // Trendlinie
+  const ctx1 = document.getElementById("chart-trend").getContext("2d");
+  charts.trend = new Chart(ctx1, {
+    type: "line",
+    data: {
+      labels: TREND_LABELS,
+      datasets: [
+        { label:"NRW", data:TREND_NRW, borderColor:"#EF4444", backgroundColor:"#EF444415", borderWidth:2, fill:false, tension:0.3, pointRadius:3 },
+        { label:"Bayern", data:TREND_BY, borderColor:"#3B82F6", backgroundColor:"#3B82F615", borderWidth:2, fill:false, tension:0.3, pointRadius:3 },
+        { label:"Baden-Württ.", data:TREND_BW, borderColor:"#10B981", backgroundColor:"#10B98115", borderWidth:2, fill:false, tension:0.3, pointRadius:3 },
+        { label:"Ø Gesamt", data:TREND_GESAMT, borderColor:"#0A7B6C", backgroundColor:"#0A7B6C20", borderWidth:3, fill:true, tension:0.3, pointRadius:3, borderDash:[5,3] },
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:"index", intersect:false },
+      plugins:{ legend:{ position:"top", labels:{ usePointStyle:true, padding:16, font:{size:11} } } },
+      scales:{
+        x:{ grid:{display:false}, ticks:{font:{size:11}} },
+        y:{ beginAtZero:false, min:350,
+          ticks:{ callback:v=>v+" %", font:{size:11} },
+          grid:{ color:"#E2EAE8" }
+        }
+      }
+    }
+  });
+
+  // Verteilung
+  const klassen = ["< 300 %","300–400 %","400–500 %","500–600 %","600–700 %","700–900 %","> 900 %"];
+  const counts = [1, 3, 6, 8, 7, 4, 1];
+  const ctx2 = document.getElementById("chart-dist").getContext("2d");
+  charts.dist = new Chart(ctx2, {
+    type: "doughnut",
+    data: {
+      labels: klassen,
+      datasets: [{ data:counts,
+        backgroundColor:["#DCFCE7","#BBF7D0","#6EE7B7","#0D9E8B","#0A7B6C","#D4A017","#EF4444"],
+        borderColor:"#fff", borderWidth:2
+      }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false, cutout:"55%",
+      plugins:{ legend:{ position:"right", labels:{ font:{size:11}, padding:10 } } }
+    }
+  });
+
+  // Top 10
+  const top10 = [...ALLE_DATEN].sort((a,b)=>b.hebesatz_b-a.hebesatz_b).slice(0,10);
+  const ctx3 = document.getElementById("chart-top10").getContext("2d");
+  charts.top10 = new Chart(ctx3, {
+    type:"bar",
+    data:{
+      labels: top10.map(d=>d.kommune),
+      datasets:[{ label:"Hebesatz B", data:top10.map(d=>d.hebesatz_b),
+        backgroundColor: top10.map(d => d.hebesatz_b > 800 ? "#EF444499" : "#0A7B6C99"),
+        borderColor: top10.map(d => d.hebesatz_b > 800 ? "#EF4444" : "#0A7B6C"),
+        borderWidth:1, borderRadius:4
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false, indexAxis:"y",
+      plugins:{ legend:{display:false} },
+      scales:{
+        x:{ beginAtZero:false, min:400, ticks:{ callback:v=>v+" %", font:{size:11} }, grid:{color:"#E2EAE8"} },
+        y:{ ticks:{font:{size:11}} }
+      }
+    }
+  });
+
+  // BL-Vergleich
+  const blData = [
+    {bl:"NRW", avg:712}, {bl:"Bayern", avg:458}, {bl:"Baden-Württ.", avg:418},
+    {bl:"Hessen", avg:595}, {bl:"Sachsen", avg:637}, {bl:"Niedersachsen", avg:585},
+  ];
+  const ctx4 = document.getElementById("chart-bl").getContext("2d");
+  charts.bl = new Chart(ctx4, {
+    type:"bar",
+    data:{
+      labels: blData.map(d=>d.bl),
+      datasets:[{ label:"Ø Hebesatz B", data:blData.map(d=>d.avg),
+        backgroundColor:"#0D9E8B99", borderColor:"#0A7B6C", borderWidth:1, borderRadius:4
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{
+        y:{ beginAtZero:false, min:300, ticks:{callback:v=>v+" %", font:{size:11}}, grid:{color:"#E2EAE8"} },
+        x:{ ticks:{font:{size:11}}, grid:{display:false} }
+      }
+    }
+  });
+}
+
+function updateCharts() {
+  // Aktualisiert Top-10 nach Filter
+  const top10 = [...filteredData].sort((a,b)=>b.hebesatz_b-a.hebesatz_b).slice(0,10);
+  if (charts.top10) {
+    charts.top10.data.labels = top10.map(d=>d.kommune);
+    charts.top10.data.datasets[0].data = top10.map(d=>d.hebesatz_b);
+    charts.top10.data.datasets[0].backgroundColor = top10.map(d=>d.hebesatz_b>800?"#EF444499":"#0A7B6C99");
+    charts.top10.data.datasets[0].borderColor = top10.map(d=>d.hebesatz_b>800?"#EF4444":"#0A7B6C");
+    charts.top10.update("none");
+  }
+}
+
+// ─── CSV EXPORT ──────────────────────────────────────────────────
+function exportCSV() {
+  const rows = [["Kommune","Bundesland","Hebesatz B (%)","Hebesatz A (%)","Änderung (Pkt.)","Gültig ab","Status"]];
+  filteredData.forEach(d => rows.push([d.kommune,d.bl,d.hebesatz_b,d.hebesatz_a,d.aenderung,d.gueltig_ab,d.status]));
+  const csv = rows.map(r=>r.join(";")).join("\n");
+  const blob = new Blob(["\uFEFF"+csv], {type:"text/csv;charset=utf-8;"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+  a.download = "grundsteuer-monitor-export.csv"; a.click();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────
+renderKPIs();
+renderTable();
+initCharts();
+</script>
+</body>
+</html>

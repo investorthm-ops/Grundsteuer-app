@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grundsteuer-Monitor MVP</title>
+<style>
+:root {
+  --ink: #18201e;
+  --muted: #66736f;
+  --line: #dbe5e1;
+  --paper: #fbfaf7;
+  --panel: #ffffff;
+  --panel-soft: #f2f6f3;
+  --green: #126756;
+  --green-2: #0b8a6e;
+  --mint: #d7efe5;
+  --amber: #b97913;
+  --red: #ba3a2d;
+  --blue: #2e5f92;
+  --shadow: 0 18px 45px rgba(22, 32, 30, 0.08);
+  --radius: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background:
+    linear-gradient(90deg, rgba(18, 103, 86, 0.04) 1px, transparent 1px),
+    linear-gradient(rgba(18, 103, 86, 0.035) 1px, transparent 1px),
+    var(--paper);
+  background-size: 32px 32px;
+  font-family: "Segoe UI", "Aptos", sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.app {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 248px 1fr;
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 22px 18px;
+  background: #111b18;
+  color: #f7fbf8;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.brand {
+  display: grid;
+  gap: 8px;
+}
+
+.brand-mark {
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(145deg, rgba(215,239,229,0.16), rgba(255,255,255,0.03));
+  font-weight: 800;
+}
+
+.brand h1 {
+  font-size: 20px;
+  line-height: 1.08;
+  margin: 0;
+  letter-spacing: 0;
+}
+
+.brand p {
+  margin: 0;
+  color: rgba(255,255,255,0.63);
+  font-size: 12px;
+}
+
+.nav {
+  display: grid;
+  gap: 6px;
+}
+
+.nav button {
+  min-height: 42px;
+  border: 0;
+  border-radius: 7px;
+  color: rgba(255,255,255,0.78);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  text-align: left;
+}
+
+.nav button:hover,
+.nav button.active {
+  color: #fff;
+  background: rgba(255,255,255,0.11);
+}
+
+.nav svg,
+.icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+}
+
+.sidebar-card {
+  margin-top: auto;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.76);
+  background: rgba(255,255,255,0.05);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.main {
+  min-width: 0;
+  padding: 22px clamp(18px, 3vw, 34px) 40px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.page-title {
+  display: grid;
+  gap: 3px;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--green);
+  font-weight: 800;
+}
+
+h2 {
+  margin: 0;
+  font-size: clamp(25px, 3vw, 40px);
+  line-height: 1.04;
+  letter-spacing: 0;
+}
+
+.top-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.btn {
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--ink);
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.btn.primary {
+  border-color: var(--green);
+  background: var(--green);
+  color: #fff;
+}
+
+.btn.danger {
+  border-color: rgba(186,58,45,0.35);
+  color: var(--red);
+}
+
+.btn:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 3px solid rgba(11, 138, 110, 0.16);
+  outline-offset: 1px;
+}
+
+.status-strip {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.6fr);
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.notice,
+.health {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.notice {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.notice strong {
+  display: block;
+  margin-bottom: 3px;
+}
+
+.notice p,
+.health p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.health {
+  display: grid;
+  gap: 10px;
+}
+
+.health-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--green-2);
+  display: inline-block;
+  margin-right: 7px;
+}
+
+.view {
+  display: none;
+}
+
+.view.active {
+  display: grid;
+  gap: 16px;
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(160px, 1fr));
+  gap: 14px;
+}
+
+.kpi,
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.kpi {
+  min-height: 128px;
+  padding: 17px;
+  display: grid;
+  align-content: space-between;
+  gap: 12px;
+}
+
+.kpi small {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 800;
+}
+
+.kpi strong {
+  font-size: 33px;
+  line-height: 1;
+}
+
+.kpi span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.7fr);
+  gap: 14px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.panel {
+  padding: 16px;
+  min-width: 0;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.panel h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.panel-sub {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.5fr) repeat(4, minmax(150px, 1fr));
+  gap: 10px;
+  align-items: end;
+}
+
+.field {
+  display: grid;
+  gap: 5px;
+}
+
+.field label {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--ink);
+  min-height: 38px;
+  padding: 8px 10px;
+}
+
+textarea {
+  min-height: 170px;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.table-wrap {
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: #fff;
+}
+
+th,
+td {
+  padding: 11px 10px;
+  border-bottom: 1px solid #edf2ef;
+  text-align: left;
+  white-space: nowrap;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  background: #f7faf8;
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  z-index: 1;
+}
+
+tbody tr:hover {
+  background: #f7faf8;
+}
+
+.numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.tag.changed {
+  color: #7b4c08;
+  background: #fff0c9;
+}
+
+.tag.new {
+  color: #0c684c;
+  background: #d9f5e9;
+}
+
+.tag.stable {
+  color: #56635f;
+  background: #eef3f1;
+}
+
+.tag.watch {
+  color: #8f271f;
+  background: #ffe2dc;
+}
+
+.tag.source {
+  color: #214e78;
+  background: #e2eef9;
+}
+
+.trend-up {
+  color: var(--red);
+  font-weight: 800;
+}
+
+.trend-down {
+  color: var(--green);
+  font-weight: 800;
+}
+
+.trend-flat {
+  color: var(--muted);
+}
+
+.chart-box {
+  width: 100%;
+  min-height: 285px;
+  position: relative;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 285px;
+}
+
+.mini-list {
+  display: grid;
+  gap: 8px;
+}
+
+.mini-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}
+
+.mini-item strong {
+  display: block;
+  font-size: 13px;
+}
+
+.mini-item span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.help {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.7fr);
+  gap: 14px;
+}
+
+.empty {
+  border: 1px dashed var(--line);
+  border-radius: 7px;
+  padding: 18px;
+  color: var(--muted);
+  background: #fff;
+}
+
+.roadmap {
+  display: grid;
+  gap: 10px;
+}
+
+.roadmap-row {
+  display: grid;
+  grid-template-columns: 120px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+}
+
+.roadmap-row strong {
+  font-size: 14px;
+}
+
+.roadmap-row p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.toast {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  max-width: 360px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #111b18;
+  color: #fff;
+  box-shadow: var(--shadow);
+  transform: translateY(18px);
+  opacity: 0;
+  pointer-events: none;
+  transition: 160ms ease;
+  z-index: 10;
+  font-size: 13px;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 1100px) {
+  .app {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .nav {
+    grid-template-columns: repeat(3, minmax(150px, 1fr));
+    flex: 1;
+  }
+
+  .sidebar-card {
+    display: none;
+  }
+
+  .kpis,
+  .grid-3,
+  .filters,
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .status-strip,
+  .grid-2,
+  .split {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .main {
+    padding: 16px 12px 32px;
+  }
+
+  .topbar,
+  .panel-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .top-actions {
+    justify-content: stretch;
+  }
+
+  .btn {
+    justify-content: center;
+  }
+
+  .kpis,
+  .grid-3,
+  .filters,
+  .form-grid,
+  .nav {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    padding: 16px 12px;
+  }
+
+  .roadmap-row {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">GM</div>
+      <div>
+        <h1>Grundsteuer-Monitor</h1>
+        <p>Lokale MVP-Version fuer Test, Datenpflege und Kundenlogik</p>
+      </div>
+    </div>
+    <nav class="nav" aria-label="Hauptnavigation">
+      <button class="active" data-view="dashboard" type="button" title="Dashboard">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 13h6V4H4v9Zm10 7h6V4h-6v16ZM4 20h6v-3H4v3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        Dashboard
+      </button>
+      <button data-view="database" type="button" title="Datenbank">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3Zm0 0v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6" stroke="currentColor" stroke-width="1.8"/></svg>
+        Datenbank
+      </button>
+      <button data-view="import" type="button" title="Import">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Import
+      </button>
+      <button data-view="watchlist" type="button" title="Beobachtung">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6Zm8 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="1.8"/></svg>
+        Beobachtung
+      </button>
+      <button data-view="customer" type="button" title="Kundenansicht">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 11a4 4 0 1 1 8 0 4 4 0 0 1-8 0Zm-3 10c.8-4 3.5-6 7-6s6.2 2 7 6M17 5h3m-1.5-1.5v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Kundenansicht
+      </button>
+      <button data-view="roadmap" type="button" title="Roadmap">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 19V5m0 0 5 2 5-2 4 2v12l-4-2-5 2-5-2m5-10v12m5-14v12" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        Roadmap
+      </button>
+    </nav>
+    <div class="sidebar-card">
+      <strong>MVP-Ziel</strong><br>
+      Datensatz pflegen, Aenderungen erkennen, Kundenfilter testen und Export pruefen. Alles bleibt lokal im Browser.
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="page-title">
+        <p class="eyebrow">MVP 0.1 / lokal</p>
+        <h2 id="view-title">Kommunale Hebesaetze im Blick</h2>
+      </div>
+      <div class="top-actions">
+        <button class="btn" id="reset-demo" type="button" title="Testdaten wiederherstellen">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 8a8 8 0 1 1 .7 8.2M5 8V3m0 5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Demo resetten
+        </button>
+        <button class="btn" id="export-json" type="button" title="JSON exportieren">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          JSON
+        </button>
+        <button class="btn primary" id="export-csv" type="button" title="CSV exportieren">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3h7l5 5v13H7V3Zm7 0v5h5M4 7v14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          CSV Export
+        </button>
+      </div>
+    </div>
+
+    <section class="status-strip" aria-label="Status">
+      <div class="notice">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 2.8 20h18.4L12 3Zm0 6v5m0 3h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <p><strong id="alert-title">Aenderungsradar aktiv</strong><span id="alert-text">Die hoechsten Spruenge im aktuellen Filter werden automatisch hervorgehoben. Fuer echte Daten kannst du CSV importieren oder einzelne Kommunen manuell pflegen.</span></p>
+      </div>
+      <div class="health">
+        <div class="health-row"><span><span class="dot"></span>Speicher</span><strong id="storage-status">lokal</strong></div>
+        <p id="storage-note">Aenderungen werden im Browser dieses Rechners gespeichert.</p>
+      </div>
+    </section>
+
+    <section class="view active" id="view-dashboard">
+      <div class="kpis">
+        <article class="kpi"><small>Kommunen</small><strong id="kpi-count">0</strong><span id="kpi-count-sub">im Filter</span></article>
+        <article class="kpi"><small>Durchschnitt B</small><strong id="kpi-average">0 %</strong><span id="kpi-average-sub">Grundsteuer B</span></article>
+        <article class="kpi"><small>Groesster Anstieg</small><strong id="kpi-jump">0</strong><span id="kpi-jump-sub">Punkte</span></article>
+        <article class="kpi"><small>Quellen offen</small><strong id="kpi-open">0</strong><span>brauchen Pruefung</span></article>
+      </div>
+
+      <div class="panel">
+        <div class="filters">
+          <div class="field">
+            <label for="search">Suche</label>
+            <input id="search" type="search" placeholder="Kommune, Kreis oder Quelle">
+          </div>
+          <div class="field">
+            <label for="state-filter">Bundesland</label>
+            <select id="state-filter"></select>
+          </div>
+          <div class="field">
+            <label for="status-filter">Status</label>
+            <select id="status-filter">
+              <option value="all">Alle</option>
+              <option value="changed">Geaendert</option>
+              <option value="new">Neu</option>
+              <option value="stable">Stabil</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="risk-filter">Hebesatz B</label>
+            <select id="risk-filter">
+              <option value="all">Alle Klassen</option>
+              <option value="low">unter 450 %</option>
+              <option value="medium">450 bis 699 %</option>
+              <option value="high">ab 700 %</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="sort-filter">Sortierung</label>
+            <select id="sort-filter">
+              <option value="change_desc">Aenderung absteigend</option>
+              <option value="b_desc">Hebesatz B absteigend</option>
+              <option value="b_asc">Hebesatz B aufsteigend</option>
+              <option value="name_asc">Kommune A-Z</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>Entwicklung nach Bundesland</h3>
+              <p class="panel-sub">Durchschnittlicher Hebesatz B je Bundesland im gefilterten Datensatz.</p>
+            </div>
+          </div>
+          <div class="chart-box"><canvas id="state-chart" width="900" height="330"></canvas></div>
+        </article>
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>Aenderungen</h3>
+              <p class="panel-sub">Die wichtigsten Bewegungen fuer schnelle Kundenhinweise.</p>
+            </div>
+          </div>
+          <div class="mini-list" id="change-list"></div>
+        </article>
+      </div>
+
+      <div class="grid-2">
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>Top-Hebesaetze</h3>
+              <p class="panel-sub">Kommunen mit hohem Hebesatz B.</p>
+            </div>
+          </div>
+          <div class="chart-box"><canvas id="top-chart" width="900" height="330"></canvas></div>
+        </article>
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>Verteilung</h3>
+              <p class="panel-sub">Klassen fuer Segmentierung und Preislogik.</p>
+            </div>
+          </div>
+          <div class="chart-box"><canvas id="dist-chart" width="520" height="330"></canvas></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="view" id="view-database">
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <h3>Datenbank</h3>
+            <p class="panel-sub"><span id="table-count">0</span> Eintraege. Klick auf Beobachten markiert relevante Kommunen.</p>
+          </div>
+          <button class="btn primary" id="save-record" type="button">Datensatz speichern</button>
+        </div>
+        <div class="form-grid" aria-label="Datensatz bearbeiten">
+          <div class="field"><label for="form-name">Kommune</label><input id="form-name" placeholder="z. B. Koeln"></div>
+          <div class="field"><label for="form-state">Bundesland</label><input id="form-state" placeholder="NRW"></div>
+          <div class="field"><label for="form-county">Kreis</label><input id="form-county" placeholder="kreisfrei"></div>
+          <div class="field"><label for="form-year">Jahr</label><input id="form-year" type="number" min="2024" max="2035" value="2026"></div>
+          <div class="field"><label for="form-a">Hebesatz A</label><input id="form-a" type="number" min="0" step="1"></div>
+          <div class="field"><label for="form-b">Hebesatz B</label><input id="form-b" type="number" min="0" step="1"></div>
+          <div class="field"><label for="form-prev-b">Vorjahr B</label><input id="form-prev-b" type="number" min="0" step="1"></div>
+          <div class="field"><label for="form-valid">Gueltig ab</label><input id="form-valid" placeholder="01.01.2026"></div>
+          <div class="field"><label for="form-status">Status</label><select id="form-status"><option value="stable">Stabil</option><option value="changed">Geaendert</option><option value="new">Neu</option></select></div>
+          <div class="field"><label for="form-source">Quelle</label><input id="form-source" placeholder="Amtsblatt / Ratsinfo / Satzung"></div>
+          <div class="field"><label for="form-source-status">Quellenstatus</label><select id="form-source-status"><option value="checked">geprueft</option><option value="open">offen</option></select></div>
+          <div class="field"><label for="form-customer">Kundengruppe</label><select id="form-customer"><option value="basic">Basic</option><option value="professional">Professional</option><option value="enterprise">Enterprise</option></select></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn" id="clear-form" type="button">Formular leeren</button>
+          <span class="help" id="edit-note">Neue Eintraege bekommen automatisch eine lokale ID.</span>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <h3>Gefilterte Treffer</h3>
+            <p class="panel-sub">Diese Tabelle nutzt dieselben Filter wie das Dashboard.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Kommune</th>
+                <th>Bundesland</th>
+                <th>Kreis</th>
+                <th class="numeric">A</th>
+                <th class="numeric">B</th>
+                <th class="numeric">Aenderung</th>
+                <th>Gueltig ab</th>
+                <th>Status</th>
+                <th>Quelle</th>
+                <th>Aktion</th>
+              </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <section class="view" id="view-import">
+      <div class="split">
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>CSV importieren</h3>
+              <p class="panel-sub">Spalten: kommune, bundesland, kreis, jahr, hebesatz_a, hebesatz_b, vorjahr_b, gueltig_ab, status, quelle, quellenstatus, kundengruppe.</p>
+            </div>
+          </div>
+          <div class="field">
+            <label for="csv-file">CSV-Datei</label>
+            <input id="csv-file" type="file" accept=".csv,text/csv">
+          </div>
+          <div class="field" style="margin-top:10px;">
+            <label for="csv-text">oder CSV hier einfuegen</label>
+            <textarea id="csv-text" spellcheck="false">kommune;bundesland;kreis;jahr;hebesatz_a;hebesatz_b;vorjahr_b;gueltig_ab;status;quelle;quellenstatus;kundengruppe
+Musterstadt;NRW;Rhein-Kreis;2026;250;640;610;01.01.2026;changed;Ratsbeschluss;open;professional</textarea>
+          </div>
+          <div class="form-actions">
+            <button class="btn primary" id="import-csv" type="button">CSV uebernehmen</button>
+            <button class="btn" id="append-sample" type="button">Beispieldaten einfuegen</button>
+          </div>
+        </article>
+
+        <article class="panel">
+          <h3>Import-Regeln fuer das MVP</h3>
+          <p class="help">Der Import ersetzt keine bestehenden Eintraege. Er fuegt neue Zeilen hinzu und berechnet die Aenderung aus Hebesatz B minus Vorjahr B. Fuer die naechste Stufe waere eine Dublettenlogik nach Kommune, Bundesland und Jahr sinnvoll.</p>
+          <div class="mini-list" style="margin-top:12px;">
+            <div class="mini-item"><div><strong>Minimum</strong><span>Kommune, Bundesland und Hebesatz B</span></div><span class="tag source">Pflicht</span></div>
+            <div class="mini-item"><div><strong>Qualitaet</strong><span>Quelle und Quellenstatus machen den Dienst verkaufbar.</span></div><span class="tag source">wichtig</span></div>
+            <div class="mini-item"><div><strong>Kundenlogik</strong><span>Kundengruppe steuert spaeter den Abo-Zugriff.</span></div><span class="tag source">MVP</span></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="view" id="view-watchlist">
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <h3>Beobachtungsliste</h3>
+            <p class="panel-sub">Kommunen, die du fuer Tests oder Kunden dauerhaft im Blick behalten willst.</p>
+          </div>
+        </div>
+        <div id="watchlist-content"></div>
+      </article>
+    </section>
+
+    <section class="view" id="view-customer">
+      <div class="grid-3">
+        <article class="panel">
+          <h3>Basic</h3>
+          <p class="panel-sub">Nur eigene Favoriten und CSV-Export.</p>
+          <div class="mini-list" id="plan-basic"></div>
+        </article>
+        <article class="panel">
+          <h3>Professional</h3>
+          <p class="panel-sub">Bundesland-Filter, Aenderungsradar und Quellenstatus.</p>
+          <div class="mini-list" id="plan-professional"></div>
+        </article>
+        <article class="panel">
+          <h3>Enterprise</h3>
+          <p class="panel-sub">Alle Daten, API-Logik und individuelle Beobachtungslisten.</p>
+          <div class="mini-list" id="plan-enterprise"></div>
+        </article>
+      </div>
+      <article class="panel">
+        <h3>Kundenansicht testen</h3>
+        <p class="help">Diese Ansicht prueft, ob deine Daten spaeter gut in Abo-Pakete aufgeteilt werden koennen. Noch ist es keine echte Zugangskontrolle, sondern eine lokale Produktsimulation.</p>
+      </article>
+    </section>
+
+    <section class="view" id="view-roadmap">
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <h3>Roadmap zum bezahlbaren Produkt</h3>
+            <p class="panel-sub">Pragmatische Reihenfolge: erst Datenqualitaet, dann Produktlogik, dann Vertrieb.</p>
+          </div>
+        </div>
+        <div class="roadmap">
+          <div class="roadmap-row"><strong>Jetzt</strong><div><strong>Lokales MVP testen</strong><p>Daten eintragen, CSV importieren, Export pruefen, Kundenpakete simulieren.</p></div><span class="tag new">aktiv</span></div>
+          <div class="roadmap-row"><strong>Naechst</strong><div><strong>Datenpipeline definieren</strong><p>Quellenliste, Pruefstatus, Aenderungsprotokoll und Dublettenregeln festlegen.</p></div><span class="tag changed">MVP+</span></div>
+          <div class="roadmap-row"><strong>Danach</strong><div><strong>Cloud-Prototyp</strong><p>Login, Mandanten, Zahlung, Rollen und automatische Aktualisierung planen.</p></div><span class="tag stable">Produkt</span></div>
+          <div class="roadmap-row"><strong>Vertrieb</strong><div><strong>Erste Zielgruppen testen</strong><p>Hausverwaltungen, Steuerberater, Immobilienbestandshalter und Kommunalberater ansprechen.</p></div><span class="tag source">Go-to-market</span></div>
+        </div>
+      </article>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const STORAGE_KEY = "grundsteuer-monitor-mvp-v1";
+const WATCH_KEY = "grundsteuer-monitor-watchlist-v1";
+
+const seedData = [
+  {id:"gm-001",kommune:"M\u00fcnchen",bundesland:"Bayern",kreis:"kreisfrei",jahr:2026,hebesatz_a:310,hebesatz_b:835,vorjahr_b:788,gueltig_ab:"01.01.2026",status:"changed",quelle:"Haushaltssatzung",quellenstatus:"checked",kundengruppe:"enterprise"},
+  {id:"gm-002",kommune:"K\u00f6ln",bundesland:"NRW",kreis:"kreisfrei",jahr:2026,hebesatz_a:280,hebesatz_b:730,vorjahr_b:700,gueltig_ab:"01.01.2026",status:"changed",quelle:"Ratsbeschluss",quellenstatus:"checked",kundengruppe:"professional"},
+  {id:"gm-003",kommune:"Frankfurt am Main",bundesland:"Hessen",kreis:"kreisfrei",jahr:2026,hebesatz_a:250,hebesatz_b:690,vorjahr_b:675,gueltig_ab:"01.01.2026",status:"changed",quelle:"Amtsblatt",quellenstatus:"open",kundengruppe:"professional"},
+  {id:"gm-004",kommune:"Hamburg",bundesland:"Hamburg",kreis:"Stadtstaat",jahr:2026,hebesatz_a:220,hebesatz_b:650,vorjahr_b:650,gueltig_ab:"01.01.2026",status:"stable",quelle:"Steuerverwaltung",quellenstatus:"checked",kundengruppe:"enterprise"},
+  {id:"gm-005",kommune:"Stuttgart",bundesland:"Baden-W\u00fcrttemberg",kreis:"kreisfrei",jahr:2026,hebesatz_a:210,hebesatz_b:620,vorjahr_b:610,gueltig_ab:"01.01.2026",status:"changed",quelle:"Satzung",quellenstatus:"checked",kundengruppe:"professional"},
+  {id:"gm-006",kommune:"D\u00fcsseldorf",bundesland:"NRW",kreis:"kreisfrei",jahr:2026,hebesatz_a:230,hebesatz_b:610,vorjahr_b:610,gueltig_ab:"01.01.2026",status:"stable",quelle:"Satzung",quellenstatus:"checked",kundengruppe:"basic"},
+  {id:"gm-007",kommune:"Dortmund",bundesland:"NRW",kreis:"kreisfrei",jahr:2026,hebesatz_a:240,hebesatz_b:860,vorjahr_b:800,gueltig_ab:"01.03.2026",status:"changed",quelle:"Ratsinfo",quellenstatus:"open",kundengruppe:"enterprise"},
+  {id:"gm-008",kommune:"Essen",bundesland:"NRW",kreis:"kreisfrei",jahr:2026,hebesatz_a:250,hebesatz_b:790,vorjahr_b:750,gueltig_ab:"01.01.2026",status:"changed",quelle:"Haushalt",quellenstatus:"checked",kundengruppe:"professional"},
+  {id:"gm-009",kommune:"Leipzig",bundesland:"Sachsen",kreis:"kreisfrei",jahr:2026,hebesatz_a:300,hebesatz_b:650,vorjahr_b:630,gueltig_ab:"01.01.2026",status:"changed",quelle:"Amtsblatt",quellenstatus:"checked",kundengruppe:"professional"},
+  {id:"gm-010",kommune:"Dresden",bundesland:"Sachsen",kreis:"kreisfrei",jahr:2026,hebesatz_a:290,hebesatz_b:640,vorjahr_b:640,gueltig_ab:"01.01.2026",status:"new",quelle:"Reform-Festsetzung",quellenstatus:"open",kundengruppe:"basic"},
+  {id:"gm-011",kommune:"Hannover",bundesland:"Niedersachsen",kreis:"Region Hannover",jahr:2026,hebesatz_a:220,hebesatz_b:600,vorjahr_b:595,gueltig_ab:"01.01.2026",status:"stable",quelle:"Satzung",quellenstatus:"checked",kundengruppe:"basic"},
+  {id:"gm-012",kommune:"N\u00fcrnberg",bundesland:"Bayern",kreis:"kreisfrei",jahr:2026,hebesatz_a:200,hebesatz_b:555,vorjahr_b:555,gueltig_ab:"01.01.2026",status:"stable",quelle:"Stadtrat",quellenstatus:"checked",kundengruppe:"basic"},
+  {id:"gm-013",kommune:"Augsburg",bundesland:"Bayern",kreis:"kreisfrei",jahr:2026,hebesatz_a:195,hebesatz_b:540,vorjahr_b:550,gueltig_ab:"01.01.2026",status:"changed",quelle:"Satzung",quellenstatus:"checked",kundengruppe:"basic"},
+  {id:"gm-014",kommune:"Wiesbaden",bundesland:"Hessen",kreis:"kreisfrei",jahr:2026,hebesatz_a:185,hebesatz_b:515,vorjahr_b:515,gueltig_ab:"01.01.2026",status:"stable",quelle:"Stadt",quellenstatus:"checked",kundengruppe:"basic"},
+  {id:"gm-015",kommune:"M\u00fcnster",bundesland:"NRW",kreis:"kreisfrei",jahr:2026,hebesatz_a:190,hebesatz_b:490,vorjahr_b:485,gueltig_ab:"01.01.2026",status:"stable",quelle:"Satzung",quellenstatus:"checked",kundengruppe:"basic"},
+  {id:"gm-016",kommune:"Karlsruhe",bundesland:"Baden-W\u00fcrttemberg",kreis:"kreisfrei",jahr:2026,hebesatz_a:175,hebesatz_b:480,vorjahr_b:480,gueltig_ab:"01.01.2026",status:"stable",quelle:"Satzung",quellenstatus:"checked",kundengruppe:"basic"},
+  {id:"gm-017",kommune:"Mannheim",bundesland:"Baden-W\u00fcrttemberg",kreis:"kreisfrei",jahr:2026,hebesatz_a:170,hebesatz_b:475,vorjahr_b:450,gueltig_ab:"01.02.2026",status:"changed",quelle:"Ratsinfo",quellenstatus:"open",kundengruppe:"professional"},
+  {id:"gm-018",kommune:"Bonn",bundesland:"NRW",kreis:"kreisfrei",jahr:2026,hebesatz_a:200,hebesatz_b:600,vorjahr_b:580,gueltig_ab:"01.01.2026",status:"changed",quelle:"Haushalt",quellenstatus:"checked",kundengruppe:"professional"},
+  {id:"gm-019",kommune:"Bochum",bundesland:"NRW",kreis:"kreisfrei",jahr:2026,hebesatz_a:255,hebesatz_b:855,vorjahr_b:800,gueltig_ab:"01.01.2026",status:"changed",quelle:"Satzung",quellenstatus:"open",kundengruppe:"enterprise"},
+  {id:"gm-020",kommune:"Wuppertal",bundesland:"NRW",kreis:"kreisfrei",jahr:2026,hebesatz_a:260,hebesatz_b:880,vorjahr_b:800,gueltig_ab:"01.01.2026",status:"changed",quelle:"Ratsbeschluss",quellenstatus:"checked",kundengruppe:"enterprise"},
+  {id:"gm-021",kommune:"Bielefeld",bundesland:"NRW",kreis:"kreisfrei",jahr:2026,hebesatz_a:210,hebesatz_b:590,vorjahr_b:590,gueltig_ab:"01.01.2026",status:"stable",quelle:"Satzung",quellenstatus:"checked",kundengruppe:"basic"},
+  {id:"gm-022",kommune:"Ingolstadt",bundesland:"Bayern",kreis:"kreisfrei",jahr:2026,hebesatz_a:150,hebesatz_b:390,vorjahr_b:395,gueltig_ab:"01.01.2026",status:"changed",quelle:"Stadtrat",quellenstatus:"checked",kundengruppe:"basic"},
+  {id:"gm-023",kommune:"Regensburg",bundesland:"Bayern",kreis:"kreisfrei",jahr:2026,hebesatz_a:160,hebesatz_b:430,vorjahr_b:430,gueltig_ab:"01.01.2026",status:"stable",quelle:"Satzung",quellenstatus:"checked",kundengruppe:"basic"},
+  {id:"gm-024",kommune:"Chemnitz",bundesland:"Sachsen",kreis:"kreisfrei",jahr:2026,hebesatz_a:270,hebesatz_b:620,vorjahr_b:605,gueltig_ab:"01.01.2026",status:"changed",quelle:"Amtsblatt",quellenstatus:"open",kundengruppe:"professional"},
+  {id:"gm-025",kommune:"Erfurt",bundesland:"Th\u00fcringen",kreis:"kreisfrei",jahr:2026,hebesatz_a:240,hebesatz_b:560,vorjahr_b:550,gueltig_ab:"01.01.2026",status:"stable",quelle:"Satzung",quellenstatus:"checked",kundengruppe:"basic"},
+  {id:"gm-026",kommune:"Kassel",bundesland:"Hessen",kreis:"kreisfrei",jahr:2026,hebesatz_a:220,hebesatz_b:580,vorjahr_b:560,gueltig_ab:"01.01.2026",status:"changed",quelle:"Ratsinfo",quellenstatus:"open",kundengruppe:"professional"},
+  {id:"gm-027",kommune:"Freiburg",bundesland:"Baden-W\u00fcrttemberg",kreis:"kreisfrei",jahr:2026,hebesatz_a:180,hebesatz_b:500,vorjahr_b:500,gueltig_ab:"01.01.2026",status:"stable",quelle:"Satzung",quellenstatus:"checked",kundengruppe:"basic"},
+  {id:"gm-028",kommune:"Heidelberg",bundesland:"Baden-W\u00fcrttemberg",kreis:"kreisfrei",jahr:2026,hebesatz_a:175,hebesatz_b:490,vorjahr_b:490,gueltig_ab:"01.01.2026",status:"stable",quelle:"Stadt",quellenstatus:"checked",kundengruppe:"basic"},
+  {id:"gm-029",kommune:"Braunschweig",bundesland:"Niedersachsen",kreis:"kreisfrei",jahr:2026,hebesatz_a:200,hebesatz_b:570,vorjahr_b:560,gueltig_ab:"01.01.2026",status:"changed",quelle:"Satzung",quellenstatus:"checked",kundengruppe:"professional"},
+  {id:"gm-030",kommune:"Oberhausen",bundesland:"NRW",kreis:"kreisfrei",jahr:2026,hebesatz_a:245,hebesatz_b:840,vorjahr_b:800,gueltig_ab:"01.01.2026",status:"changed",quelle:"Haushalt",quellenstatus:"open",kundengruppe:"enterprise"}
+];
+
+let records = loadRecords();
+let watchlist = loadWatchlist();
+let editingId = null;
+
+const els = {
+  title: document.getElementById("view-title"),
+  navButtons: document.querySelectorAll(".nav button"),
+  views: document.querySelectorAll(".view"),
+  search: document.getElementById("search"),
+  state: document.getElementById("state-filter"),
+  status: document.getElementById("status-filter"),
+  risk: document.getElementById("risk-filter"),
+  sort: document.getElementById("sort-filter"),
+  toast: document.getElementById("toast")
+};
+
+function icon(name) {
+  const paths = {
+    edit: '<path d="m4 16-.7 4 4-.7L19 7.6 15.4 4 4 16Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',
+    eye: '<path d="M4 12s3-5 8-5 8 5 8 5-3 5-8 5-8-5-8-5Z" stroke="currentColor" stroke-width="1.8"/><path d="M12 14.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" stroke="currentColor" stroke-width="1.8"/>',
+    trash: '<path d="M5 7h14M10 11v6m4-6v6M8 7l1-3h6l1 3m-9 0 1 14h8l1-14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'
+  };
+  return '<svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">' + paths[name] + '</svg>';
+}
+
+function loadRecords() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : structuredClone(seedData);
+  } catch {
+    return structuredClone(seedData);
+  }
+}
+
+function loadWatchlist() {
+  try {
+    const raw = localStorage.getItem(WATCH_KEY);
+    return raw ? JSON.parse(raw) : ["gm-002", "gm-007", "gm-020"];
+  } catch {
+    return [];
+  }
+}
+
+function persist() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  localStorage.setItem(WATCH_KEY, JSON.stringify(watchlist));
+  document.getElementById("storage-status").textContent = records.length + " Datensaetze";
+}
+
+function fmt(value) {
+  return Number(value || 0).toLocaleString("de-DE");
+}
+
+function change(record) {
+  return Number(record.hebesatz_b || 0) - Number(record.vorjahr_b || 0);
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, ch => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  }[ch]));
+}
+
+function statusLabel(status) {
+  if (status === "changed") return "Geaendert";
+  if (status === "new") return "Neu";
+  return "Stabil";
+}
+
+function sourceLabel(sourceStatus) {
+  return sourceStatus === "open" ? "Quelle offen" : "Quelle geprueft";
+}
+
+function initStateOptions() {
+  const selected = els.state.value || "all";
+  const states = Array.from(new Set(records.map(r => r.bundesland))).sort((a,b) => a.localeCompare(b, "de"));
+  els.state.innerHTML = '<option value="all">Alle Bundeslaender</option>' + states.map(state => '<option value="' + escapeHtml(state) + '">' + escapeHtml(state) + '</option>').join("");
+  els.state.value = states.includes(selected) ? selected : "all";
+}
+
+function filteredRecords() {
+  const query = els.search.value.trim().toLowerCase();
+  const state = els.state.value;
+  const status = els.status.value;
+  const risk = els.risk.value;
+
+  let result = records.filter(record => {
+    const haystack = [record.kommune, record.bundesland, record.kreis, record.quelle].join(" ").toLowerCase();
+    if (query && !haystack.includes(query)) return false;
+    if (state !== "all" && record.bundesland !== state) return false;
+    if (status !== "all" && record.status !== status) return false;
+    const b = Number(record.hebesatz_b || 0);
+    if (risk === "low" && b >= 450) return false;
+    if (risk === "medium" && (b < 450 || b > 699)) return false;
+    if (risk === "high" && b < 700) return false;
+    return true;
+  });
+
+  const sort = els.sort.value;
+  result.sort((a,b) => {
+    if (sort === "b_desc") return b.hebesatz_b - a.hebesatz_b;
+    if (sort === "b_asc") return a.hebesatz_b - b.hebesatz_b;
+    if (sort === "name_asc") return a.kommune.localeCompare(b.kommune, "de");
+    return change(b) - change(a);
+  });
+  return result;
+}
+
+function renderAll() {
+  initStateOptions();
+  const data = filteredRecords();
+  renderKpis(data);
+  renderTable(data);
+  renderLists(data);
+  renderCharts(data);
+  renderWatchlist();
+  renderPlans();
+  persist();
+}
+
+function renderKpis(data) {
+  const base = data.length ? data : records;
+  const avg = Math.round(base.reduce((sum, row) => sum + Number(row.hebesatz_b || 0), 0) / base.length);
+  const jump = base.reduce((best, row) => change(row) > change(best) ? row : best, base[0]);
+  const open = records.filter(row => row.quellenstatus === "open").length;
+
+  document.getElementById("kpi-count").textContent = fmt(data.length);
+  document.getElementById("kpi-count-sub").textContent = records.length + " insgesamt";
+  document.getElementById("kpi-average").textContent = avg + " %";
+  document.getElementById("kpi-average-sub").textContent = "im aktuellen Filter";
+  document.getElementById("kpi-jump").textContent = "+" + fmt(Math.max(0, change(jump)));
+  document.getElementById("kpi-jump-sub").textContent = jump ? jump.kommune : "keine Daten";
+  document.getElementById("kpi-open").textContent = fmt(open);
+
+  const high = [...base].sort((a,b) => change(b) - change(a))[0];
+  document.getElementById("alert-title").textContent = high ? "Aenderungsradar: " + high.kommune : "Aenderungsradar aktiv";
+  document.getElementById("alert-text").textContent = high
+    ? "Hebesatz B liegt bei " + high.hebesatz_b + " %. Aenderung gegen Vorjahr: " + signed(change(high)) + " Punkte. Quellenstatus: " + sourceLabel(high.quellenstatus) + "."
+    : "Keine Treffer im aktuellen Filter.";
+  document.getElementById("table-count").textContent = fmt(data.length);
+}
+
+function signed(value) {
+  return value > 0 ? "+" + value : String(value);
+}
+
+function renderTable(data) {
+  const body = document.getElementById("table-body");
+  if (!data.length) {
+    body.innerHTML = '<tr><td colspan="10">Keine Treffer fuer diesen Filter.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = data.map(row => {
+    const delta = change(row);
+    const deltaClass = delta > 0 ? "trend-up" : delta < 0 ? "trend-down" : "trend-flat";
+    const watchText = watchlist.includes(row.id) ? "Entfernen" : "Beobachten";
+    return '<tr>' +
+      '<td><strong>' + escapeHtml(row.kommune) + '</strong></td>' +
+      '<td>' + escapeHtml(row.bundesland) + '</td>' +
+      '<td>' + escapeHtml(row.kreis) + '</td>' +
+      '<td class="numeric">' + fmt(row.hebesatz_a) + ' %</td>' +
+      '<td class="numeric"><strong>' + fmt(row.hebesatz_b) + ' %</strong></td>' +
+      '<td class="numeric ' + deltaClass + '">' + signed(delta) + ' Pkt.</td>' +
+      '<td>' + escapeHtml(row.gueltig_ab) + '</td>' +
+      '<td><span class="tag ' + row.status + '">' + statusLabel(row.status) + '</span></td>' +
+      '<td><span class="tag source">' + sourceLabel(row.quellenstatus) + '</span></td>' +
+      '<td><button class="btn" type="button" data-edit="' + row.id + '">' + icon("edit") + 'Bearbeiten</button> ' +
+      '<button class="btn" type="button" data-watch="' + row.id + '">' + icon("eye") + watchText + '</button></td>' +
+      '</tr>';
+  }).join("");
+}
+
+function renderLists(data) {
+  const list = document.getElementById("change-list");
+  const top = [...data].sort((a,b) => change(b) - change(a)).slice(0, 5);
+  if (!top.length) {
+    list.innerHTML = '<div class="empty">Keine Aenderungen im aktuellen Filter.</div>';
+    return;
+  }
+  list.innerHTML = top.map(row => {
+    const delta = change(row);
+    return '<div class="mini-item"><div><strong>' + escapeHtml(row.kommune) + '</strong><span>' + escapeHtml(row.bundesland) + ' / ' + sourceLabel(row.quellenstatus) + '</span></div><span class="' + (delta > 0 ? "trend-up" : "trend-down") + '">' + signed(delta) + ' Pkt.</span></div>';
+  }).join("");
+}
+
+function renderWatchlist() {
+  const target = document.getElementById("watchlist-content");
+  const rows = records.filter(row => watchlist.includes(row.id));
+  if (!rows.length) {
+    target.innerHTML = '<div class="empty">Noch keine Kommunen beobachtet. In der Datenbank kannst du Eintraege markieren.</div>';
+    return;
+  }
+  target.innerHTML = '<div class="table-wrap"><table><thead><tr><th>Kommune</th><th>Bundesland</th><th class="numeric">B</th><th class="numeric">Aenderung</th><th>Quelle</th><th>Aktion</th></tr></thead><tbody>' +
+    rows.map(row => '<tr><td><strong>' + escapeHtml(row.kommune) + '</strong></td><td>' + escapeHtml(row.bundesland) + '</td><td class="numeric">' + fmt(row.hebesatz_b) + ' %</td><td class="numeric">' + signed(change(row)) + ' Pkt.</td><td>' + sourceLabel(row.quellenstatus) + '</td><td><button class="btn danger" type="button" data-watch="' + row.id + '">' + icon("trash") + 'Entfernen</button></td></tr>').join("") +
+    '</tbody></table></div>';
+}
+
+function renderPlans() {
+  ["basic", "professional", "enterprise"].forEach(plan => {
+    const rows = records.filter(row => row.kundengruppe === plan).slice(0, 5);
+    const target = document.getElementById("plan-" + plan);
+    target.innerHTML = rows.length ? rows.map(row => '<div class="mini-item"><div><strong>' + escapeHtml(row.kommune) + '</strong><span>' + escapeHtml(row.bundesland) + ', B ' + fmt(row.hebesatz_b) + ' %</span></div><span class="tag ' + row.status + '">' + statusLabel(row.status) + '</span></div>').join("") : '<div class="empty">Noch keine Daten fuer dieses Paket.</div>';
+  });
+}
+
+function chartSetup(canvas) {
+  const ctx = canvas.getContext("2d");
+  const ratio = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = Math.max(1, Math.floor(rect.width * ratio));
+  canvas.height = Math.max(1, Math.floor(rect.height * ratio));
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+  return {ctx, width: rect.width, height: rect.height};
+}
+
+function renderCharts(data) {
+  drawStateChart(document.getElementById("state-chart"), data);
+  drawTopChart(document.getElementById("top-chart"), data);
+  drawDistChart(document.getElementById("dist-chart"), data);
+}
+
+function drawStateChart(canvas, data) {
+  const {ctx, width, height} = chartSetup(canvas);
+  ctx.clearRect(0, 0, width, height);
+  const grouped = {};
+  data.forEach(row => {
+    grouped[row.bundesland] = grouped[row.bundesland] || [];
+    grouped[row.bundesland].push(Number(row.hebesatz_b || 0));
+  });
+  const rows = Object.keys(grouped).map(name => ({name, value: Math.round(grouped[name].reduce((a,b) => a + b, 0) / grouped[name].length)})).sort((a,b) => b.value - a.value);
+  drawBars(ctx, rows, width, height, "#126756", 280);
+}
+
+function drawTopChart(canvas, data) {
+  const {ctx, width, height} = chartSetup(canvas);
+  ctx.clearRect(0, 0, width, height);
+  const rows = [...data].sort((a,b) => b.hebesatz_b - a.hebesatz_b).slice(0, 8).map(row => ({name: row.kommune, value: Number(row.hebesatz_b || 0)}));
+  drawBars(ctx, rows, width, height, "#ba3a2d", 300);
+}
+
+function drawBars(ctx, rows, width, height, color, minBase) {
+  const pad = {top: 18, right: 54, bottom: 28, left: 130};
+  ctx.font = "12px Segoe UI, sans-serif";
+  ctx.fillStyle = "#66736f";
+  if (!rows.length) {
+    ctx.fillText("Keine Daten fuer diesen Filter.", 18, 34);
+    return;
+  }
+  const max = Math.max(...rows.map(row => row.value), minBase + 10);
+  const usable = width - pad.left - pad.right;
+  const gap = 9;
+  const barH = Math.max(16, (height - pad.top - pad.bottom - gap * (rows.length - 1)) / rows.length);
+  rows.forEach((row, i) => {
+    const y = pad.top + i * (barH + gap);
+    const w = ((row.value - minBase) / (max - minBase)) * usable;
+    ctx.fillStyle = "#66736f";
+    ctx.textAlign = "right";
+    ctx.fillText(trimLabel(row.name, 18), pad.left - 10, y + barH * 0.68);
+    ctx.fillStyle = color;
+    roundRect(ctx, pad.left, y, Math.max(4, w), barH, 5);
+    ctx.fill();
+    ctx.fillStyle = "#18201e";
+    ctx.textAlign = "left";
+    ctx.fillText(row.value + " %", pad.left + Math.max(4, w) + 8, y + barH * 0.68);
+  });
+}
+
+function drawDistChart(canvas, data) {
+  const {ctx, width, height} = chartSetup(canvas);
+  ctx.clearRect(0, 0, width, height);
+  const classes = [
+    {name:"< 450", min:0, max:449, color:"#86c8a6"},
+    {name:"450-599", min:450, max:599, color:"#126756"},
+    {name:"600-699", min:600, max:699, color:"#2e5f92"},
+    {name:">= 700", min:700, max:9999, color:"#ba3a2d"}
+  ];
+  const counts = classes.map(cls => data.filter(row => row.hebesatz_b >= cls.min && row.hebesatz_b <= cls.max).length);
+  const total = counts.reduce((a,b) => a + b, 0);
+  if (!total) {
+    ctx.fillStyle = "#66736f";
+    ctx.font = "12px Segoe UI, sans-serif";
+    ctx.fillText("Keine Daten fuer diesen Filter.", 18, 34);
+    return;
+  }
+  const cx = width * 0.36;
+  const cy = height * 0.52;
+  const radius = Math.min(width, height) * 0.27;
+  let start = -Math.PI / 2;
+  counts.forEach((count, index) => {
+    const angle = (count / total) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, radius, start, start + angle);
+    ctx.closePath();
+    ctx.fillStyle = classes[index].color;
+    ctx.fill();
+    start += angle;
+  });
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius * 0.58, 0, Math.PI * 2);
+  ctx.fillStyle = "#fff";
+  ctx.fill();
+  ctx.fillStyle = "#18201e";
+  ctx.font = "700 26px Segoe UI, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(total, cx, cy + 4);
+  ctx.font = "12px Segoe UI, sans-serif";
+  ctx.fillStyle = "#66736f";
+  ctx.fillText("Kommunen", cx, cy + 24);
+
+  ctx.textAlign = "left";
+  classes.forEach((cls, index) => {
+    const x = width * 0.68;
+    const y = 82 + index * 34;
+    ctx.fillStyle = cls.color;
+    roundRect(ctx, x, y - 12, 18, 18, 4);
+    ctx.fill();
+    ctx.fillStyle = "#18201e";
+    ctx.font = "700 12px Segoe UI, sans-serif";
+    ctx.fillText(cls.name + " %", x + 28, y + 2);
+    ctx.fillStyle = "#66736f";
+    ctx.font = "12px Segoe UI, sans-serif";
+    ctx.fillText(counts[index] + " Eintraege", x + 28, y + 18);
+  });
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  const radius = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + w, y, x + w, y + h, radius);
+  ctx.arcTo(x + w, y + h, x, y + h, radius);
+  ctx.arcTo(x, y + h, x, y, radius);
+  ctx.arcTo(x, y, x + w, y, radius);
+  ctx.closePath();
+}
+
+function trimLabel(value, limit) {
+  return value.length > limit ? value.slice(0, limit - 1) + "." : value;
+}
+
+function fillForm(row) {
+  editingId = row.id;
+  document.getElementById("form-name").value = row.kommune;
+  document.getElementById("form-state").value = row.bundesland;
+  document.getElementById("form-county").value = row.kreis;
+  document.getElementById("form-year").value = row.jahr;
+  document.getElementById("form-a").value = row.hebesatz_a;
+  document.getElementById("form-b").value = row.hebesatz_b;
+  document.getElementById("form-prev-b").value = row.vorjahr_b;
+  document.getElementById("form-valid").value = row.gueltig_ab;
+  document.getElementById("form-status").value = row.status;
+  document.getElementById("form-source").value = row.quelle;
+  document.getElementById("form-source-status").value = row.quellenstatus;
+  document.getElementById("form-customer").value = row.kundengruppe;
+  document.getElementById("edit-note").textContent = "Du bearbeitest " + row.kommune + ".";
+  switchView("database");
+}
+
+function clearForm() {
+  editingId = null;
+  ["form-name","form-state","form-county","form-a","form-b","form-prev-b","form-valid","form-source"].forEach(id => document.getElementById(id).value = "");
+  document.getElementById("form-year").value = "2026";
+  document.getElementById("form-status").value = "stable";
+  document.getElementById("form-source-status").value = "checked";
+  document.getElementById("form-customer").value = "basic";
+  document.getElementById("edit-note").textContent = "Neue Eintraege bekommen automatisch eine lokale ID.";
+}
+
+function saveRecord() {
+  const name = document.getElementById("form-name").value.trim();
+  const state = document.getElementById("form-state").value.trim();
+  const b = Number(document.getElementById("form-b").value);
+  if (!name || !state || !b) {
+    showToast("Bitte mindestens Kommune, Bundesland und Hebesatz B eintragen.");
+    return;
+  }
+
+  const row = {
+    id: editingId || "local-" + Date.now(),
+    kommune: name,
+    bundesland: state,
+    kreis: document.getElementById("form-county").value.trim() || "-",
+    jahr: Number(document.getElementById("form-year").value || 2026),
+    hebesatz_a: Number(document.getElementById("form-a").value || 0),
+    hebesatz_b: b,
+    vorjahr_b: Number(document.getElementById("form-prev-b").value || b),
+    gueltig_ab: document.getElementById("form-valid").value.trim() || "01.01.2026",
+    status: document.getElementById("form-status").value,
+    quelle: document.getElementById("form-source").value.trim() || "manuell",
+    quellenstatus: document.getElementById("form-source-status").value,
+    kundengruppe: document.getElementById("form-customer").value
+  };
+
+  const index = records.findIndex(item => item.id === row.id);
+  if (index >= 0) records[index] = row;
+  else records.unshift(row);
+
+  clearForm();
+  renderAll();
+  showToast("Datensatz gespeichert.");
+}
+
+function parseCsv(text) {
+  const lines = text.replace(/\r/g, "").split("\n").filter(line => line.trim());
+  if (lines.length < 2) return [];
+  const delimiter = lines[0].includes(";") ? ";" : ",";
+  const headers = lines[0].split(delimiter).map(h => h.trim().toLowerCase());
+  return lines.slice(1).map((line, i) => {
+    const cells = line.split(delimiter).map(cell => cell.trim());
+    const obj = {};
+    headers.forEach((h, index) => obj[h] = cells[index] || "");
+    const b = Number(obj.hebesatz_b || obj.b || 0);
+    const prev = Number(obj.vorjahr_b || obj.vorjahr || b);
+    return {
+      id: "import-" + Date.now() + "-" + i,
+      kommune: obj.kommune || obj.name || "",
+      bundesland: obj.bundesland || obj.bl || "",
+      kreis: obj.kreis || "-",
+      jahr: Number(obj.jahr || 2026),
+      hebesatz_a: Number(obj.hebesatz_a || obj.a || 0),
+      hebesatz_b: b,
+      vorjahr_b: prev,
+      gueltig_ab: obj.gueltig_ab || obj["gueltig ab"] || "01.01.2026",
+      status: obj.status || (b !== prev ? "changed" : "stable"),
+      quelle: obj.quelle || "CSV Import",
+      quellenstatus: obj.quellenstatus || "open",
+      kundengruppe: obj.kundengruppe || "professional"
+    };
+  }).filter(row => row.kommune && row.bundesland && row.hebesatz_b);
+}
+
+function importCsv() {
+  const rows = parseCsv(document.getElementById("csv-text").value);
+  if (!rows.length) {
+    showToast("Keine gueltigen CSV-Zeilen gefunden.");
+    return;
+  }
+  records = rows.concat(records);
+  renderAll();
+  showToast(rows.length + " CSV-Zeilen importiert.");
+}
+
+function exportCsv() {
+  const header = ["kommune","bundesland","kreis","jahr","hebesatz_a","hebesatz_b","vorjahr_b","aenderung_b","gueltig_ab","status","quelle","quellenstatus","kundengruppe"];
+  const rows = [header].concat(records.map(row => [
+    row.kommune,row.bundesland,row.kreis,row.jahr,row.hebesatz_a,row.hebesatz_b,row.vorjahr_b,change(row),row.gueltig_ab,row.status,row.quelle,row.quellenstatus,row.kundengruppe
+  ]));
+  download("grundsteuer-monitor-export.csv", rows.map(row => row.map(cell => '"' + String(cell ?? "").replaceAll('"', '""') + '"').join(";")).join("\n"), "text/csv;charset=utf-8");
+}
+
+function exportJson() {
+  download("grundsteuer-monitor-daten.json", JSON.stringify(records, null, 2), "application/json;charset=utf-8");
+}
+
+function download(filename, content, type) {
+  const blob = new Blob(["\uFEFF" + content], {type});
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+function toggleWatch(id) {
+  watchlist = watchlist.includes(id) ? watchlist.filter(item => item !== id) : watchlist.concat(id);
+  renderAll();
+  showToast("Beobachtungsliste aktualisiert.");
+}
+
+function switchView(name) {
+  const titles = {
+    dashboard: "Kommunale Hebesaetze im Blick",
+    database: "Daten pflegen und pruefen",
+    import: "Daten lokal importieren",
+    watchlist: "Wichtige Kommunen beobachten",
+    customer: "Abo-Logik simulieren",
+    roadmap: "Vom MVP zum Produkt"
+  };
+  els.navButtons.forEach(button => button.classList.toggle("active", button.dataset.view === name));
+  els.views.forEach(view => view.classList.toggle("active", view.id === "view-" + name));
+  els.title.textContent = titles[name];
+  renderCharts(filteredRecords());
+}
+
+function showToast(message) {
+  els.toast.textContent = message;
+  els.toast.classList.add("show");
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => els.toast.classList.remove("show"), 2400);
+}
+
+document.addEventListener("click", event => {
+  const nav = event.target.closest("[data-view]");
+  if (nav) switchView(nav.dataset.view);
+  const edit = event.target.closest("[data-edit]");
+  if (edit) {
+    const row = records.find(item => item.id === edit.dataset.edit);
+    if (row) fillForm(row);
+  }
+  const watch = event.target.closest("[data-watch]");
+  if (watch) toggleWatch(watch.dataset.watch);
+});
+
+[els.search, els.state, els.status, els.risk, els.sort].forEach(input => input.addEventListener("input", renderAll));
+document.getElementById("save-record").addEventListener("click", saveRecord);
+document.getElementById("clear-form").addEventListener("click", clearForm);
+document.getElementById("import-csv").addEventListener("click", importCsv);
+document.getElementById("export-csv").addEventListener("click", exportCsv);
+document.getElementById("export-json").addEventListener("click", exportJson);
+document.getElementById("reset-demo").addEventListener("click", () => {
+  records = structuredClone(seedData);
+  watchlist = ["gm-002", "gm-007", "gm-020"];
+  clearForm();
+  renderAll();
+  showToast("Demo-Daten wiederhergestellt.");
+});
+document.getElementById("append-sample").addEventListener("click", () => {
+  document.getElementById("csv-text").value += "\nNeustadt am Rhein;NRW;Rhein-Kreis;2026;230;705;655;01.01.2026;changed;Amtsblatt;open;enterprise";
+});
+document.getElementById("csv-file").addEventListener("change", event => {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => document.getElementById("csv-text").value = reader.result;
+  reader.readAsText(file, "UTF-8");
+});
+window.addEventListener("resize", () => renderCharts(filteredRecords()));
+
+renderAll();
+</script>
+</body>
+</html>

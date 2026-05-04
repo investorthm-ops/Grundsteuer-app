@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grundsteuer-Monitor — Technischer Setup-Plan</title>
+    <style>
+        :root {
+            --bg: #f0f4f8;
+            --card: #ffffff;
+            --header: #1a1a2e;
+            --accent: #4C72B0;
+            --green: #28a745;
+            --orange: #fd7e14;
+            --red: #dc3545;
+            --purple: #8172B3;
+            --teal: #028090;
+            --text: #212529;
+            --muted: #6c757d;
+            --radius: 10px;
+            --gap: 16px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg); color: var(--text); line-height: 1.6;
+        }
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+
+        /* HEADER */
+        .header {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white; border-radius: var(--radius);
+            padding: 28px 32px; margin-bottom: 20px;
+        }
+        .header h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+        .header p { font-size: 13px; color: rgba(255,255,255,0.65); }
+        .header-badges { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+        .hbadge {
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px; padding: 4px 14px; font-size: 12px; color: rgba(255,255,255,0.85);
+        }
+
+        /* TABS */
+        .tabs { display: flex; gap: 4px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab {
+            padding: 9px 20px; border-radius: 8px; border: 2px solid #dee2e6;
+            background: white; font-size: 13px; cursor: pointer;
+            transition: all 0.2s; font-weight: 600; color: var(--muted);
+        }
+        .tab:hover { border-color: var(--accent); color: var(--accent); }
+        .tab.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+        /* SECTIONS */
+        .section { display: none; }
+        .section.active { display: block; }
+
+        /* CARD */
+        .card {
+            background: var(--card); border-radius: var(--radius);
+            padding: 22px 26px; box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+            margin-bottom: var(--gap);
+        }
+        .card h2 { font-size: 17px; font-weight: 700; margin-bottom: 16px; }
+        .card h3 { font-size: 14px; font-weight: 700; margin-bottom: 10px; color: var(--text); }
+
+        /* STEP LIST */
+        .step-list { display: flex; flex-direction: column; gap: 14px; }
+        .step {
+            display: flex; gap: 16px; align-items: flex-start;
+            padding: 16px 20px; border-radius: 8px;
+            border-left: 4px solid var(--accent);
+            background: #f8f9fa;
+        }
+        .step.green  { border-left-color: var(--green); }
+        .step.orange { border-left-color: var(--orange); }
+        .step.purple { border-left-color: var(--purple); }
+        .step.teal   { border-left-color: var(--teal); }
+        .step.red    { border-left-color: var(--red); }
+
+        .step-num {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: var(--accent); color: white;
+            font-weight: 700; font-size: 14px;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .step.green  .step-num { background: var(--green); }
+        .step.orange .step-num { background: var(--orange); }
+        .step.purple .step-num { background: var(--purple); }
+        .step.teal   .step-num { background: var(--teal); }
+        .step.red    .step-num { background: var(--red); }
+
+        .step-body { flex: 1; }
+        .step-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+        .step-desc { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+        .step-code {
+            background: #1e1e2e; color: #cdd6f4; border-radius: 6px;
+            padding: 10px 14px; font-family: 'Courier New', monospace;
+            font-size: 12px; margin-top: 8px; overflow-x: auto;
+        }
+        .step-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+        .tag {
+            background: #e9ecef; border-radius: 4px;
+            padding: 2px 8px; font-size: 11px; color: #495057; font-weight: 500;
+        }
+        .tag.green  { background: #d4edda; color: #155724; }
+        .tag.blue   { background: #cce5ff; color: #004085; }
+        .tag.orange { background: #fff3cd; color: #856404; }
+        .tag.red    { background: #f8d7da; color: #721c24; }
+
+        /* TABLE */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .data-table th {
+            text-align: left; padding: 10px 12px;
+            border-bottom: 2px solid #e9ecef;
+            font-size: 11px; text-transform: uppercase;
+            letter-spacing: 0.5px; color: var(--muted); font-weight: 600;
+        }
+        .data-table td { padding: 11px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover td { background: #f8f9fa; }
+
+        /* FLOW DIAGRAM */
+        .flow {
+            display: flex; align-items: center; gap: 0;
+            flex-wrap: wrap; margin: 16px 0;
+        }
+        .flow-box {
+            background: var(--accent); color: white;
+            padding: 10px 16px; border-radius: 8px;
+            font-size: 12px; font-weight: 600; text-align: center;
+            min-width: 120px;
+        }
+        .flow-box.green  { background: var(--green); }
+        .flow-box.orange { background: var(--orange); }
+        .flow-box.purple { background: var(--purple); }
+        .flow-box.teal   { background: var(--teal); }
+        .flow-box.red    { background: var(--red); }
+        .flow-arrow {
+            font-size: 18px; color: var(--muted);
+            padding: 0 8px; font-weight: 700;
+        }
+
+        /* KPI ROW */
+        .kpi-row {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: var(--gap); margin-bottom: var(--gap);
+        }
+        .kpi-card {
+            background: var(--card); border-radius: var(--radius);
+            padding: 16px 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+            border-left: 4px solid var(--accent);
+        }
+        .kpi-card:nth-child(2) { border-left-color: var(--green); }
+        .kpi-card:nth-child(3) { border-left-color: var(--orange); }
+        .kpi-card:nth-child(4) { border-left-color: var(--purple); }
+        .kpi-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .kpi-value { font-size: 24px; font-weight: 700; }
+        .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+        /* GRID 2 */
+        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
+        @media (max-width: 700px) { .grid2 { grid-template-columns: 1fr; } }
+
+        /* INFO BOX */
+        .info-box {
+            border-radius: 8px; padding: 14px 18px;
+            font-size: 13px; margin-top: 12px;
+        }
+        .info-box.blue   { background: #e8f4fd; border: 1px solid #bee3f8; color: #2c5282; }
+        .info-box.green  { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .info-box.orange { background: #fff3cd; border: 1px solid #ffeeba; color: #856404; }
+        .info-box strong { display: block; margin-bottom: 4px; }
+
+        /* FOOTER */
+        .footer { text-align: center; font-size: 12px; color: var(--muted); padding: 16px; }
+
+        /* CHECKBOX STEPS */
+        .check-step {
+            display: flex; gap: 12px; align-items: flex-start;
+            padding: 12px 16px; border-radius: 8px; background: #f8f9fa;
+            margin-bottom: 8px; cursor: pointer; transition: background 0.2s;
+        }
+        .check-step:hover { background: #e9ecef; }
+        .check-step.done { opacity: 0.5; }
+        .chk {
+            width: 20px; height: 20px; border-radius: 4px;
+            border: 2px solid #dee2e6; flex-shrink: 0; margin-top: 2px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; transition: all 0.2s;
+        }
+        .check-step.done .chk { background: var(--green); border-color: var(--green); color: white; }
+        .check-body { flex: 1; }
+        .check-title { font-weight: 600; font-size: 13px; }
+        .check-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="header">
+        <h1>🏠 Grundsteuer-Monitor — Technischer Setup-Plan</h1>
+        <p>Von Null zur automatisierten Daten-Pipeline auf dem Mac Mini M4</p>
+        <div class="header-badges">
+            <span class="hbadge">👤 Markus — SAP PP Experte</span>
+            <span class="hbadge">🖥️ Mac Mini M4 · 16 GB RAM</span>
+            <span class="hbadge">⏱️ 4-6 Wochen bis erster Kunde</span>
+            <span class="hbadge">💰 ~38 €/Monat Betriebskosten</span>
+            <span class="hbadge">🎯 Ziel: 500-2.000 €/Monat Abo-Umsatz</span>
+        </div>
+    </div>
+
+    <!-- KPI ROW -->
+    <div class="kpi-row">
+        <div class="kpi-card">
+            <div class="kpi-label">Gemeinden in DE</div>
+            <div class="kpi-value">11.000+</div>
+            <div class="kpi-sub">jede mit eigenem Hebesatz</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Marktlücke</div>
+            <div class="kpi-value">Riesig</div>
+            <div class="kpi-sub">kein einheitliches System</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Datenquellen</div>
+            <div class="kpi-value">8+</div>
+            <div class="kpi-sub">öffentlich & kostenlos</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Break-Even</div>
+            <div class="kpi-value">3 Kunden</div>
+            <div class="kpi-sub">à 49 €/Monat</div>
+        </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+        <button class="tab active" onclick="showTab('architektur', this)">🏗️ Architektur</button>
+        <button class="tab" onclick="showTab('datenquellen', this)">📊 Datenquellen</button>
+        <button class="tab" onclick="showTab('installation', this)">⚙️ Installation</button>
+        <button class="tab" onclick="showTab('pipeline', this)">🔄 Datenpipeline</button>
+        <button class="tab" onclick="showTab('business', this)">💰 Business-Modell</button>
+        <button class="tab" onclick="showTab('checkliste', this)">✅ Checkliste</button>
+    </div>
+
+    <!-- TAB: ARCHITEKTUR -->
+    <div id="tab-architektur" class="section active">
+        <div class="card">
+            <h2>🏗️ Systemarchitektur — Wie alles zusammenspielt</h2>
+
+            <div class="flow">
+                <div class="flow-box green">📡 Datenquellen<br><small>Statistikportal, Gemeinden, KfW</small></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">🔄 n8n Agent<br><small>Scrapt & orchestriert</small></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box orange">🤖 Ollama/Mistral<br><small>Bereinigt & strukturiert</small></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box purple">🗄️ SQLite DB<br><small>Speichert lokal</small></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box teal">📊 Google Sheets<br><small>Liefert ans Kunden</small></div>
+            </div>
+
+            <div class="info-box blue">
+                <strong>💡 Kern-Prinzip</strong>
+                Der Mac Mini läuft 24/7. n8n startet täglich automatisch den Scraping-Job, Mistral bereinigt die Rohdaten, alles landet in einer lokalen Datenbank und wird als Google Sheet an Kunden ausgeliefert. Du schaust einmal pro Woche drauf — das war's.
+            </div>
+        </div>
+
+        <div class="grid2">
+            <div class="card">
+                <h3>🖥️ Mac Mini als Server</h3>
+                <div class="step-list">
+                    <div class="step green">
+                        <div class="step-num">✓</div>
+                        <div class="step-body">
+                            <div class="step-title">Immer verfügbar</div>
+                            <div class="step-desc">24/7 Betrieb, ~3-5 € Strom/Monat, kein Cloud-Server nötig</div>
+                        </div>
+                    </div>
+                    <div class="step green">
+                        <div class="step-num">✓</div>
+                        <div class="step-body">
+                            <div class="step-title">DSGVO-konform</div>
+                            <div class="step-desc">Alle Daten bleiben lokal bei dir — kein Drittanbieter sieht sie</div>
+                        </div>
+                    </div>
+                    <div class="step green">
+                        <div class="step-num">✓</div>
+                        <div class="step-body">
+                            <div class="step-title">M4 Chip optimal</div>
+                            <div class="step-desc">Mistral 7B läuft flüssig lokal — keine API-Kosten</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🛠️ Tech-Stack Übersicht</h3>
+                <table class="data-table">
+                    <thead><tr><th>Schicht</th><th>Tool</th><th>Kosten</th></tr></thead>
+                    <tbody>
+                        <tr><td>Orchestrierung</td><td><strong>n8n</strong> (self-hosted)</td><td><span class="tag green">Kostenlos</span></td></tr>
+                        <tr><td>KI / Textextraktion</td><td><strong>Ollama + Mistral 7B</strong></td><td><span class="tag green">Kostenlos</span></td></tr>
+                        <tr><td>Scraping</td><td><strong>Python + BeautifulSoup</strong></td><td><span class="tag green">Kostenlos</span></td></tr>
+                        <tr><td>Datenbank</td><td><strong>SQLite</strong> (lokal)</td><td><span class="tag green">Kostenlos</span></td></tr>
+                        <tr><td>Output</td><td><strong>Google Sheets API</strong></td><td><span class="tag green">Kostenlos</span></td></tr>
+                        <tr><td>Paketmanager</td><td><strong>Homebrew</strong></td><td><span class="tag green">Kostenlos</span></td></tr>
+                        <tr><td>Versionierung</td><td><strong>GitHub</strong></td><td><span class="tag green">Kostenlos</span></td></tr>
+                        <tr><td>KI-Assistent</td><td><strong>Claude Pro</strong></td><td><span class="tag orange">20 €/Mo</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: DATENQUELLEN -->
+    <div id="tab-datenquellen" class="section">
+        <div class="card">
+            <h2>📊 Datenquellen — Öffentlich, kostenlos, DSGVO-konform</h2>
+            <div class="info-box green">
+                <strong>✅ Rechtliche Klarheit</strong>
+                Alle genannten Quellen sind öffentlich zugänglich und dürfen für kommerzielle Datenprodukte genutzt werden. Wichtig: Rohdaten aggregieren und anreichern ist erlaubt — du verkaufst dein aggregiertes Produkt, nicht die Rohdaten direkt.
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>🥇 Primärquellen — Hebesätze</h3>
+            <table class="data-table">
+                <thead>
+                    <tr><th>Quelle</th><th>Was du bekommst</th><th>Format</th><th>Update-Rhythmus</th><th>URL</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Statistikportal.de</strong></td>
+                        <td>Hebesätze aller 11.000+ Gemeinden (Grundsteuer A, B + Gewerbesteuer)</td>
+                        <td><span class="tag blue">Excel</span></td>
+                        <td>Jährlich</td>
+                        <td><a href="https://www.statistikportal.de/de/veroeffentlichungen/hebesaetze-der-realsteuern-deutschland" target="_blank">statistikportal.de</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Finanzverwaltung NRW</strong></td>
+                        <td>Aufkommensneutrale Hebesätze NRW — alle Kommunen</td>
+                        <td><span class="tag blue">Excel/PDF</span></td>
+                        <td>Bei Änderung</td>
+                        <td><a href="https://www.finanzverwaltung.nrw.de/aufkommensneutrale-hebesaetze" target="_blank">finanzverwaltung.nrw.de</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Staatsministerium Sachsen</strong></td>
+                        <td>Hebesatzprognose 2025 Sachsen</td>
+                        <td><span class="tag blue">PDF/Web</span></td>
+                        <td>Jährlich</td>
+                        <td><a href="https://www.smf.sachsen.de/hebesatzprognose-2025.html" target="_blank">smf.sachsen.de</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Haus & Grund</strong></td>
+                        <td>Grundsteuerranking 2025 — Vergleich aller Städte</td>
+                        <td><span class="tag blue">PDF</span></td>
+                        <td>Jährlich</td>
+                        <td><a href="https://www.hausundgrund.de" target="_blank">hausundgrund.de</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bundesfinanzministerium</strong></td>
+                        <td>Gesetzliche Grundlagen, Reformänderungen</td>
+                        <td><span class="tag blue">Web/PDF</span></td>
+                        <td>Bei Gesetzesänderung</td>
+                        <td><a href="https://www.bundesfinanzministerium.de" target="_blank">bundesfinanzministerium.de</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Gemeindewebsites</strong></td>
+                        <td>Aktuellste Hebesätze direkt von der Quelle</td>
+                        <td><span class="tag">HTML/PDF</span></td>
+                        <td>Bei Änderung</td>
+                        <td>Individuell je Gemeinde</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h3>🥈 Sekundärquellen — Anreicherung & Mehrwert</h3>
+            <table class="data-table">
+                <thead>
+                    <tr><th>Quelle</th><th>Was du bekommst</th><th>Mehrwert für Kunden</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>KfW.de</strong></td>
+                        <td>Aktuelle Förderprogramme, Zinssätze, Konditionen</td>
+                        <td>Kombination mit Hebesatz → "Gesamtbelastung Eigentümer"</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BAFA.de</strong></td>
+                        <td>Sanierungsförderungen, BEG-Programme</td>
+                        <td>Pflichtmodernisierungen + Förderungen in einem Sheet</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bodenrichtwerte (BORIS)</strong></td>
+                        <td>Bodenrichtwerte je PLZ/Gemeinde</td>
+                        <td>Bewertungsgrundlage für Hebesatz-Auswirkung</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Destatis.de</strong></td>
+                        <td>Statistiken Immobilienmarkt, Bevölkerung je Gemeinde</td>
+                        <td>Kontextualisierung der Hebesätze</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB: INSTALLATION -->
+    <div id="tab-installation" class="section">
+        <div class="card">
+            <h2>⚙️ Installation — Schritt für Schritt auf dem Mac Mini</h2>
+            <div class="info-box blue">
+                <strong>💡 Reihenfolge wichtig</strong>
+                Bitte genau in dieser Reihenfolge vorgehen — jeder Schritt baut auf dem vorherigen auf. Zeitaufwand insgesamt: ~4-6 Stunden, verteilt auf 2-3 Abende.
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Phase 1 — Grundwerkzeuge (Abend 1, ~2 Std)</h3>
+            <div class="step-list">
+                <div class="step green">
+                    <div class="step-num">1</div>
+                    <div class="step-body">
+                        <div class="step-title">Homebrew installieren</div>
+                        <div class="step-desc">Der Paketmanager für alles was folgt. Terminal öffnen und diesen Befehl ausführen:</div>
+                        <div class="step-code">/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</div>
+                        <div class="step-tags"><span class="tag green">✓ Kostenlos</span><span class="tag">5 Min</span></div>
+                    </div>
+                </div>
+
+                <div class="step green">
+                    <div class="step-num">2</div>
+                    <div class="step-body">
+                        <div class="step-title">Python 3 installieren</div>
+                        <div class="step-desc">Für das Scraping-Skript. Mit Homebrew ganz einfach:</div>
+                        <div class="step-code">brew install python3</div>
+                        <div class="step-tags"><span class="tag green">✓ Kostenlos</span><span class="tag">5 Min</span></div>
+                    </div>
+                </div>
+
+                <div class="step green">
+                    <div class="step-num">3</div>
+                    <div class="step-body">
+                        <div class="step-title">Python-Bibliotheken installieren</div>
+                        <div class="step-desc">BeautifulSoup (Scraping), Pandas (Datentransformation), openpyxl (Excel lesen):</div>
+                        <div class="step-code">pip3 install beautifulsoup4 requests pandas openpyxl gspread</div>
+                        <div class="step-tags"><span class="tag green">✓ Kostenlos</span><span class="tag">5 Min</span></div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <div class="step-body">
+                        <div class="step-title">Ollama installieren (lokale KI)</div>
+                        <div class="step-desc">Ollama bringt Mistral auf deinen Mac Mini — keine Cloud, keine API-Kosten:</div>
+                        <div class="step-code">brew install ollama
+ollama pull mistral</div>
+                        <div class="step-tags"><span class="tag green">✓ Kostenlos</span><span class="tag">~20 Min</span><span class="tag">~4 GB Download</span></div>
+                    </div>
+                </div>
+
+                <div class="step orange">
+                    <div class="step-num">5</div>
+                    <div class="step-body">
+                        <div class="step-title">n8n installieren & starten</div>
+                        <div class="step-desc">n8n ist dein visueller Workflow-Editor. Via npm installieren:</div>
+                        <div class="step-code">brew install node
+npm install -g n8n
+n8n start</div>
+                        <div class="step-desc" style="margin-top:8px">Danach im Browser öffnen: <strong>http://localhost:5678</strong></div>
+                        <div class="step-tags"><span class="tag green">✓ Kostenlos</span><span class="tag">15 Min</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Phase 2 — n8n für Dauerbetrieb einrichten (Abend 2, ~2 Std)</h3>
+            <div class="step-list">
+                <div class="step orange">
+                    <div class="step-num">6</div>
+                    <div class="step-body">
+                        <div class="step-title">n8n als Hintergrunddienst einrichten</div>
+                        <div class="step-desc">Damit n8n auch nach Neustart automatisch läuft:</div>
+                        <div class="step-code">brew services start n8n</div>
+                        <div class="step-tags"><span class="tag">5 Min</span><span class="tag orange">Wichtig für 24/7</span></div>
+                    </div>
+                </div>
+
+                <div class="step orange">
+                    <div class="step-num">7</div>
+                    <div class="step-body">
+                        <div class="step-title">Google Sheets API verbinden</div>
+                        <div class="step-desc">Damit dein Agent Daten direkt in Google Sheets schreiben kann. Schritte: Google Cloud Console → Projekt erstellen → Sheets API aktivieren → Service Account erstellen → JSON-Key herunterladen → in n8n als Credential hinterlegen.</div>
+                        <div class="step-tags"><span class="tag green">✓ Kostenlos</span><span class="tag">45 Min</span><span class="tag blue">Einmalig</span></div>
+                    </div>
+                </div>
+
+                <div class="step purple">
+                    <div class="step-num">8</div>
+                    <div class="step-body">
+                        <div class="step-title">GitHub Repository anlegen</div>
+                        <div class="step-desc">Deine Scraping-Skripte versionieren — so kannst du Änderungen nachverfolgen und bei Problemen zurückrollen:</div>
+                        <div class="step-code">git init grundsteuer-monitor
+cd grundsteuer-monitor
+git remote add origin https://github.com/DEIN-NAME/grundsteuer-monitor.git</div>
+                        <div class="step-tags"><span class="tag green">✓ Kostenlos</span><span class="tag">15 Min</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: PIPELINE -->
+    <div id="tab-pipeline" class="section">
+        <div class="card">
+            <h2>🔄 Datenpipeline — So arbeitet dein Agent täglich</h2>
+        </div>
+
+        <div class="card">
+            <h3>Der tägliche Ablauf (vollautomatisch)</h3>
+            <div class="flow" style="flex-direction:column; align-items:flex-start; gap:8px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="flow-box green" style="min-width:200px">⏰ 03:00 Uhr<br><small>n8n startet automatisch</small></div>
+                    <div class="flow-arrow">→</div>
+                    <span style="font-size:13px;color:var(--muted)">Cron-Job in n8n</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="flow-box" style="min-width:200px">📡 Quellen abrufen<br><small>Statistikportal, Gemeinden, KfW</small></div>
+                    <div class="flow-arrow">→</div>
+                    <span style="font-size:13px;color:var(--muted)">HTTP Request Node in n8n + Python-Skript</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="flow-box orange" style="min-width:200px">🤖 KI bereinigt Daten<br><small>Mistral extrahiert strukturiert</small></div>
+                    <div class="flow-arrow">→</div>
+                    <span style="font-size:13px;color:var(--muted)">Ollama API Call (lokal)</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="flow-box purple" style="min-width:200px">🗄️ In DB speichern<br><small>SQLite lokal auf Mac Mini</small></div>
+                    <div class="flow-arrow">→</div>
+                    <span style="font-size:13px;color:var(--muted)">Änderungen tracken, History aufbauen</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="flow-box teal" style="min-width:200px">📊 Sheet updaten<br><small>Google Sheets automatisch</small></div>
+                    <div class="flow-arrow">→</div>
+                    <span style="font-size:13px;color:var(--muted)">Kunde sieht immer aktuelle Daten</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="flow-box red" style="min-width:200px">📧 Alert bei Änderung<br><small>E-Mail an Kunden + dich</small></div>
+                    <div class="flow-arrow">→</div>
+                    <span style="font-size:13px;color:var(--muted)">n8n E-Mail-Node (Gmail)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid2">
+            <div class="card">
+                <h3>📋 Output-Format — Was Kunden bekommen</h3>
+                <table class="data-table">
+                    <thead><tr><th>Spalte</th><th>Beispiel</th></tr></thead>
+                    <tbody>
+                        <tr><td>Gemeinde</td><td>München</td></tr>
+                        <tr><td>Bundesland</td><td>Bayern</td></tr>
+                        <tr><td>PLZ</td><td>80331</td></tr>
+                        <tr><td>Hebesatz Grundsteuer B</td><td>535%</td></tr>
+                        <tr><td>Hebesatz Grundsteuer A</td><td>300%</td></tr>
+                        <tr><td>Gewerbesteuer-Hebesatz</td><td>490%</td></tr>
+                        <tr><td>Letzte Änderung</td><td>01.01.2025</td></tr>
+                        <tr><td>Änderung ggü. Vorjahr</td><td>+35 Punkte</td></tr>
+                        <tr><td>Quelle</td><td>statistikportal.de</td></tr>
+                        <tr><td>Stand</td><td>22.03.2026</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h3>🐍 Beispiel Python-Scraper (Grundgerüst)</h3>
+                <div class="step-code" style="font-size:11px; line-height:1.7">
+import requests<br>
+import pandas as pd<br>
+from bs4 import BeautifulSoup<br>
+<br>
+# Statistikportal Excel laden<br>
+url = "https://www.statistikportal.de/..."<br>
+df = pd.read_excel(url)<br>
+<br>
+# Daten bereinigen<br>
+df.columns = ['Gemeinde','BL','Hbs_A','Hbs_B','GewSt']<br>
+df = df.dropna(subset=['Hbs_B'])<br>
+df['Stand'] = pd.Timestamp.today()<br>
+<br>
+# In SQLite speichern<br>
+import sqlite3<br>
+conn = sqlite3.connect('grundsteuer.db')<br>
+df.to_sql('hebesaetze', conn, if_exists='append')<br>
+<br>
+# In Google Sheets exportieren<br>
+import gspread<br>
+gc = gspread.service_account()<br>
+sh = gc.open("Grundsteuer-Monitor")<br>
+sh.sheet1.update([df.columns.tolist()] + df.values.tolist())
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="info-box orange">
+                <strong>⚡ Wichtiger Tipp für den Start</strong>
+                Fang nicht mit allen 11.000 Gemeinden an. Starte mit einem Bundesland (z.B. NRW — hat die besten öffentlichen Daten). Wenn das funktioniert, erweiterst du. Lieber ein perfektes kleines Produkt als ein halbfertiges großes.
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: BUSINESS -->
+    <div id="tab-business" class="section">
+        <div class="card">
+            <h2>💰 Business-Modell — Wer kauft was für wie viel</h2>
+        </div>
+
+        <div class="card">
+            <h3>🎯 Zielkunden</h3>
+            <table class="data-table">
+                <thead><tr><th>Zielgruppe</th><th>Problem</th><th>Dein Mehrwert</th><th>Zahlungsbereitschaft</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Immobilienmakler</strong></td>
+                        <td>Hebesätze manuell recherchieren vor jedem Verkauf</td>
+                        <td>Sofort abrufbar, immer aktuell</td>
+                        <td><span class="tag green">49-99 €/Mo</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Hausverwaltungen</strong></td>
+                        <td>Grundsteuer korrekt auf Mieter umlegen</td>
+                        <td>Automatische Alerts bei Änderungen</td>
+                        <td><span class="tag green">99-199 €/Mo</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Steuerberater</strong></td>
+                        <td>Mandanten zu Hebesätzen beraten</td>
+                        <td>Zeitersparnis bei Recherche</td>
+                        <td><span class="tag green">49-99 €/Mo</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Immobilien-Investoren</strong></td>
+                        <td>Standorte nach Steuerlast vergleichen</td>
+                        <td>Deutschlandweite Vergleichsdaten</td>
+                        <td><span class="tag orange">199-499 €/Mo</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>PropTech-Softwareanbieter</strong></td>
+                        <td>Keine aktuelle Hebesatz-Datenbank im System</td>
+                        <td>Daten als API oder monatlicher Import</td>
+                        <td><span class="tag red">500-2.000 €/Mo</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="grid2">
+            <div class="card">
+                <h3>📦 Produkt-Pakete</h3>
+                <div class="step-list">
+                    <div class="step green">
+                        <div class="step-num">S</div>
+                        <div class="step-body">
+                            <div class="step-title">Starter — 49 €/Monat</div>
+                            <div class="step-desc">1 Bundesland, wöchentliches Update, Google Sheet, E-Mail-Alert bei Änderung. Für Einzelmakler und kleine Kanzleien.</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">M</div>
+                        <div class="step-body">
+                            <div class="step-title">Professional — 149 €/Monat</div>
+                            <div class="step-desc">3 Bundesländer, tägliches Update, inkl. KfW-Förderungen, Änderungs-History, Prioritäts-Support.</div>
+                        </div>
+                    </div>
+                    <div class="step orange">
+                        <div class="step-num">L</div>
+                        <div class="step-body">
+                            <div class="step-title">Enterprise — 499 €/Monat</div>
+                            <div class="step-desc">Deutschlandweit, tägliches Update, API-Zugang, Bodenrichtwerte inklusive, individuelle Anforderungen.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📈 Umsatz-Hochrechnung</h3>
+                <table class="data-table">
+                    <thead><tr><th>Szenario</th><th>Kunden</th><th>∅ Preis</th><th>Monatlich</th></tr></thead>
+                    <tbody>
+                        <tr><td>Minimal (Monat 3)</td><td>3</td><td>49 €</td><td><strong>147 €</strong></td></tr>
+                        <tr><td>Realistisch (Monat 6)</td><td>10</td><td>99 €</td><td><strong>990 €</strong></td></tr>
+                        <tr><td>Gut (Monat 12)</td><td>20</td><td>149 €</td><td><strong>2.980 €</strong></td></tr>
+                        <tr><td>Skaliert (Jahr 2)</td><td>5 Enterprise</td><td>499 €</td><td><strong>2.495 €</strong></td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box green" style="margin-top:12px">
+                    <strong>Break-Even</strong>
+                    3 Starter-Kunden à 49 € = 147 € &gt; 38 € Betriebskosten. Du bist ab Kunde 1 profitabel.
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>🚀 Go-to-Market in 3 Schritten</h3>
+            <div class="step-list">
+                <div class="step green">
+                    <div class="step-num">1</div>
+                    <div class="step-body">
+                        <div class="step-title">LinkedIn-Post: "Ich baue den Grundsteuer-Monitor"</div>
+                        <div class="step-desc">Dokumentiere den Aufbau öffentlich — das zieht organisch erste Interessenten an. Zielgruppe: Immobilienmakler, Hausverwaltungen, Steuerberater auf LinkedIn ansprechen.</div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-body">
+                        <div class="step-title">Beta-Test mit 3 Kunden kostenlos</div>
+                        <div class="step-desc">Gib 3 Kunden 4 Wochen kostenlos Zugang gegen Feedback. Das gibt dir echte Testimonials und validiert den Bedarf bevor du zahlst.</div>
+                    </div>
+                </div>
+                <div class="step orange">
+                    <div class="step-num">3</div>
+                    <div class="step-body">
+                        <div class="step-title">Bezahl-Modell starten + Stripe einrichten</div>
+                        <div class="step-desc">Stripe für Abo-Zahlungen (0 € Grundgebühr, 1,5% + 0,25 € je Transaktion). Kunden zahlen per Kreditkarte oder SEPA — vollautomatisch.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: CHECKLISTE -->
+    <div id="tab-checkliste" class="section">
+        <div class="card">
+            <h2>✅ Deine persönliche Checkliste — Klicke zum Abhaken</h2>
+            <div id="progress-text" style="font-size:13px;color:var(--muted);margin-bottom:16px">Erledigt: <strong id="done-num">0</strong> von 20 Schritten</div>
+
+            <h3 style="margin-bottom:12px">🟢 Woche 1 — Hardware & Grundsetup</h3>
+            <div onclick="toggle(this)" class="check-step"><div class="chk"></div><div class="check-body"><div class="check-title">Mac Mini M4 kaufen (refurbished, 16 GB)</div><div class="check-desc">Back Market, asgoodasnew oder Apple Refurbished Store</div></div></div>
+            <div onclick="toggle(this)" class="check-step"><div class="chk"></div><div class="check-body"><div class="check-title">Mac Mini für 24/7 konfigurieren</div><div class="check-desc">Ruhezustand aus, Auto-Login aus, Screen Sharing an</div></div></div>
+            <div onclick="toggle(this)" class="check-step"><div class="chk"></div><div class="check-body"><div class="check-title">Homebrew installieren</div><div class="check-desc">Paketmanager — Basis für alles</div></div></div>
+            <div onclick="toggle(this)" class="check-step"><div class="chk"></div><div class="check-body"><div class="check-title">Python 3 + Bibliotheken installieren</div><div class="check-desc">beautifulsoup4, pandas, openpyxl, gspread</div></div></div>
+            <div onclick="toggle(this)" class="check-step"><div class="chk"></div><div class="check-body"><div class="check-title">Ollama + Mistral 7B installieren</div><div class="check-desc">~4 GB Download, einmal, dann offline nutzbar</div></div></div>
+
+            <h3 style="margin:20px 0 12px">🔵 Woche 2 — Tools & Verbindungen</h3>
+            <div onclick="toggle(this)" class="check-step"><div class="chk"></div><div class="check-body"><div class="check-title">n8n installieren und als Dienst starten</div><div class="check-desc">npm install -g n8n → brew services start n8n</div></div></div>
+            <div onclick="toggle(this)" class="check-step"><div class="chk"></div><div class="check-body"><div class="check-title">GitHub Account anlegen + Repository erstellen</div><div class="check-desc">github.com → kostenlos, für Code-Versionierung</div></div></div>
+            <div onclick="toggle(this)" class="check-step"><div class="chk"></div><div class="check-body"><div class="check-title">Google Cloud Console → Sheets API aktivieren</div><div class="check-desc">Service Account + JSON-Key herunterladen</div></div></div>
+            <div onclick="toggle(this)" class="check-step"><div class="chk"></div><div class="check-body"><div class="check-title">Google Sheets API in n8n als Credential hinterlegen</div><div class="check-desc">n8n → Credentials → Google Sheets</div></div></div>
+            <div onclick="toggle(this)" class="check-step"><div class="chk"></div><div class="check-body"><div class="check-title">Statistikportal.de Excel manuell herunterladen & analysieren</div><div class="check-desc">Datenstruktur verstehen bevor du automatisierst</div></div></div>
+
+            <h3 style="margin:20px 0 12px">🟠 Woche 3 — Pipeline bauen</h3>
+            <div onclick="toggle(this)" class="check-step"><div class="chk"></div><div class="check-body"><div class="check-title">Python-Scraper für Statistikportal schreiben</div><div class="check-desc">Excel laden → bereinigen → in SQLite speichern</div></div></div>
+            <div onclick="toggle(this)" class="check-step"><div class="chk"></div><div class="check-body"><div class="check-title">n8n Cron-Workflow erstellen (täglich 03:00 Uhr)</div><div class="check-desc">Cron Node → Python Script ausführen → Google Sheet updaten</div></div></div>
+            <div onclick="toggle(this)" class="check-step"><div class="chk"></div><div class="check-body"><div class="check-title">E-Mail-Alert bei Hebesatz-Änderung einrichten</div><div class="check-desc">n8n vergleicht neuen mit altem Wert → Gmail-Node</div></div></div>
+            <div onclick="toggle(this)" class="check-step"><div class="chk"></div><div class="check-body"><div class="check-title">Test mit NRW-Daten durchführen</div><div class="check-desc">Kompletten Durchlauf einmal manuell testen</div></div></div>
+            <div onclick="toggle(this)" class="check-step"><div class="chk"></div><div class="check-body"><div class="check-title">Demo-Google-Sheet für Kunden erstellen</div><div class="check-desc">Schönes Layout, Filteroptionen, Änderungshistory</div></div></div>
+
+            <h3 style="margin:20px 0 12px">🟣 Woche 4 — Kunden gewinnen</h3>
+            <div onclick="toggle(this)" class="check-step"><div class="chk"></div><div class="check-body"><div class="check-title">LinkedIn-Profil updaten: "Grundsteuer-Monitor" erwähnen</div><div class="check-desc">SAP PP Experte + KI-Datenprodukte</div></div></div>
+            <div onclick="toggle(this)" class="check-step"><div class="chk"></div><div class="check-body"><div class="check-title">3 Beta-Kunden ansprechen (Makler, Steuerberater)</div><div class="check-desc">Perplexity: Zielkunden in deiner Region recherchieren</div></div></div>
+            <div onclick="toggle(this)" class="check-step"><div class="chk"></div><div class="check-body"><div class="check-title">Stripe Account einrichten für Abo-Zahlungen</div><div class="check-desc">stripe.com → kostenlos, 1,5% + 0,25€ je Zahlung</div></div></div>
+            <div onclick="toggle(this)" class="check-step"><div class="chk"></div><div class="check-body"><div class="check-title">Ersten zahlenden Kunden gewinnen</div><div class="check-desc">Ziel: 49 €/Monat Starter-Paket</div></div></div>
+            <div onclick="toggle(this)" class="check-step"><div class="chk"></div><div class="check-body"><div class="check-title">Auf 2. Bundesland erweitern</div><div class="check-desc">Bayern oder Baden-Württemberg als nächstes</div></div></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Erstellt mit Claude · Stand März 2026 · Grundsteuer-Monitor Setup-Plan für Markus
+    </div>
+</div>
+
+<script>
+function showTab(name, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+}
+
+function toggle(el) {
+    el.classList.toggle('done');
+    const chk = el.querySelector('.chk');
+    if (el.classList.contains('done')) {
+        chk.textContent = '✓';
+    } else {
+        chk.textContent = '';
+    }
+    const done = document.querySelectorAll('.check-step.done').length;
+    document.getElementById('done-num').textContent = done;
+}
+</script>
+</body>
+</html>

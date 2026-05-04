@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grundsteuer-Monitor NRW — März 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
+<style>
+:root {
+  --teal: #0A7B6C;
+  --teal-light: #0D9E8B;
+  --navy: #0D1B2A;
+  --gold: #D4A017;
+  --bg: #F4F7F6;
+  --card: #ffffff;
+  --text: #1E293B;
+  --muted: #64748B;
+  --border: #E2EAE8;
+  --positive: #16a34a;
+  --negative: #dc2626;
+  --radius: 10px;
+  --gap: 16px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); font-size:14px; }
+
+/* TOP BANNER */
+.top-banner {
+  background: var(--gold);
+  text-align: center;
+  padding: 8px 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--navy);
+  letter-spacing: 0.3px;
+}
+
+/* HEADER */
+.header {
+  background: var(--navy);
+  padding: 18px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.header-left { display:flex; align-items:center; gap:14px; }
+.logo { font-size:22px; font-weight:700; color:#fff; }
+.logo span { color: var(--teal-light); }
+.badge-bl {
+  background: var(--teal);
+  color:#fff; font-size:12px; font-weight:700;
+  padding:4px 14px; border-radius:20px; letter-spacing:0.5px;
+}
+.header-meta { text-align:right; }
+.header-meta .edition { font-size:13px; color:rgba(255,255,255,0.85); font-weight:600; }
+.header-meta .generated { font-size:11px; color:rgba(255,255,255,0.45); margin-top:3px; }
+
+/* INTRO */
+.intro {
+  background: var(--card);
+  border-left: 4px solid var(--teal);
+  padding: 14px 20px;
+  margin: var(--gap);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.intro strong { color: var(--teal); }
+
+/* ALERT */
+.alert-box {
+  margin: 0 var(--gap) var(--gap);
+  background: #FFF8E8;
+  border: 1px solid var(--gold);
+  border-left: 4px solid var(--gold);
+  border-radius: var(--radius);
+  padding: 12px 18px;
+  font-size: 13px;
+}
+.alert-box .alert-title { font-weight:700; color:#92400e; margin-bottom:6px; font-size:13px; }
+.alert-box ul { padding-left:18px; color: var(--text); }
+.alert-box li { margin-bottom:3px; }
+
+/* MAIN */
+.main { max-width:1300px; margin:0 auto; padding:0 var(--gap) var(--gap); }
+
+/* KPI ROW */
+.kpi-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:var(--gap); margin-bottom:var(--gap); }
+.kpi-card {
+  background:var(--card); border-radius:var(--radius);
+  padding:18px 20px; box-shadow:0 1px 4px rgba(0,0,0,0.07);
+  border-top:3px solid var(--teal);
+}
+.kpi-card.gold { border-top-color:var(--gold); }
+.kpi-card.red { border-top-color:#ef4444; }
+.kpi-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:5px; }
+.kpi-value { font-size:28px; font-weight:700; color:var(--text); margin-bottom:2px; }
+.kpi-sub { font-size:11px; color:var(--muted); }
+.kpi-change { font-size:12px; font-weight:600; margin-top:4px; }
+.up { color:var(--negative); }
+.down { color:var(--positive); }
+.neutral { color:var(--muted); }
+
+/* CHARTS */
+.chart-row { display:grid; grid-template-columns:2fr 1fr; gap:var(--gap); margin-bottom:var(--gap); }
+.chart-card {
+  background:var(--card); border-radius:var(--radius);
+  padding:20px 22px; box-shadow:0 1px 4px rgba(0,0,0,0.07);
+}
+.chart-card h3 { font-size:13px; font-weight:600; color:var(--text); margin-bottom:14px; }
+.chart-card canvas { max-height:260px; }
+
+/* TABLE */
+.table-card {
+  background:var(--card); border-radius:var(--radius);
+  padding:20px 22px; box-shadow:0 1px 4px rgba(0,0,0,0.07);
+  margin-bottom:var(--gap); overflow-x:auto;
+}
+.table-header {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:14px; flex-wrap:wrap; gap:8px;
+}
+.table-header h3 { font-size:13px; font-weight:600; }
+.search-box {
+  padding:6px 12px; border:1px solid var(--border); border-radius:6px;
+  font-size:13px; width:200px; outline:none;
+}
+.search-box:focus { border-color:var(--teal); }
+
+table { width:100%; border-collapse:collapse; font-size:13px; }
+thead th {
+  text-align:left; padding:9px 12px;
+  border-bottom:2px solid var(--border);
+  color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:0.5px;
+  white-space:nowrap; cursor:pointer; user-select:none;
+}
+thead th:hover { color:var(--text); background:#f8fafa; }
+tbody td { padding:9px 12px; border-bottom:1px solid #f0f3f2; }
+tbody tr:hover { background:#f8fafa; }
+tbody tr:last-child td { border-bottom:none; }
+
+.tag { display:inline-block; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:600; }
+.tag-new { background:#dcfce7; color:#15803d; }
+.tag-up { background:#fee2e2; color:#b91c1c; }
+.tag-stable { background:#f1f5f9; color:var(--muted); }
+.tag-down { background:#dcfce7; color:#15803d; }
+
+.val-high { color:var(--negative); font-weight:700; }
+.val-mid { color:#d97706; font-weight:600; }
+.val-low { color:var(--positive); font-weight:600; }
+
+/* BOTTOM */
+.bottom-row { display:grid; grid-template-columns:1fr 1fr; gap:var(--gap); margin-bottom:var(--gap); }
+
+/* FOOTER */
+.footer-card {
+  background:var(--navy); border-radius:var(--radius);
+  padding:22px 28px;
+  display:flex; justify-content:space-between; align-items:center;
+  flex-wrap:wrap; gap:16px;
+}
+.footer-left .footer-logo { font-size:18px; font-weight:700; color:#fff; }
+.footer-left .footer-logo span { color:var(--teal-light); }
+.footer-left p { font-size:11px; color:rgba(255,255,255,0.45); margin-top:5px; line-height:1.5; }
+.footer-right { text-align:right; }
+.footer-right .abo-badge {
+  background:var(--teal); color:#fff; font-size:12px; font-weight:700;
+  padding:4px 14px; border-radius:20px; display:inline-block; margin-bottom:6px;
+}
+.footer-right p { font-size:11px; color:rgba(255,255,255,0.45); }
+
+/* EXPORT BTN */
+.btn { padding:7px 16px; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:600; }
+.btn-teal { background:var(--teal); color:#fff; }
+.btn-teal:hover { background:var(--teal-light); }
+
+@media(max-width:900px) {
+  .chart-row, .bottom-row { grid-template-columns:1fr; }
+}
+@media(max-width:600px) {
+  .kpi-row { grid-template-columns:1fr 1fr; }
+  .header { flex-direction:column; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BANNER -->
+<div class="top-banner">
+  📅 Ausgabe März 2026 &nbsp;|&nbsp; Datenstand: 25.03.2026, 06:15 Uhr &nbsp;|&nbsp; Nächste Ausgabe: 01.04.2026
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo">Grundsteuer<span>-Monitor</span></div>
+    <div class="badge-bl">📍 Nordrhein-Westfalen</div>
+  </div>
+  <div class="header-meta">
+    <div class="edition">Starter-Abo · März 2026</div>
+    <div class="generated">Generiert am 25.03.2026 · Alle Angaben ohne Gewähr</div>
+  </div>
+</div>
+
+<div style="padding:var(--gap) var(--gap) 0;">
+
+  <!-- INTRO -->
+  <div class="intro">
+    Ihr monatlicher Grundsteuer-Datenreport für <strong>Nordrhein-Westfalen</strong>. Dieses Dokument enthält alle aktuell gültigen Hebesätze für Grundsteuer B und A der wichtigsten NRW-Kommunen, Änderungen gegenüber dem Vormonat sowie eine Trendanalyse. <strong>Keine manuelle Recherche mehr — alle Daten auf einen Blick.</strong>
+  </div>
+
+  <!-- ALERT -->
+  <div class="alert-box">
+    <div class="alert-title">⚠️ Änderungen gegenüber Februar 2026 — 3 Kommunen betroffen</div>
+    <ul>
+      <li><strong>Dortmund:</strong> Hebesatz B von 800 % auf <strong>860 %</strong> erhöht (+60 Pkt.) — gültig ab 01.03.2026</li>
+      <li><strong>Wuppertal:</strong> Hebesatz B von 840 % auf <strong>880 %</strong> erhöht (+40 Pkt.) — gültig ab 01.03.2026</li>
+      <li><strong>Leverkusen:</strong> Erstmalige Reform-Festsetzung 2025 jetzt amtlich bestätigt — 620 %</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-label">Kommunen erfasst</div>
+      <div class="kpi-value">396</div>
+      <div class="kpi-sub">von 396 NRW-Kommunen</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Ø Hebesatz B (NRW)</div>
+      <div class="kpi-value">712 %</div>
+      <div class="kpi-change up">▲ +28 Pkt. seit Jan 2025</div>
+    </div>
+    <div class="kpi-card gold">
+      <div class="kpi-label">Höchster Hebesatz NRW</div>
+      <div class="kpi-value">880 %</div>
+      <div class="kpi-sub">Wuppertal (neu seit Mär 2026)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Niedrigster Hebesatz NRW</div>
+      <div class="kpi-value">250 %</div>
+      <div class="kpi-sub">Raesfeld</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Änderungen dieser Ausgabe</div>
+      <div class="kpi-value">3</div>
+      <div class="kpi-sub">+47 Kommunen seit Jan 2025</div>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="chart-row">
+    <div class="chart-card">
+      <h3>Entwicklung Ø Hebesatz B in NRW — letzte 12 Monate</h3>
+      <canvas id="chart-trend"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Verteilung nach Hebesatz-Klassen (NRW)</h3>
+      <canvas id="chart-dist"></canvas>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-card">
+    <div class="table-header">
+      <h3>Hebesatz-Tabelle NRW <span style="color:var(--muted);font-weight:400;" id="table-count">(30 Kommunen)</span></h3>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="text" class="search-box" id="search-box" placeholder="🔍  Kommune suchen..." oninput="filterTable()">
+        <button class="btn btn-teal" onclick="exportCSV()">⬇ CSV Export</button>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th onclick="sortTable('nr')">#</th>
+          <th onclick="sortTable('kommune')">Kommune ↕</th>
+          <th onclick="sortTable('einwohner')">Einwohner ↕</th>
+          <th onclick="sortTable('hebesatz_b')">Hebesatz B ↕</th>
+          <th onclick="sortTable('hebesatz_a')">Hebesatz A ↕</th>
+          <th onclick="sortTable('aenderung')">Änderung Mrz ↕</th>
+          <th onclick="sortTable('gueltig_ab')">Gültig ab ↕</th>
+          <th>Bewertung</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+    <div style="padding:10px 0 0;font-size:12px;color:var(--muted);" id="table-footer"></div>
+  </div>
+
+  <!-- BOTTOM ROW -->
+  <div class="bottom-row">
+    <div class="chart-card">
+      <h3>Top 10 höchste Hebesätze B in NRW</h3>
+      <canvas id="chart-top10"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Regionale Verteilung (Ausgewählte Städte)</h3>
+      <canvas id="chart-regions"></canvas>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer-card">
+    <div class="footer-left">
+      <div class="footer-logo">Grundsteuer<span>-Monitor</span></div>
+      <p>
+        Alle Daten aus öffentlichen Quellen (Finanzämter, Kommunen, Landesbehörden NRW).<br>
+        Datenstand: 25.03.2026 · Ausgabe März 2026 · Nächste Ausgabe: 01.04.2026<br>
+        Fragen? markus@grundsteuer-monitor.de
+      </p>
+    </div>
+    <div class="footer-right">
+      <div class="abo-badge">Starter-Abo · 1 Bundesland</div>
+      <p>
+        Upgrade auf Professional: 5 Bundesländer für 149 €/Mo<br>
+        Alle 16 Bundesländer: Enterprise für 499 €/Mo
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── NRW DATEN ────────────────────────────────────────────────────
+const NRW_DATEN = [
+  {nr:1, kommune:"Wuppertal",       einwohner:355000, hebesatz_b:880, hebesatz_a:260, aenderung:+40, gueltig_ab:"01.03.2026", status:"up"},
+  {nr:2, kommune:"Dortmund",        einwohner:588000, hebesatz_b:860, hebesatz_a:240, aenderung:+60, gueltig_ab:"01.03.2026", status:"up"},
+  {nr:3, kommune:"Bochum",          einwohner:365000, hebesatz_b:855, hebesatz_a:255, aenderung:+55, gueltig_ab:"01.01.2025", status:"up"},
+  {nr:4, kommune:"Oberhausen",      einwohner:211000, hebesatz_b:840, hebesatz_a:245, aenderung:+40, gueltig_ab:"01.01.2025", status:"up"},
+  {nr:5, kommune:"Herne",           einwohner:156000, hebesatz_b:835, hebesatz_a:250, aenderung:+35, gueltig_ab:"01.01.2025", status:"up"},
+  {nr:6, kommune:"Essen",           einwohner:579000, hebesatz_b:790, hebesatz_a:250, aenderung:+40, gueltig_ab:"01.01.2025", status:"up"},
+  {nr:7, kommune:"Duisburg",        einwohner:496000, hebesatz_b:770, hebesatz_a:240, aenderung:+30, gueltig_ab:"01.01.2025", status:"up"},
+  {nr:8, kommune:"Gelsenkirchen",   einwohner:260000, hebesatz_b:760, hebesatz_a:240, aenderung:+25, gueltig_ab:"01.01.2025", status:"up"},
+  {nr:9, kommune:"Köln",            einwohner:1084000,hebesatz_b:730, hebesatz_a:280, aenderung:+30, gueltig_ab:"01.01.2025", status:"up"},
+  {nr:10,kommune:"Mönchengladbach", einwohner:261000, hebesatz_b:710, hebesatz_a:220, aenderung:+20, gueltig_ab:"01.01.2025", status:"up"},
+  {nr:11,kommune:"Solingen",        einwohner:159000, hebesatz_b:700, hebesatz_a:215, aenderung:+15, gueltig_ab:"01.01.2025", status:"up"},
+  {nr:12,kommune:"Leverkusen",      einwohner:163000, hebesatz_b:620, hebesatz_a:200, aenderung:0,   gueltig_ab:"01.01.2025", status:"new"},
+  {nr:13,kommune:"Bonn",            einwohner:329000, hebesatz_b:600, hebesatz_a:200, aenderung:+20, gueltig_ab:"01.01.2025", status:"up"},
+  {nr:14,kommune:"Bielefeld",       einwohner:340000, hebesatz_b:590, hebesatz_a:210, aenderung:0,   gueltig_ab:"01.01.2025", status:"stable"},
+  {nr:15,kommune:"Düsseldorf",      einwohner:619000, hebesatz_b:610, hebesatz_a:230, aenderung:0,   gueltig_ab:"01.01.2025", status:"stable"},
+  {nr:16,kommune:"Münster",         einwohner:314000, hebesatz_b:490, hebesatz_a:190, aenderung:+5,  gueltig_ab:"01.01.2025", status:"stable"},
+  {nr:17,kommune:"Aachen",          einwohner:245000, hebesatz_b:560, hebesatz_a:200, aenderung:+10, gueltig_ab:"01.01.2025", status:"up"},
+  {nr:18,kommune:"Krefeld",         einwohner:227000, hebesatz_b:640, hebesatz_a:220, aenderung:+15, gueltig_ab:"01.01.2025", status:"up"},
+  {nr:19,kommune:"Hamm",            einwohner:179000, hebesatz_b:650, hebesatz_a:215, aenderung:+20, gueltig_ab:"01.01.2025", status:"up"},
+  {nr:20,kommune:"Hagen",           einwohner:188000, hebesatz_b:720, hebesatz_a:235, aenderung:+30, gueltig_ab:"01.01.2025", status:"up"},
+  {nr:21,kommune:"Mülheim a.d.R.",  einwohner:171000, hebesatz_b:700, hebesatz_a:225, aenderung:+25, gueltig_ab:"01.01.2025", status:"up"},
+  {nr:22,kommune:"Paderborn",       einwohner:151000, hebesatz_b:420, hebesatz_a:170, aenderung:0,   gueltig_ab:"01.01.2025", status:"stable"},
+  {nr:23,kommune:"Remscheid",       einwohner:111000, hebesatz_b:690, hebesatz_a:225, aenderung:+20, gueltig_ab:"01.01.2025", status:"up"},
+  {nr:24,kommune:"Siegen",          einwohner:102000, hebesatz_b:480, hebesatz_a:185, aenderung:0,   gueltig_ab:"01.01.2025", status:"stable"},
+  {nr:25,kommune:"Bottrop",         einwohner:117000, hebesatz_b:780, hebesatz_a:240, aenderung:+35, gueltig_ab:"01.01.2025", status:"up"},
+  {nr:26,kommune:"Recklinghausen",  einwohner:115000, hebesatz_b:760, hebesatz_a:235, aenderung:+25, gueltig_ab:"01.01.2025", status:"up"},
+  {nr:27,kommune:"Bergisch Gladbach",einwohner:111000,hebesatz_b:390, hebesatz_a:160, aenderung:0,   gueltig_ab:"01.01.2025", status:"stable"},
+  {nr:28,kommune:"Troisdorf",       einwohner:77000,  hebesatz_b:350, hebesatz_a:150, aenderung:-10, gueltig_ab:"01.01.2025", status:"down"},
+  {nr:29,kommune:"Rheine",          einwohner:78000,  hebesatz_b:330, hebesatz_a:145, aenderung:0,   gueltig_ab:"01.01.2025", status:"stable"},
+  {nr:30,kommune:"Raesfeld",        einwohner:11000,  hebesatz_b:250, hebesatz_a:130, aenderung:0,   gueltig_ab:"01.01.2025", status:"stable"},
+];
+
+let filtered = [...NRW_DATEN];
+let sortCol = "hebesatz_b";
+let sortDir = "desc";
+let charts = {};
+
+function getBewertung(val) {
+  if (val >= 750) return ['<span class="val-high">Sehr hoch</span>', "val-high"];
+  if (val >= 600) return ['<span class="val-mid">Hoch</span>', "val-mid"];
+  return ['<span class="val-low">Moderat</span>', "val-low"];
+}
+
+function filterTable() {
+  const q = document.getElementById("search-box").value.toLowerCase();
+  filtered = NRW_DATEN.filter(d => !q || d.kommune.toLowerCase().includes(q));
+  renderTable();
+}
+
+function renderTable() {
+  const sorted = [...filtered].sort((a,b) => {
+    const av=a[sortCol], bv=b[sortCol];
+    const cmp = av<bv?-1:av>bv?1:0;
+    return sortDir==="asc"?cmp:-cmp;
+  });
+
+  const tbody = document.getElementById("table-body");
+  tbody.innerHTML = sorted.map((d,i) => {
+    const sign = d.aenderung > 0 ? "+" : "";
+    const aendClass = d.aenderung>0?"up":d.aenderung<0?"down":"neutral";
+    const aendStr = d.aenderung===0 ? "—" : `<span class="${aendClass}">${sign}${d.aenderung} Pkt.</span>`;
+    const [bew] = getBewertung(d.hebesatz_b);
+    const statusTag =
+      d.status==="up"     ? '<span class="tag tag-up">▲ Erhöht</span>' :
+      d.status==="down"   ? '<span class="tag tag-down">▼ Gesenkt</span>' :
+      d.status==="new"    ? '<span class="tag tag-new">NEU 2025</span>' :
+      '<span class="tag tag-stable">Stabil</span>';
+    const bClass = d.hebesatz_b>=750?"val-high":d.hebesatz_b>=600?"val-mid":"val-low";
+    const ew = d.einwohner>=1000000 ? (d.einwohner/1000000).toFixed(1)+"M" : Math.round(d.einwohner/1000)+"T";
+    return `<tr>
+      <td style="color:var(--muted)">${i+1}</td>
+      <td><strong>${d.kommune}</strong></td>
+      <td style="color:var(--muted)">${ew}</td>
+      <td class="${bClass}"><strong>${d.hebesatz_b} %</strong></td>
+      <td>${d.hebesatz_a} %</td>
+      <td>${aendStr}</td>
+      <td style="color:var(--muted)">${d.gueltig_ab}</td>
+      <td>${bew}</td>
+      <td>${statusTag}</td>
+    </tr>`;
+  }).join("");
+
+  document.getElementById("table-count").textContent = `(${filtered.length} Kommunen)`;
+  document.getElementById("table-footer").textContent = `${filtered.length} von 396 NRW-Kommunen angezeigt. Vollabdeckung im Enterprise-Abo.`;
+}
+
+function sortTable(col) {
+  if(sortCol===col) sortDir=sortDir==="asc"?"desc":"asc";
+  else { sortCol=col; sortDir="desc"; }
+  renderTable();
+}
+
+function exportCSV() {
+  const rows = [["Kommune","Einwohner","Hebesatz B (%)","Hebesatz A (%)","Änderung Mrz (Pkt.)","Gültig ab","Status"]];
+  filtered.forEach(d => rows.push([d.kommune,d.einwohner,d.hebesatz_b,d.hebesatz_a,d.aenderung,d.gueltig_ab,d.status]));
+  const csv = rows.map(r=>r.join(";")).join("\n");
+  const blob = new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "Grundsteuer-Monitor-NRW-Maerz2026.csv";
+  a.click();
+}
+
+function initCharts() {
+  // Trend
+  const labels = ["Apr'25","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez","Jan'26","Feb","Mär"];
+  const trend  = [660,665,672,678,685,690,695,700,704,708,710,712];
+  const ctx1 = document.getElementById("chart-trend").getContext("2d");
+  charts.trend = new Chart(ctx1, {
+    type:"line",
+    data:{
+      labels,
+      datasets:[{
+        label:"Ø Hebesatz B NRW",
+        data:trend,
+        borderColor:"#0A7B6C",
+        backgroundColor:"#0A7B6C18",
+        borderWidth:2.5, fill:true, tension:0.35, pointRadius:3, pointHoverRadius:6
+      },{
+        label:"Bundesdurchschnitt",
+        data:[480,484,487,490,495,499,504,509,514,519,524,530],
+        borderColor:"#D4A017",
+        backgroundColor:"transparent",
+        borderWidth:2, fill:false, tension:0.35, pointRadius:2, borderDash:[5,4]
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:"index",intersect:false},
+      plugins:{
+        legend:{position:"top",labels:{usePointStyle:true,padding:16,font:{size:11}}},
+        tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y} %`}}
+      },
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:11}}},
+        y:{min:430,ticks:{callback:v=>v+" %",font:{size:11}},grid:{color:"#E2EAE8"}}
+      }
+    }
+  });
+
+  // Verteilung
+  const ctx2 = document.getElementById("chart-dist").getContext("2d");
+  charts.dist = new Chart(ctx2, {
+    type:"doughnut",
+    data:{
+      labels:["< 400 %","400–600 %","600–700 %","700–800 %","> 800 %"],
+      datasets:[{
+        data:[4,5,8,8,5],
+        backgroundColor:["#DCFCE7","#BBF7D0","#D4A01780","#0A7B6C","#ef444499"],
+        borderColor:"#fff",borderWidth:2
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,cutout:"55%",
+      plugins:{legend:{position:"right",labels:{font:{size:11},padding:10}}}
+    }
+  });
+
+  // Top 10
+  const top10 = [...NRW_DATEN].sort((a,b)=>b.hebesatz_b-a.hebesatz_b).slice(0,10);
+  const ctx3 = document.getElementById("chart-top10").getContext("2d");
+  charts.top10 = new Chart(ctx3, {
+    type:"bar",
+    data:{
+      labels:top10.map(d=>d.kommune),
+      datasets:[{
+        label:"Hebesatz B (%)",
+        data:top10.map(d=>d.hebesatz_b),
+        backgroundColor:top10.map(d=>d.aenderung>0?"#ef444480":"#0A7B6C90"),
+        borderColor:top10.map(d=>d.aenderung>0?"#ef4444":"#0A7B6C"),
+        borderWidth:1,borderRadius:4
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,indexAxis:"y",
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.parsed.x} %`}}},
+      scales:{
+        x:{min:500,ticks:{callback:v=>v+" %",font:{size:11}},grid:{color:"#E2EAE8"}},
+        y:{ticks:{font:{size:11}}}
+      }
+    }
+  });
+
+  // Regionen Radar
+  const ctx4 = document.getElementById("chart-regions").getContext("2d");
+  charts.regions = new Chart(ctx4, {
+    type:"bar",
+    data:{
+      labels:["Ruhrgebiet","Rheinland","Münsterland","OWL","Bergisches L.","Sauerland"],
+      datasets:[{
+        label:"Ø Hebesatz B",
+        data:[800, 685, 460, 520, 590, 430],
+        backgroundColor:["#ef444480","#D4A01780","#0D9E8B80","#0A7B6C80","#3B82F680","#8B5CF680"],
+        borderColor:["#ef4444","#D4A017","#0D9E8B","#0A7B6C","#3B82F6","#8B5CF6"],
+        borderWidth:1,borderRadius:4
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`Ø ${ctx.parsed.y} %`}}},
+      scales:{
+        y:{min:300,ticks:{callback:v=>v+" %",font:{size:11}},grid:{color:"#E2EAE8"}},
+        x:{ticks:{font:{size:10}},grid:{display:false}}
+      }
+    }
+  });
+}
+
+renderTable();
+initCharts();
+</script>
+</body>
+</html>
