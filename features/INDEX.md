@@ -12,7 +12,8 @@
 
 | ID | Feature | Status | Spec | Created |
 |----|---------|--------|------|---------|
+| PROJ-1 | Bundesweite Hebesatz-Datenbank (A, B, Gewerbe) | Planned | [PROJ-1-hebesatz-datenbank.md](PROJ-1-hebesatz-datenbank.md) | 2026-05-04 |
 
 <!-- Add features above this line -->
 
-## Next Available ID: PROJ-1
+## Next Available ID: PROJ-2
