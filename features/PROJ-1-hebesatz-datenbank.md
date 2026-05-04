@@ -101,12 +101,17 @@ App (Next.js)
 │   │   ├── Tabellenzeilen          ← 50/Seite, sortiert Bundesland → Gemeinde
 │   │   └── Leerzustand             ← "Noch nicht verfügbar" wenn keine Treffer
 │   ├── SeitenNavigation            ← Zurück / Weiter / Seitennummer
-│   └── AdminButton                 ← Nur für Admin-Nutzer sichtbar
-│       └── AdminFormular (Dialog)
-│           ├── Pflicht: Gemeindename, Bundesland, Grundsteuer B
-│           └── Optional: GrSt A, GewSt, Vorjahr B, Kreis, Quellenstatus, Datenstand
+│   └── AdminLink                   ← Nur für Admin-Nutzer sichtbar → führt zu /admin/datenbank
 │
-└── Middleware                      ← Prüft Session bei jedem Aufruf → /login wenn nicht eingeloggt
+├── /admin/datenbank                ← Eigene Admin-Seite (nur Admin-Rolle)
+│   ├── DatensatzListe              ← Übersicht aller Einträge mit Bearbeiten/Löschen
+│   └── AdminFormular
+│       ├── Pflicht: Gemeindename, Bundesland, Grundsteuer B
+│       └── Optional: GrSt A, GewSt, Vorjahr B, Kreis, Quellenstatus, Datenstand
+│
+└── Middleware                      ← Prüft Session + Rolle:
+                                      /datenbank        → eingeloggt erforderlich
+                                      /admin/datenbank  → Admin-Rolle erforderlich
 ```
 
 ### Datenspeicherung
@@ -134,7 +139,7 @@ App (Next.js)
 | Supabase PostgreSQL | Bereits eingerichtet, bringt Auth + RLS |
 | Serverseitige Paginierung | 11.000+ Gemeinden bundesweit — alles laden wäre zu langsam |
 | Next.js Middleware für Auth | Schützt Routen server-seitig, bevor Seite geladen wird |
-| Admin-Dialog statt eigener Seite | Kontextnah, kein Extra-Pfad nötig |
+| Admin-Bereich als eigene Seite (`/admin/datenbank`) | Klare Trennung Nutzer- vs. Admin-Workflow, eigene URL für Bookmarks, Listen-Übersicht hat Platz |
 | Δ-Berechnung im Frontend | Einfache Subtraktion, kein Datenbankjob nötig |
 | shadcn/ui Komponenten | Table, Select, Input, Dialog, Pagination bereits installiert |
 
