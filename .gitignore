@@ -38,6 +38,7 @@ apppro_backup_*.json
 .env
 .env.*
 .env*.local
+supabaseuser.txt
 *.pem
 .mcp.json
 .vercel

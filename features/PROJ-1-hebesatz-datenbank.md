@@ -184,6 +184,33 @@ App (Next.js)
    values ('<deine-auth-user-uuid>', 'admin');
    ```
 
+### Implementation Notes (Frontend)
+**Date:** 2026-05-18
+**Branch:** `feat/proj-1-backend`
+
+**Was wurde gebaut**
+- Neue Startseite mit GrundsteuerMonitor-Positionierung.
+- Login-Seite `/login` mit Supabase E-Mail/Passwort-Anmeldung.
+- Nutzerseite `/datenbank` mit Suche, Bundesland-Filter, 50er-Paginierung, responsiver Tabelle, Delta-Anzeige, Leerzustand und Quellenstatus.
+- Admin-Seite `/admin/datenbank` mit Formular fuer neue Datensaetze, Bearbeitung, Loeschfunktion und optionalen Feldern.
+
+**Technischer Check**
+- `npm.cmd run build` erfolgreich.
+- `/` und `/login` liefern lokal HTTP 200.
+- `/datenbank` und `/admin/datenbank` leiten ohne Login korrekt zur Login-Seite weiter.
+- Browser-Sichtpruefung wurde versucht, aber lokale localhost-Aufrufe wurden in der In-App-Browseroberflaeche blockiert.
+
+### MVP Abrundung
+**Date:** 2026-05-18
+
+**Was wurde ergaenzt**
+- Demo-Hinweis auf der Datenbankseite, damit Testdaten nicht mit amtlich geprueften Daten verwechselt werden.
+- Logout-Button in der Navigation.
+- Deutsche Anzeige verbessert: Umlaute in UI-Texten, Status `bestätigt`, Anzeige von `Koeln` als `Köln` und `Muenster` als `Münster`.
+- Umlaut-Suche normalisiert Eingaben wie `Köln` zu `Koeln`.
+- Demo-Daten als wiederholbares SQL in `supabase/seed_demo_municipalities.sql` gesichert.
+- `supabaseuser.txt` in `.gitignore` aufgenommen, damit lokale Zugangsdaten nicht versehentlich ins Repository gelangen.
+
 ## QA Test Results
 _To be added by /qa_
 
