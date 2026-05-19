@@ -11,6 +11,9 @@ export interface Municipality {
   vorjahr_b: number | null
   datenstand: string | null
   quellenstatus: Quellenstatus
+  source_import_run_id: string | null
+  quellenname: string | null
+  quellen_url: string | null
   created_at: string
   updated_at: string
   created_by: string | null

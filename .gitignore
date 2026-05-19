@@ -33,12 +33,15 @@ yarn-error.log*
 grundsteuer-monitor-export*.csv
 grundsteuer-monitor-daten*.json
 apppro_backup_*.json
+test-import*.csv
 
 # Secrets und lokale Konfiguration
 .env
 .env.*
 .env*.local
+supabaseuser.txt
 *.pem
 .mcp.json
 .vercel
 .claude/settings.local.json
+.claude/worktrees/

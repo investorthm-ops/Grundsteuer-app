@@ -38,3 +38,7 @@ npm run build
 ## Status
 
 Privates Arbeitsprojekt. Nicht oeffentlich veroeffentlichen.
+
+## Verarbeitete Produktgrundlagen
+
+- `docs/chatgpt-share-2026-05-18-auswertung.md` - Auswertung des geteilten ChatGPT-Chats mit Positionierung, MVP-Fokus, Datenstrategie und naechsten Features.
