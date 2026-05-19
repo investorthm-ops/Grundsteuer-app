@@ -4,6 +4,8 @@
 
 **Live-Demo:** https://grundsteuer-app.vercel.app
 
+![Hebesatz-Datenbank — Übersicht mit Suche, Bundesland-Filter und Vergleich Vorjahr/Aktuell](docs/screenshots/datenbank.png)
+
 ---
 
 ## Worum es geht
