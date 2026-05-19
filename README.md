@@ -1,44 +1,103 @@
 # Grundsteuer-Monitor
 
-Privates Arbeitsprojekt fuer einen spaeteren Grundsteuer-Monitor als Abo-Produkt.
+> Bundesweite Transparenz für kommunale Hebesätze (Grundsteuer A, Grundsteuer B, Gewerbesteuer) — Datenbank, Vergleich, Import-Pipeline und Export. Next.js 16 + Supabase.
 
-## Ziel
+**Live-Demo:** https://grundsteuer-app.vercel.app
 
-Das Projekt sammelt und vergleicht kommunale Grundsteuer-Hebesaetze. Die lokale MVP-Version dient dazu, Datenpflege, Filter, Exporte, Beobachtungslisten und erste Kundenpakete zu testen.
+---
 
-Parallel liegt im Repo bereits eine Next.js/Supabase-Projektstruktur. Diese kann spaeter genutzt werden, um aus dem lokalen HTML-MVP eine echte Web-App mit Login, Datenbank und Abo-Zugriff zu bauen.
+## Worum es geht
 
-## Wichtige MVP-Dateien
+Hebesätze deutscher Kommunen sind öffentlich, aber zersplittert: Amtsblätter, Statistikämter, Kommunal-Webseiten. Wer Standortentscheidungen trifft, Mandanten berät oder Bestände bewertet, sucht heute manuell zusammen, was eigentlich eine Datenbank-Abfrage sein sollte.
 
-- `Grundsteuer-Monitor-MVP.html` - aktuelle lokale MVP-App
-- `Grundsteuer-Monitor-Demo.html` - erste Demo-Version
-- `Grundsteuer-Monitor-NRW-Maerz2026.html` - fruehe NRW-Variante
-- `grundsteuer-monitor-landingpage.html` - Landingpage-Entwurf
-- `Grundsteuer-Monitor-Setupplan.html` - Setup- und Produktplanung
-- `Grundsteuer-Monitor-Pitch.pdf` und `.pptx` - Pitch-Unterlagen
+Der Grundsteuer-Monitor zentralisiert das: gepflegte Hebesatz-Datenbank für alle 16 Bundesländer, Vergleich, Watchlist mit Änderungs-Alerts, CSV/Excel-Export.
 
-## Lokale Nutzung
+**Zielgruppen:** Steuerberater, Immobilieninvestoren, Kommunen, Mittelstand.
 
-Die MVP-Datei kann direkt im Browser geoeffnet werden. Es ist kein Server und keine Installation notwendig.
+---
 
-Die App speichert Testdaten lokal im Browser des Rechners. CSV- und JSON-Exporte koennen aus der App heraus erstellt werden.
+## Tech-Stack
 
-## Web-App-Struktur
+| Layer | Tool |
+|-------|------|
+| Framework | Next.js 16 (App Router), TypeScript |
+| Styling | Tailwind CSS + shadcn/ui |
+| Backend | Supabase (PostgreSQL, Auth, Row Level Security) |
+| Validierung | Zod + react-hook-form |
+| Deployment | Vercel |
+| Workflow | Claude Code Skill Pipeline |
 
-Das Repo enthaelt ausserdem einen Next.js-Starter mit TypeScript, Tailwind CSS, shadcn/ui und optionalem Supabase-Client.
+---
 
-Typische Befehle fuer die spaetere Web-App:
+## Features (Stand)
+
+| ID | Feature | Status |
+|----|---------|--------|
+| PROJ-1 | Bundesweite Hebesatz-Datenbank — suchbar, filterbar, paginiert | ✅ MVP |
+| PROJ-4 | Import-Pipeline — Admin-CSV-Upload mit Staging, Row-Validierung, Approval-Workflow, Audit-Trail | ✅ MVP |
+| PROJ-5 | CSV/Excel-Export der Municipality-Daten | ✅ MVP |
+| PROJ-2 | Watchlist + Änderungs-Alerts | 📋 Geplant |
+| PROJ-3 | SEO-Stadtseiten | 📋 Geplant |
+| PROJ-6 | Renditeauswirkungs-Rechner | 📋 Geplant |
+
+Detaillierte Specs pro Feature unter [`features/`](features/). Übersicht: [`features/INDEX.md`](features/INDEX.md).
+
+---
+
+## Lokales Setup
+
+**Voraussetzungen:** Node.js 20+, ein Supabase-Projekt (kostenloser Free-Tier reicht).
 
 ```bash
+git clone https://github.com/investorthm-ops/Grundsteuer-app.git
+cd Grundsteuer-app
 npm install
+
+# Env-Vars setzen
+cp .env.local.example .env.local
+# .env.local mit Supabase-URL und Anon-Key füllen
+
+# Migrationen anwenden (Supabase CLI)
+supabase db push
+
+# Optional: Seed-Daten für Demo-Municipalities
+psql <connection-string> -f supabase/seed_demo_municipalities.sql
+
 npm run dev
-npm run build
 ```
 
-## Status
+App läuft auf http://localhost:3000.
 
-Privates Arbeitsprojekt. Nicht oeffentlich veroeffentlichen.
+---
 
-## Verarbeitete Produktgrundlagen
+## Architektur-Highlights
 
-- `docs/chatgpt-share-2026-05-18-auswertung.md` - Auswertung des geteilten ChatGPT-Chats mit Positionierung, MVP-Fokus, Datenstrategie und naechsten Features.
+- **Row Level Security statt Service-Role-Key.** Server-side-Zugriffe gehen über die User-Session via `@supabase/ssr`. Autorisierung wird durch RLS + `user_roles`-Tabelle erzwungen. Kein Bypass-Pfad.
+- **Import-Staging.** CSV-Uploads landen zuerst in `import_runs` + `import_rows`, werden validiert (Pflichtfelder, Bundesland-Whitelist, Hebesatz 0–2000, Delta-Flagging), und müssen pro Run vom Admin approved werden, bevor sie in die Live-Tabelle wandern.
+- **Audit-Trail.** Jeder Import-Run trägt Quelle, Datum, ausführender User, Resultat-Counts.
+
+Architektur-Diagramm: [`diagrams/grundsteuer-monitor-projektueberblick.png`](diagrams/grundsteuer-monitor-projektueberblick.png).
+
+---
+
+## Über das Projekt
+
+Das ist ein **Lern- und Portfolio-Projekt** eines Solo-Entwicklers (Markus, SAP-Berater, Selbstständigkeit nebenher). Ziel ist nicht primär kommerzielle Skalierung, sondern:
+
+1. Eine reale Domäne mit Tiefe (Steuerrecht, Datenpflege) ernsthaft durcharbeiten.
+2. Den Claude-Code-Skill-Pipeline-Workflow (`/requirements` → `/architecture` → `/backend` → `/frontend` → `/qa` → `/deploy`) an einem nicht-trivialen Beispiel testen.
+3. Einen sauberen Next.js + Supabase Tech-Stack tief verstehen.
+
+Pull Requests, Feedback und Diskussionen sind willkommen.
+
+---
+
+## Legacy-Artefakte
+
+Im Repo-Root finden sich noch ältere HTML-MVPs und Pitch-Unterlagen aus der Vor-Phase (`Grundsteuer-Monitor-MVP.html`, `Grundsteuer-Monitor-Pitch.pdf`, ...). Diese sind historisch und werden nicht mehr gepflegt. Die aktuelle Implementation ist die Next.js-App unter [`src/`](src/).
+
+---
+
+## Lizenz
+
+MIT — siehe [LICENSE](LICENSE).
