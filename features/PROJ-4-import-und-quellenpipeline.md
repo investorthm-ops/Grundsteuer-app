@@ -409,8 +409,9 @@ Alle Import-APIs sind Admin-only. Die bestehende Nutzer-API fuer `municipalities
 - [x] `npm.cmd run build` erfolgreich.
 - [x] Lokaler Routencheck `/admin/importe` liefert HTTP 200.
 - [x] UI-Texte fuer Importstatus, Button und Empty State wurden auf Umlaut-Darstellung korrigiert.
-- [ ] Interaktive Browser-Automation nicht abgeschlossen: `playwright` war lokal nicht installiert, `npx playwright-cli open` lief in ein Timeout.
-- [ ] Vollstaendiger Supabase-End-to-End-Test mit echter Migration und Admin-Session steht noch aus.
+- [x] Interaktiver Browser-Test im laufenden lokalen Browser erfolgreich: CSV hochgeladen, Vorschau geprueft, pruefbare Zeilen freigegeben.
+- [x] Vollstaendiger Supabase-End-to-End-Test mit echter Migration und Admin-Session erfolgreich.
+- [x] Freigegebene Werte wurden in `/datenbank` sichtbar: Koeln `895 %`, Muenster `760 %`.
 
 ### Bugs Found
 
@@ -421,8 +422,8 @@ Keine Critical- oder High-Bugs im Code-/Build-Check gefunden.
 - **Acceptance Criteria:** 30/30 implementiert
 - **Bugs Found:** 0 Critical, 0 High
 - **Security:** Code- und Migrationscheck bestanden
-- **Production Ready:** NO
-- **Recommendation:** Erst Migration in Supabase ausfuehren und danach einen echten Admin-Upload im Browser testen.
+- **Production Ready:** YES
+- **Recommendation:** Bereit fuer Deployment-Vorbereitung. Vor Produktivbetrieb echte Importdateien fachlich gegen Quelle gegenpruefen.
 
 ## Deployment
 _To be added by /deploy_
