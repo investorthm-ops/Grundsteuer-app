@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Building2, Database, ShieldCheck } from 'lucide-react'
+import { Building2, Database, FileUp, ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { LogoutButton } from '@/components/logout-button'
 
@@ -42,6 +42,12 @@ export function AppShell({
               <Link href="/admin/datenbank">
                 <ShieldCheck className="mr-2 h-4 w-4" aria-hidden="true" />
                 Admin
+              </Link>
+            </Button>
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/admin/importe">
+                <FileUp className="mr-2 h-4 w-4" aria-hidden="true" />
+                Importe
               </Link>
             </Button>
             <LogoutButton />
