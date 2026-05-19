@@ -188,12 +188,12 @@ export function ImportManager() {
     <div className="grid gap-5 xl:grid-cols-[420px_1fr]">
       <div className="space-y-5">
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-4">
             <CardTitle className="text-lg">CSV importieren</CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleUpload} className="space-y-4">
-              <div className="space-y-2">
+            <form onSubmit={handleUpload} className="space-y-3">
+              <div className="space-y-1.5">
                 <Label htmlFor="sourceName">Quellenname</Label>
                 <Input
                   id="sourceName"
@@ -203,7 +203,7 @@ export function ImportManager() {
                   required
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="sourceUrl">Quellen-URL</Label>
                 <Input
                   id="sourceUrl"
@@ -213,7 +213,7 @@ export function ImportManager() {
                   type="url"
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="dataStand">Datenstand</Label>
                 <Input
                   id="dataStand"
@@ -223,7 +223,7 @@ export function ImportManager() {
                   required
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="file">CSV-Datei</Label>
                 <Input
                   id="file"
