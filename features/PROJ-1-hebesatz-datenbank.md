@@ -212,7 +212,47 @@ App (Next.js)
 - `supabaseuser.txt` in `.gitignore` aufgenommen, damit lokale Zugangsdaten nicht versehentlich ins Repository gelangen.
 
 ## QA Test Results
-_To be added by /qa_
+
+### QA Run: 2026-05-19
+
+**Scope**
+- PROJ-1 Hebesatz-Datenbank: Login, geschuetzte Datenbankseite, Admin-Datenpflege, API-Schutz, Demo-Daten und Build.
+
+**Environment**
+- Local Next.js app
+- Supabase project: `grundsteuer-monitor`
+- Browser: In-app/local browser context vorhanden, automatisierte localhost-Navigation im Browser-Tool wurde durch `ERR_BLOCKED_BY_CLIENT` blockiert.
+- Fallback: Build, lokale HTTP-Routenchecks und Code-/Security-Review.
+
+**Build**
+- PASS: `npm.cmd run build` erfolgreich.
+- Hinweis: Next.js 16 meldet eine Warnung, dass `middleware.ts` kuenftig durch `proxy` ersetzt werden soll. Kein aktueller Blocker.
+
+**Acceptance Criteria Summary**
+- PASS: Login-Schutz fuer `/datenbank`.
+- PASS: Login-Schutz fuer `/admin/datenbank`.
+- PASS: API gibt ohne Session `401` fuer `/api/municipalities`.
+- PASS: Startseite und Login-Seite bauen erfolgreich.
+- PASS: Datenmodell, RLS, Admin-Rolle und API-Routen sind vorhanden.
+- PASS: Nutzeroberflaeche mit Suche, Bundesland-Filter, Tabelle, Delta-Anzeige, Datenstand und Status ist vorhanden.
+- PASS: Admin-Oberflaeche fuer Anlegen, Bearbeiten und Loeschen ist vorhanden.
+- PASS: 10 Demo-Kommunen wurden in Supabase angelegt und als Seed-SQL gesichert.
+- PARTIAL: Vollautomatisierte Browser-Interaktion mit Login/Admin konnte wegen Browser-Tool-Blockade nicht erneut ausgefuehrt werden; der Flow wurde am 2026-05-18 manuell erfolgreich bestaetigt.
+
+**Security Review**
+- PASS: Keine Service-Role-Key-Nutzung im App-Code gefunden.
+- PASS: Kein `dangerouslySetInnerHTML` im `src`-Code gefunden.
+- PASS: API ist ohne Session nicht lesbar.
+- PASS: `.env.local` und lokale Zugangsdaten sind durch `.gitignore` abgedeckt.
+
+**Findings**
+- LOW: `features/PROJ-1-hebesatz-datenbank.md` enthaelt noch einzelne alte Hinweise wie `UI pending`, obwohl die UI umgesetzt ist.
+- LOW: `middleware.ts` sollte spaeter auf die Next.js-16-Konvention `proxy` migriert werden.
+- LOW: Demo-Daten sind nicht amtlich verifiziert und duerfen nicht als echte Datenbasis fuer Kunden genutzt werden.
+
+**Production Readiness**
+- NOT READY for production customers.
+- READY for internal MVP review and pilot-demo preparation.
 
 ## Deployment
 _To be added by /deploy_
