@@ -49,6 +49,12 @@ export const listQuerySchema = z.object({
   q: z.string().trim().min(1).max(200).optional(),
 })
 
+export const exportQuerySchema = z.object({
+  bundesland: z.enum(BUNDESLAENDER).optional(),
+  q: z.string().trim().min(1).max(200).optional(),
+})
+
 export type MunicipalityCreateInput = z.infer<typeof municipalityCreateSchema>
 export type MunicipalityUpdateInput = z.infer<typeof municipalityUpdateSchema>
 export type ListQueryInput = z.infer<typeof listQuerySchema>
+export type ExportQueryInput = z.infer<typeof exportQuerySchema>

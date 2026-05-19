@@ -1,6 +1,6 @@
 # PROJ-4: Import- und Quellenpipeline
 
-## Status: In Review
+## Status: Deployed
 **Created:** 2026-05-19
 **Last Updated:** 2026-05-19
 
@@ -426,4 +426,10 @@ Keine Critical- oder High-Bugs im Code-/Build-Check gefunden.
 - **Recommendation:** Bereit fuer Deployment-Vorbereitung. Vor Produktivbetrieb echte Importdateien fachlich gegen Quelle gegenpruefen.
 
 ## Deployment
-_To be added by /deploy_
+
+**Status:** Deployed
+**Date:** 2026-05-19
+
+PROJ-4 ist auf Vercel verfuegbar. Die Importseite wurde visuell geprueft, der lokale Build ist erfolgreich, und der dokumentierte End-to-End-Test mit echter Supabase-Migration und Admin-Session ist bestanden.
+
+**Hinweis:** Vor produktiver Datennutzung muessen echte Importdateien weiterhin fachlich gegen die jeweilige Quelle gegengeprueft werden.

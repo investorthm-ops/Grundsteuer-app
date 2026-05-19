@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { RefreshCw, Search } from 'lucide-react'
+import { FileDown, RefreshCw, Search } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -91,6 +91,14 @@ export function MunicipalityBrowser() {
     return `/api/municipalities?${params.toString()}`
   }, [bundesland, page, submittedQuery])
 
+  const exportUrl = useMemo(() => {
+    const params = new URLSearchParams()
+    if (submittedQuery) params.set('q', submittedQuery)
+    if (bundesland !== ALL_STATES) params.set('bundesland', bundesland)
+    const queryString = params.toString()
+    return `/api/exports/municipalities${queryString ? `?${queryString}` : ''}`
+  }, [bundesland, submittedQuery])
+
   useEffect(() => {
     let isCurrent = true
     setIsLoading(true)
@@ -137,7 +145,7 @@ export function MunicipalityBrowser() {
   return (
     <div className="space-y-4">
       <section className="rounded-lg border bg-white p-4">
-        <form className="grid gap-3 lg:grid-cols-[1fr_260px_auto_auto]" onSubmit={submitSearch}>
+        <form className="grid gap-3 lg:grid-cols-[1fr_260px_auto_auto_auto]" onSubmit={submitSearch}>
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-zinc-400" aria-hidden="true" />
             <Input
@@ -167,6 +175,12 @@ export function MunicipalityBrowser() {
             </SelectContent>
           </Select>
           <Button type="submit">Suchen</Button>
+          <Button asChild variant="outline">
+            <a href={exportUrl}>
+              <FileDown className="mr-2 h-4 w-4" aria-hidden="true" />
+              CSV exportieren
+            </a>
+          </Button>
           <Button type="button" variant="outline" onClick={resetFilters}>
             Zurücksetzen
           </Button>
