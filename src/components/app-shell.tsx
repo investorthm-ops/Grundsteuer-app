@@ -28,7 +28,7 @@ export function AppShell({
             </span>
             <span>
               <span className="block text-base font-semibold">GrundsteuerMonitor</span>
-              <span className="block text-sm text-zinc-500">Hebesätze im Blick</span>
+              <span className="block text-sm text-zinc-500">Hebesaetze im Blick</span>
             </span>
           </Link>
           <nav className="flex flex-wrap items-center gap-2">
@@ -78,3 +78,4 @@ export function AppShell({
     </div>
   )
 }
+

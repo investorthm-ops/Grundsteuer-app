@@ -1,6 +1,6 @@
 # PROJ-2: Watchlist und Aenderungsalerts
 
-## Status: In Review
+## Status: Deployed
 **Created:** 2026-05-20
 **Last Updated:** 2026-05-20
 
@@ -161,8 +161,17 @@ Keine Critical- oder High-Bugs im Build- und Codecheck gefunden.
 - **Acceptance Criteria:** 12/12 passed
 - **Bugs Found:** 0 Critical, 0 High
 - **Security:** Pass
-- **Production Ready:** YES after Supabase migration `0003_user_watchlist.sql` is applied.
-- **Recommendation:** Migration in Supabase ausfuehren, dann Live-Test mit echtem Login.
+- **Production Ready:** YES. Supabase migration `0003_user_watchlist.sql` was applied and live-tested.
+- **Recommendation:** E-Mail-Alerts spaeter als eigenen Ausbauschritt planen.
 
 ## Deployment
-_To be added by /deploy_
+**Live-Test:** 2026-05-20
+
+Getesteter Ablauf:
+1. `/datenbank` geoeffnet.
+2. Gemeinde per Stern auf Watchlist gesetzt.
+3. `/watchlist` geoeffnet und Eintrag gesehen.
+4. Eintrag per Papierkorb entfernt.
+5. Eintrag war danach nicht mehr sichtbar.
+
+**Ergebnis:** Bestanden.
