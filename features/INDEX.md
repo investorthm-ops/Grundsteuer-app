@@ -16,7 +16,7 @@
 | PROJ-2 | Watchlist und Aenderungsalerts | Planned | _to be created_ | 2026-05-18 |
 | PROJ-3 | SEO-Stadtseiten fuer Hebesatz-Suchen | Planned | _to be created_ | 2026-05-18 |
 | PROJ-4 | Import- und Quellenpipeline | Deployed | [PROJ-4-import-und-quellenpipeline.md](PROJ-4-import-und-quellenpipeline.md) | 2026-05-19 |
-| PROJ-5 | CSV/Excel-Export fuer Investoren und Berater | In Review | [PROJ-5-csv-excel-export.md](PROJ-5-csv-excel-export.md) | 2026-05-19 |
+| PROJ-5 | CSV/Excel-Export fuer Investoren und Berater | Deployed | [PROJ-5-csv-excel-export.md](PROJ-5-csv-excel-export.md) | 2026-05-19 |
 | PROJ-6 | Renditeauswirkungs-Rechner | Planned | _to be created_ | 2026-05-18 |
 
 <!-- Add features above this line -->

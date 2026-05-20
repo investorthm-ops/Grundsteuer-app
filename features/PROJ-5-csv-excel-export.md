@@ -1,8 +1,8 @@
 # PROJ-5: CSV/Excel-Export fuer Investoren und Berater
 
-## Status: In Review
+## Status: Deployed
 **Created:** 2026-05-19
-**Last Updated:** 2026-05-19
+**Last Updated:** 2026-05-20
 
 ## Dependencies
 - Requires: PROJ-1 (Bundesweite Hebesatz-Datenbank) - Exportiert die sichtbaren Hebesatz-Daten.
@@ -119,8 +119,8 @@ PROJ-5 ergaenzt die bestehende Datenbankansicht um einen direkten Export. Nutzer
 
 ## QA Test Results
 
-**Tested:** 2026-05-19
-**App URL:** http://localhost:3000/datenbank
+**Tested:** 2026-05-19, live smoke test 2026-05-20
+**App URL:** http://localhost:3000/datenbank, https://grundsteuer-app.vercel.app/datenbank
 **Tester:** QA Engineer (AI)
 
 ### Acceptance Criteria Status
@@ -150,7 +150,15 @@ Keine Critical- oder High-Bugs im Build- und Codecheck gefunden.
 - **Bugs Found:** 0 Critical, 0 High
 - **Security:** Pass
 - **Production Ready:** YES
-- **Recommendation:** Bereit fuer Deployment nach Live-Smoke-Test.
+- **Recommendation:** Deployed. Firefox-Live-Test hat Datei `grundsteuer-monitor-export-2026-05-20.csv` erfolgreich heruntergeladen.
 
 ## Deployment
-_To be added by /deploy_
+**Status:** Deployed
+**Date:** 2026-05-20
+
+Live-Test auf `https://grundsteuer-app.vercel.app/datenbank` erfolgreich:
+- Login und Datenbankseite funktionieren.
+- Button `CSV exportieren` ist sichtbar.
+- Firefox laedt die CSV-Datei herunter.
+- CSV enthaelt Semikolon-Trennung, erwartete Spalten und UTF-8-BOM.
+- Hinweis: Der Codex In-App-Browser unterstuetzt Downloads nicht; der Export funktioniert in normalen Browsern.
