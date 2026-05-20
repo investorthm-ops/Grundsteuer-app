@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { FileDown, RefreshCw, Search } from 'lucide-react'
+import { FileDown, RefreshCw, Search, Star } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/table'
 import { BUNDESLAENDER } from '@/lib/validation/municipality'
 import type { Municipality, MunicipalityListResponse } from '@/lib/types/municipality'
+import type { WatchlistListResponse } from '@/lib/types/watchlist'
 
 const ALL_STATES = 'alle'
 
@@ -77,6 +78,8 @@ export function MunicipalityBrowser() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [watchlistIds, setWatchlistIds] = useState<Set<string>>(new Set())
+  const [pendingWatchlistId, setPendingWatchlistId] = useState<string | null>(null)
 
   const pageSize = 50
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
@@ -104,15 +107,21 @@ export function MunicipalityBrowser() {
     setIsLoading(true)
     setError(null)
 
-    fetch(requestUrl)
-      .then(async (response) => {
+    Promise.all([
+      fetch(requestUrl).then(async (response) => {
         if (!response.ok) throw new Error('Daten konnten nicht geladen werden.')
         return (await response.json()) as MunicipalityListResponse
-      })
-      .then((payload) => {
+      }),
+      fetch('/api/watchlist').then(async (response) => {
+        if (!response.ok) return { data: [] } as WatchlistListResponse
+        return (await response.json()) as WatchlistListResponse
+      }),
+    ])
+      .then(([municipalitiesPayload, watchlistPayload]) => {
         if (!isCurrent) return
-        setItems(payload.data)
-        setTotal(payload.total)
+        setItems(municipalitiesPayload.data)
+        setTotal(municipalitiesPayload.total)
+        setWatchlistIds(new Set(watchlistPayload.data.map((item) => item.municipality_id)))
       })
       .catch((err: Error) => {
         if (!isCurrent) return
@@ -140,6 +149,34 @@ export function MunicipalityBrowser() {
     setSubmittedQuery('')
     setBundesland(ALL_STATES)
     setPage(1)
+  }
+
+  async function toggleWatchlist(municipalityId: string) {
+    const isListed = watchlistIds.has(municipalityId)
+    setPendingWatchlistId(municipalityId)
+    setError(null)
+
+    try {
+      const response = await fetch(
+        isListed ? `/api/watchlist/${municipalityId}` : '/api/watchlist',
+        {
+          method: isListed ? 'DELETE' : 'POST',
+          headers: isListed ? undefined : { 'Content-Type': 'application/json' },
+          body: isListed ? undefined : JSON.stringify({ municipalityId }),
+        }
+      )
+      if (!response.ok) throw new Error('Watchlist konnte nicht aktualisiert werden.')
+      setWatchlistIds((current) => {
+        const next = new Set(current)
+        if (isListed) next.delete(municipalityId)
+        else next.add(municipalityId)
+        return next
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unbekannter Fehler.')
+    } finally {
+      setPendingWatchlistId(null)
+    }
   }
 
   return (
@@ -202,6 +239,7 @@ export function MunicipalityBrowser() {
             <TableHeader>
               <TableRow>
                 <TableHead className="min-w-56">Gemeinde</TableHead>
+                <TableHead>Merken</TableHead>
                 <TableHead>Bundesland</TableHead>
                 <TableHead>GrSt A</TableHead>
                 <TableHead>GrSt B</TableHead>
@@ -220,6 +258,21 @@ export function MunicipalityBrowser() {
                     <TableCell className="font-medium">
                       <div>{displayText(item.name)}</div>
                       {item.kreis ? <div className="text-xs text-zinc-500">{displayText(item.kreis)}</div> : null}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleWatchlist(item.id)}
+                        disabled={pendingWatchlistId === item.id}
+                        aria-label={watchlistIds.has(item.id) ? 'Von Watchlist entfernen' : 'Zur Watchlist hinzufuegen'}
+                      >
+                        <Star
+                          className={watchlistIds.has(item.id) ? 'h-4 w-4 fill-zinc-900 text-zinc-900' : 'h-4 w-4'}
+                          aria-hidden="true"
+                        />
+                      </Button>
                     </TableCell>
                     <TableCell>{item.bundesland}</TableCell>
                     <TableCell>{formatRate(item.hebesatz_a)}</TableCell>
@@ -250,21 +303,21 @@ export function MunicipalityBrowser() {
               })}
               {!isLoading && !error && items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="h-28 text-center text-zinc-500">
+                  <TableCell colSpan={10} className="h-28 text-center text-zinc-500">
                     Für diese Auswahl sind noch keine Daten verfügbar.
                   </TableCell>
                 </TableRow>
               ) : null}
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="h-28 text-center text-zinc-500">
+                  <TableCell colSpan={10} className="h-28 text-center text-zinc-500">
                     Daten werden geladen.
                   </TableCell>
                 </TableRow>
               ) : null}
               {error ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="h-28 text-center text-red-700">
+                  <TableCell colSpan={10} className="h-28 text-center text-red-700">
                     {error}
                   </TableCell>
                 </TableRow>
