@@ -36,6 +36,24 @@ const featureCards = [
   },
 ]
 
+const valueProps = [
+  {
+    icon: Globe2,
+    title: 'Alles an einem Ort',
+    text: 'Statt verstreuter Amtsblaetter und Kommunal-Webseiten: Grundsteuer A, Grundsteuer B und Gewerbesteuer bundesweit zentral und gepflegt.',
+  },
+  {
+    icon: Bell,
+    title: 'Aenderungen kommen zu Ihnen',
+    text: 'Die Watchlist meldet automatisch, wenn sich ein Hebesatz in Ihren Standort-Kommunen aendert. Sie muessen nicht laufend nachschauen.',
+  },
+  {
+    icon: LineChart,
+    title: 'Vergleichen mit Historie',
+    text: 'Werte ueber Jahre und Kommunen hinweg benchmarken - historisierte Daten, die Sie anderswo nicht zusammen finden.',
+  },
+]
+
 const cityLinks = [
   { name: 'Dortmund', href: '/grundsteuer-hebesatz/dortmund', value: '610 %' },
   { name: 'Koeln', href: '/grundsteuer-hebesatz/koeln', value: '895 %' },
@@ -54,8 +72,8 @@ export default function Home() {
   return (
     <AppShell
       eyebrow="MVP live"
-      title="Grundsteuer-Hebesaetze suchen, merken und beobachten"
-      description="Der GrundsteuerMonitor buendelt kommunale Hebesaetze, macht Veraenderungen sichtbar und hilft Investoren, Beratern und Bestandshaltern beim schnellen Standortvergleich."
+      title="Keine Hebesatz-Aenderung mehr verpassen"
+      description="Der GrundsteuerMonitor buendelt kommunale Hebesaetze an einem Ort, meldet jede Aenderung und macht Standorte vergleichbar - fuer Investoren, Steuerberater, Kommunen und Gewerbe."
       actions={
         <>
           <Button asChild>
@@ -70,7 +88,20 @@ export default function Home() {
         </>
       }
     >
-      <section className="grid gap-4 lg:grid-cols-[1fr_360px]">
+      <section className="rounded-lg border bg-white p-5">
+        <Badge variant="secondary">Warum GrundsteuerMonitor</Badge>
+        <div className="mt-5 grid gap-4 md:grid-cols-3">
+          {valueProps.map((item) => (
+            <div key={item.title} className="rounded-lg border border-zinc-200 p-4">
+              <item.icon className="h-5 w-5 text-zinc-700" aria-hidden="true" />
+              <h2 className="mt-4 text-base font-semibold">{item.title}</h2>
+              <p className="mt-2 text-sm leading-6 text-zinc-600">{item.text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-4 grid gap-4 lg:grid-cols-[1fr_360px]">
         <div className="rounded-lg border bg-white p-5">
           <div className="flex items-center gap-2">
             <Badge variant="secondary">Produktstand</Badge>
