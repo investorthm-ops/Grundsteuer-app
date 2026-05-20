@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Building2, Calculator, Database, FileUp, ShieldCheck, Star } from 'lucide-react'
+import { Building2, Calculator, Database, FileUp, Scale, ShieldCheck, Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { LogoutButton } from '@/components/logout-button'
 
@@ -42,6 +42,12 @@ export function AppShell({
               <Link href="/watchlist">
                 <Star className="mr-2 h-4 w-4" aria-hidden="true" />
                 Watchlist
+              </Link>
+            </Button>
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/vergleich">
+                <Scale className="mr-2 h-4 w-4" aria-hidden="true" />
+                Vergleich
               </Link>
             </Button>
             <Button asChild variant="ghost" size="sm">

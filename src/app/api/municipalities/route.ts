@@ -22,19 +22,29 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  const { page, pageSize, bundesland, q } = parsed.data
+  const { page, pageSize, bundesland, kreis, q, sortBy, sortDir } = parsed.data
   const from = (page - 1) * pageSize
   const to = from + pageSize - 1
+  const ascending = sortDir === 'asc'
 
   let query = supabase
     .from('municipalities')
     .select('*', { count: 'exact' })
-    .order('bundesland', { ascending: true })
-    .order('name', { ascending: true })
     .range(from, to)
 
   if (bundesland) query = query.eq('bundesland', bundesland)
+  if (kreis) query = query.eq('kreis', kreis)
   if (q) query = query.ilike('name', `%${q}%`)
+
+  if (sortBy) {
+    query = query.order(sortBy, { ascending, nullsFirst: false }).order('name', {
+      ascending: true,
+    })
+  } else {
+    query = query.order('bundesland', { ascending: true }).order('name', {
+      ascending: true,
+    })
+  }
 
   const { data, count, error } = await query
   if (error) {

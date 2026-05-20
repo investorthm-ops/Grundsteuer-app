@@ -46,7 +46,10 @@ export const listQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(100).default(50),
   bundesland: z.enum(BUNDESLAENDER).optional(),
+  kreis: z.string().trim().min(1).max(200).optional(),
   q: z.string().trim().min(1).max(200).optional(),
+  sortBy: z.enum(['name', 'hebesatz_a', 'hebesatz_b', 'hebesatz_gewerbe']).optional(),
+  sortDir: z.enum(['asc', 'desc']).default('asc'),
 })
 
 export const exportQuerySchema = z.object({
