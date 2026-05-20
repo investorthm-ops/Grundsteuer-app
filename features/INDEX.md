@@ -17,7 +17,7 @@
 | PROJ-3 | SEO-Stadtseiten fuer Hebesatz-Suchen | Deployed | [PROJ-3-seo-stadtseiten-fuer-hebesatz-suchen.md](PROJ-3-seo-stadtseiten-fuer-hebesatz-suchen.md) | 2026-05-20 |
 | PROJ-4 | Import- und Quellenpipeline | Deployed | [PROJ-4-import-und-quellenpipeline.md](PROJ-4-import-und-quellenpipeline.md) | 2026-05-19 |
 | PROJ-5 | CSV/Excel-Export fuer Investoren und Berater | Deployed | [PROJ-5-csv-excel-export.md](PROJ-5-csv-excel-export.md) | 2026-05-19 |
-| PROJ-6 | Renditeauswirkungs-Rechner | Planned | _to be created_ | 2026-05-18 |
+| PROJ-6 | Renditeauswirkungs-Rechner | Deployed | [PROJ-6-renditeauswirkungs-rechner.md](PROJ-6-renditeauswirkungs-rechner.md) | 2026-05-20 |
 
 <!-- Add features above this line -->
 

@@ -47,6 +47,7 @@ const statusItems = [
   'Watchlist live getestet',
   'SEO-Stadtseiten erreichbar',
   'Sitemap und robots.txt aktiv',
+  'Renditerechner im Aufbau',
 ]
 
 export default function Home() {
@@ -116,7 +117,7 @@ export default function Home() {
             wie sich Hebesatz-Aenderungen auf Cashflow und Standortbewertung auswirken.
           </p>
           <Button asChild variant="outline" className="mt-5 w-full">
-            <Link href="/watchlist">Watchlist pruefen</Link>
+            <Link href="/rechner">Rechner oeffnen</Link>
           </Button>
         </div>
 
@@ -138,4 +139,3 @@ export default function Home() {
     </AppShell>
   )
 }
-

@@ -37,8 +37,9 @@ export async function proxy(request: NextRequest) {
   const isAdminPath = pathname.startsWith('/admin')
   const isDatabasePath = pathname.startsWith('/datenbank')
   const isWatchlistPath = pathname.startsWith('/watchlist')
+  const isCalculatorPath = pathname.startsWith('/rechner')
 
-  if ((isAdminPath || isDatabasePath || isWatchlistPath) && !user) {
+  if ((isAdminPath || isDatabasePath || isWatchlistPath || isCalculatorPath) && !user) {
     const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('redirectTo', pathname + search)
     return NextResponse.redirect(loginUrl)
@@ -61,5 +62,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/datenbank/:path*', '/watchlist/:path*', '/admin/:path*'],
+  matcher: ['/datenbank/:path*', '/watchlist/:path*', '/rechner/:path*', '/admin/:path*'],
 }
