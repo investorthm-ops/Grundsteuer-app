@@ -1,8 +1,8 @@
 # PROJ-1: Bundesweite Hebesatz-Datenbank
 
-## Status: In Progress
+## Status: Deployed
 **Created:** 2026-05-04
-**Last Updated:** 2026-05-04
+**Last Updated:** 2026-05-20
 
 ## Dependencies
 - None (Grundlage für alle weiteren Features)
@@ -33,25 +33,25 @@ Eingeloggte Nutzer aller Pläne können kommunale Hebesätze (Grundsteuer A, Gru
 ### Datenbankinhalt
 - [x] Jeder Datensatz enthält: Bundesland, Kreis (optional), Gemeindename, Grundsteuer A (%), Grundsteuer B (%), Gewerbesteuer (%), Vorjahr-Hebesatz B, Datenstand (Datum/Jahr), Quellenstatus (bestätigt / offen). *(SQL schema)*
 - [x] Vorjahreswert Grundsteuer B wird als Zahl gespeichert und neben dem aktuellen Wert angezeigt. *(Spalte `vorjahr_b int`)*
-- [ ] Eine Änderungsanzeige (+/−) errechnet sich aus aktuellem Wert minus Vorjahr.
+- [x] Eine Änderungsanzeige (+/−) errechnet sich aus aktuellem Wert minus Vorjahr.
 
 ### Suche & Filter
 - [x] Freitextsuche über Gemeindename (Substring-Suche, case-insensitive). *(API `q` param via `.ilike()`)*
 - [x] Dropdown-Filter für Bundesland (16 Optionen + „Alle"). *(API `bundesland` param + Zod enum)*
 - [x] Filter und Suche können kombiniert werden. *(API kombiniert `eq` + `ilike`)*
-- [ ] Bei leerem Ergebnis erscheint der Text „Für diese Auswahl sind noch keine Daten verfügbar." (kein Fehler-State, kein Spinner).
+- [x] Bei leerem Ergebnis erscheint der Text „Für diese Auswahl sind noch keine Daten verfügbar." (kein Fehler-State, kein Spinner).
 
 ### Tabelle & Paginierung
 - [x] Standard-Sortierung: Bundesland aufsteigend, dann Gemeindename aufsteigend. *(API order-by + composite index)*
-- [x] 50 Einträge pro Seite; Seitennavigation (Zurück/Weiter + aktuelle Seite) sichtbar. *(Backend: `pageSize` default 50 via `.range()`; UI pending)*
-- [ ] Tabellenspalten: Gemeinde | Bundesland | GrSt A | GrSt B | Vorjahr B | Δ | GewSt | Stand | Status.
-- [ ] Tabelle ist responsive; auf kleinen Bildschirmen horizontal scrollbar.
+- [x] 50 Einträge pro Seite; Seitennavigation (Zurück/Weiter + aktuelle Seite) sichtbar. *(Backend: `pageSize` default 50 via `.range()`; UI umgesetzt)*
+- [x] Tabellenspalten: Gemeinde | Bundesland | GrSt A | GrSt B | Vorjahr B | Δ | GewSt | Stand | Status.
+- [x] Tabelle ist responsive; auf kleinen Bildschirmen horizontal scrollbar.
 
 ### Admin-Datenpflege
-- [x] Ein Admin-Formular (nur für User mit Admin-Rolle zugänglich) ermöglicht: Neuen Datensatz anlegen, bestehenden Datensatz bearbeiten. *(Backend: POST/PATCH/DELETE admin-gated; UI pending)*
+- [x] Ein Admin-Formular (nur für User mit Admin-Rolle zugänglich) ermöglicht: Neuen Datensatz anlegen, bestehenden Datensatz bearbeiten. *(Backend: POST/PATCH/DELETE admin-gated; UI umgesetzt)*
 - [x] Pflichtfelder: Gemeindename, Bundesland, Grundsteuer B. *(Zod + NOT NULL constraints)*
-- [ ] Optionale Felder: Grundsteuer A, Gewerbesteuer, Vorjahr B, Kreis, Quellenstatus, Datenstand.
-- [x] Ungültige Werte (negativ, > 2000 %) werden clientseitig abgefangen. *(Server-side: Zod 0–2000 + DB CHECK; client validation pending)*
+- [x] Optionale Felder: Grundsteuer A, Gewerbesteuer, Vorjahr B, Kreis, Quellenstatus, Datenstand.
+- [x] Ungültige Werte (negativ, > 2000 %) werden clientseitig abgefangen. *(Server-side: Zod 0–2000 + DB CHECK; client validation umgesetzt)*
 
 ### Performance
 - [x] Tabelle lädt in unter 1 Sekunde bei bis zu 5.000 Datensätzen (serverseitige Paginierung via Supabase). *(Indexes auf bundesland, name, (bundesland,name); `.range()` Paginierung)*
@@ -246,13 +246,27 @@ App (Next.js)
 - PASS: `.env.local` und lokale Zugangsdaten sind durch `.gitignore` abgedeckt.
 
 **Findings**
-- LOW: `features/PROJ-1-hebesatz-datenbank.md` enthaelt noch einzelne alte Hinweise wie `UI pending`, obwohl die UI umgesetzt ist.
-- LOW: `middleware.ts` sollte spaeter auf die Next.js-16-Konvention `proxy` migriert werden.
+- LOW: `middleware.ts` wurde spaeter auf die Next.js-16-Konvention `proxy` migriert.
 - LOW: Demo-Daten sind nicht amtlich verifiziert und duerfen nicht als echte Datenbasis fuer Kunden genutzt werden.
 
+### Live Closeout: 2026-05-20
+
+**Scope**
+- Live-Pruefung der Datenbankansicht auf `https://grundsteuer-app.vercel.app/datenbank`.
+
+**Result**
+- PASS: Login und Weiterleitung zur Datenbank funktionieren.
+- PASS: Tabelle wird live angezeigt.
+- PASS: Suche, Bundeslandfilter, Reset, Pagination und horizontale Tabellenansicht sind umgesetzt.
+- PASS: Delta-Spalte, Status, Datenstand und Quellenfelder sind sichtbar.
+- PASS: Export aus der Datenbankansicht funktioniert als Folgeschritt ueber PROJ-5.
+
 **Production Readiness**
-- NOT READY for production customers.
-- READY for internal MVP review and pilot-demo preparation.
+- READY for MVP and pilot-demo use.
+- Hinweis: Demo-Daten sind weiterhin nicht amtlich verifiziert und duerfen nicht als finale Kundendatenbasis verstanden werden.
 
 ## Deployment
-_To be added by /deploy_
+**Status:** Deployed
+**Date:** 2026-05-20
+
+PROJ-1 ist live auf `https://grundsteuer-app.vercel.app/datenbank` verfuegbar und wurde als MVP-Basis fuer Import, Export und weitere Nutzerfunktionen abgeschlossen.
