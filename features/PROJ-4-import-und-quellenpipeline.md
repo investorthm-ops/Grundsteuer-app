@@ -433,3 +433,16 @@ Keine Critical- oder High-Bugs im Code-/Build-Check gefunden.
 PROJ-4 ist auf Vercel verfuegbar. Die Importseite wurde visuell geprueft, der lokale Build ist erfolgreich, und der dokumentierte End-to-End-Test mit echter Supabase-Migration und Admin-Session ist bestanden.
 
 **Hinweis:** Vor produktiver Datennutzung muessen echte Importdateien weiterhin fachlich gegen die jeweilige Quelle gegengeprueft werden.
+
+## Datenerhebung (Erst-Datensatz)
+
+**Stand:** 2026-05-21
+
+Erste echte Importdatei fuer die Pipeline vorbereitet:
+
+- **Quelle:** Statistische Aemter des Bundes und der Laender — „Hebesaetze der Realsteuern" 2022 (Datenlizenz Deutschland – Zero 2.0). Vollstaendige Quellendokumentation in [`docs/data-sources.md`](../docs/data-sources.md).
+- **Konverter:** `scripts/convert-realsteuer.mjs` wandelt die amtliche Excel in das CSV-Schema der Pipeline um (wiederverwendbar fuer kuenftige Jahrgaenge).
+- **Ergebnis:** `data/import/nrw-hessen-2022.csv` — 818 Gemeinden (NRW 396, Hessen 422).
+- `vorjahr_b` bleibt bewusst leer (Grundsteuerreform 2025 — Begruendung in `docs/data-sources.md`).
+
+**Offen:** Der eigentliche Import-Run ueber `/admin/importe` (Upload, Vorschau, Freigabe) ist noch durchzufuehren. Die ~10 Demo-Datensaetze aus `supabase/seed_demo_municipalities.sql` erzeugen dabei Konflikt-Zeilen (gleicher Gemeindename, andere Werte) — vor dem Import entfernen oder die Konflikte bewusst freigeben.

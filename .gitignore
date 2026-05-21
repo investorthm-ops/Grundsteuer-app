@@ -35,6 +35,9 @@ grundsteuer-monitor-daten*.json
 apppro_backup_*.json
 test-import*.csv
 
+# Amtliche Roh-Downloads (nicht versionieren — per Skript reproduzierbar)
+data/raw/
+
 # Secrets und lokale Konfiguration
 .env
 .env.*
