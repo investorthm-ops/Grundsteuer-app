@@ -19,7 +19,8 @@
 | PROJ-5 | CSV/Excel-Export fuer Investoren und Berater | Deployed | [PROJ-5-csv-excel-export.md](PROJ-5-csv-excel-export.md) | 2026-05-19 |
 | PROJ-6 | Renditeauswirkungs-Rechner | Deployed | [PROJ-6-renditeauswirkungs-rechner.md](PROJ-6-renditeauswirkungs-rechner.md) | 2026-05-20 |
 | PROJ-7 | Vergleich und Benchmarking | Deployed | [PROJ-7-vergleich-und-benchmarking.md](PROJ-7-vergleich-und-benchmarking.md) | 2026-05-20 |
+| PROJ-8 | Mandantenfaehige Nutzerverwaltung | In Progress | [PROJ-8-mandantenfaehige-nutzerverwaltung.md](PROJ-8-mandantenfaehige-nutzerverwaltung.md) | 2026-05-21 |
 
 <!-- Add features above this line -->
 
-## Next Available ID: PROJ-8
+## Next Available ID: PROJ-9
