@@ -104,6 +104,30 @@ Die mandantenfaehige Nutzerverwaltung macht den Grundsteuer-Monitor bereit fuer 
 - Auditability: wichtige Verwaltungsdaten enthalten Erstell- und Aktualisierungszeitpunkt.
 - Browser Support: aktuelle Versionen von Chrome, Edge, Firefox und Safari.
 
+## Implementation Notes
+**Date:** 2026-05-21
+
+**Was wurde gebaut**
+- Supabase-Migration fuer `organizations` und `organization_memberships`.
+- RLS-Policies fuer Admin-Verwaltung und eigene Mitgliedschaft.
+- Hilfsfunktionen fuer Admin-Pruefung und aktive Organisation.
+- Zentrale Zugriffskontrolle fuer geschuetzte App-Bereiche.
+- Sperrseite `/zugang-gesperrt`.
+- Admin-APIs fuer Organisationen und Mitgliedschaften.
+- Admin-Seite `/admin/kunden`.
+- Navigation um Kundenverwaltung erweitert.
+- Login-Hinweis auf admin-gesteuerte Freischaltung angepasst.
+
+**Technischer Check**
+- [x] `npm.cmd run build` erfolgreich.
+- [x] Next.js erkennt `/admin/kunden`, `/zugang-gesperrt` und neue Admin-APIs.
+
+**Offen fuer Live-Test**
+- [ ] Migration `supabase/migrations/0006_organizations_access.sql` in Supabase anwenden.
+- [ ] Admin legt erste Organisation an.
+- [ ] Admin ordnet bestehenden Supabase-Nutzer per Nutzer-ID zu.
+- [ ] Nicht-Admin-Zugriff mit aktiver und abgelaufener Organisation testen.
+
 ---
 <!-- Sections below are added by subsequent skills -->
 

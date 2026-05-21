@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { getAccessState } from '@/lib/supabase/access'
 
 type SupabaseCookie = {
   name: string
@@ -39,8 +40,18 @@ export async function proxy(request: NextRequest) {
   const isWatchlistPath = pathname.startsWith('/watchlist')
   const isCalculatorPath = pathname.startsWith('/rechner')
   const isComparePath = pathname.startsWith('/vergleich')
+  const isAccessBlockedPath = pathname.startsWith('/zugang-gesperrt')
+  const isProtectedApiPath =
+    pathname.startsWith('/api/municipalities') ||
+    pathname.startsWith('/api/watchlist') ||
+    pathname.startsWith('/api/exports')
+  const isAppPath = isDatabasePath || isWatchlistPath || isCalculatorPath || isComparePath
+  const isProtectedPath = isAdminPath || isAppPath
 
-  if ((isAdminPath || isDatabasePath || isWatchlistPath || isCalculatorPath || isComparePath) && !user) {
+  if ((isProtectedPath || isProtectedApiPath) && !user) {
+    if (isProtectedApiPath) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('redirectTo', pathname + search)
     return NextResponse.redirect(loginUrl)
@@ -59,9 +70,30 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+  if ((isAppPath || isProtectedApiPath) && user && !isAccessBlockedPath) {
+    const access = await getAccessState(supabase, user.id)
+    if (!access.allowed) {
+      if (isProtectedApiPath) {
+        return NextResponse.json({ error: 'Access inactive', reason: access.reason }, { status: 403 })
+      }
+      const blockedUrl = new URL('/zugang-gesperrt', request.url)
+      blockedUrl.searchParams.set('reason', access.reason)
+      return NextResponse.redirect(blockedUrl)
+    }
+  }
+
   return response
 }
 
 export const config = {
-  matcher: ['/datenbank/:path*', '/watchlist/:path*', '/rechner/:path*', '/vergleich/:path*', '/admin/:path*'],
+  matcher: [
+    '/datenbank/:path*',
+    '/watchlist/:path*',
+    '/rechner/:path*',
+    '/vergleich/:path*',
+    '/admin/:path*',
+    '/api/municipalities/:path*',
+    '/api/watchlist/:path*',
+    '/api/exports/:path*',
+  ],
 }

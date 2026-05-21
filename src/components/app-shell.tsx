@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Building2, Calculator, Database, FileUp, Scale, ShieldCheck, Star } from 'lucide-react'
+import { Building2, Calculator, Database, FileUp, Scale, ShieldCheck, Star, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { LogoutButton } from '@/components/logout-button'
 
@@ -60,6 +60,12 @@ export function AppShell({
               <Link href="/admin/datenbank">
                 <ShieldCheck className="mr-2 h-4 w-4" aria-hidden="true" />
                 Admin
+              </Link>
+            </Button>
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/admin/kunden">
+                <Users className="mr-2 h-4 w-4" aria-hidden="true" />
+                Kunden
               </Link>
             </Button>
             <Button asChild variant="ghost" size="sm">
