@@ -51,18 +51,18 @@ Die mandantenfaehige Nutzerverwaltung macht den Grundsteuer-Monitor bereit fuer 
 ## Acceptance Criteria
 
 ### Organisationen
-- [ ] Admin kann eine Organisation mit Name, Status und optionalem Zugriffsende anlegen.
-- [ ] Admin kann Organisationen in einer Admin-Ansicht sehen.
-- [ ] Admin kann Status und Zugriffsende einer Organisation bearbeiten.
-- [ ] Admin kann Organisationen sperren.
-- [ ] Statuswerte sind auf `trial`, `active`, `expired`, `blocked` begrenzt.
+- [x] Admin kann eine Organisation mit Name, Status und optionalem Zugriffsende anlegen.
+- [x] Admin kann Organisationen in einer Admin-Ansicht sehen.
+- [x] Admin kann Status und Zugriffsende einer Organisation bearbeiten.
+- [x] Admin kann Organisationen sperren.
+- [x] Statuswerte sind auf `trial`, `active`, `expired`, `blocked` begrenzt.
 
 ### Nutzer und Rollen
-- [ ] Admin kann einem bestehenden Supabase-Nutzer eine Organisation zuordnen.
-- [ ] Ein Nutzer kann genau einer aktiven Organisation zugeordnet werden.
+- [x] Admin kann einem bestehenden Supabase-Nutzer eine Organisation zuordnen.
+- [x] Ein Nutzer kann genau einer aktiven Organisation zugeordnet werden.
 - [ ] Rollen sind auf `admin`, `owner`, `member` begrenzt.
 - [ ] Nur Admins duerfen Organisationen und Zuordnungen verwalten.
-- [ ] Bestehende Admin-Funktionalitaet bleibt erhalten.
+- [x] Bestehende Admin-Funktionalitaet bleibt erhalten.
 
 ### Zugriffskontrolle
 - [ ] Nutzer ohne Login werden weiterhin zur Login-Seite geleitet.
@@ -70,8 +70,8 @@ Die mandantenfaehige Nutzerverwaltung macht den Grundsteuer-Monitor bereit fuer 
 - [ ] Nutzer mit Organisation `trial` und gueltigem Zugriffsende duerfen die App nutzen.
 - [ ] Nutzer mit Organisation `active` duerfen die App nutzen, solange kein abgelaufenes Zugriffsende vorliegt.
 - [ ] Nutzer mit abgelaufenem Zugriffsende werden blockiert.
-- [ ] Nutzer mit Status `blocked` werden blockiert.
-- [ ] Admins behalten Zugriff auf Adminbereiche, auch wenn sie keiner Kundenorganisation angehoeren.
+- [x] Nutzer mit Status `blocked` werden blockiert.
+- [x] Admins behalten Zugriff auf Adminbereiche, auch wenn sie keiner Kundenorganisation angehoeren.
 
 ### Anmeldung und Onboarding
 - [ ] Login-Seite erklaert, dass Zugriffe durch den Betreiber freigeschaltet werden.
@@ -123,10 +123,19 @@ Die mandantenfaehige Nutzerverwaltung macht den Grundsteuer-Monitor bereit fuer 
 - [x] Next.js erkennt `/admin/kunden`, `/zugang-gesperrt` und neue Admin-APIs.
 
 **Offen fuer Live-Test**
-- [ ] Migration `supabase/migrations/0006_organizations_access.sql` in Supabase anwenden.
-- [ ] Admin legt erste Organisation an.
-- [ ] Admin ordnet bestehenden Supabase-Nutzer per Nutzer-ID zu.
-- [ ] Nicht-Admin-Zugriff mit aktiver und abgelaufener Organisation testen.
+- [x] Migration `supabase/migrations/0006_organizations_access.sql` in Supabase anwenden.
+- [x] Admin legt erste Organisation an.
+- [x] Admin ordnet bestehenden Supabase-Nutzer per Nutzer-ID zu.
+- [x] Zugriff mit gesperrter Organisation testen.
+- [ ] Zugriff mit aktiver Organisation erneut testen.
+- [ ] Zugriff mit abgelaufener Organisation testen.
+
+**Live-Test 2026-05-21**
+- Organisation `Pilotkunde Markus` angelegt.
+- Bestehender Supabase-Nutzer als `owner` zugeordnet.
+- Organisation auf `blocked` gesetzt.
+- Aufruf von `/datenbank` leitet auf `/zugang-gesperrt?reason=blocked`.
+- Ergebnis: Sperrlogik bestanden.
 
 ---
 <!-- Sections below are added by subsequent skills -->

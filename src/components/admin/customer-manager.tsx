@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Plus, RefreshCw, Save, Trash2, UserPlus } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -90,6 +90,7 @@ function statusVariant(status: OrganizationStatus) {
 }
 
 export function CustomerManager() {
+  const organizationFormRef = useRef<HTMLFormElement | null>(null)
   const [items, setItems] = useState<OrganizationWithMembers[]>([])
   const [organizationForm, setOrganizationForm] = useState<OrganizationForm>(emptyOrganizationForm)
   const [membershipForm, setMembershipForm] = useState<MembershipForm>(emptyMembershipForm)
@@ -198,16 +199,32 @@ export function CustomerManager() {
     await loadItems()
   }
 
+  function editOrganization(item: OrganizationWithMembers) {
+    setOrganizationForm(fromOrganization(item))
+    setMessage(`Bearbeitungsmodus fuer ${item.name} geoeffnet.`)
+    setError(null)
+    organizationFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
   return (
     <div className="space-y-5">
       <div className="grid gap-5 lg:grid-cols-[420px_1fr]">
-        <form onSubmit={saveOrganization} className="rounded-lg border bg-white p-5">
+        <form
+          ref={organizationFormRef}
+          onSubmit={saveOrganization}
+          className="rounded-lg border bg-white p-5"
+        >
           <div className="mb-5 flex items-center justify-between gap-3">
             <div>
               <h2 className="text-lg font-semibold">
                 {organizationForm.id ? 'Kunde bearbeiten' : 'Kunde anlegen'}
               </h2>
               <p className="mt-1 text-sm text-zinc-500">Status und Laufzeit steuern den App-Zugang.</p>
+              {organizationForm.id ? (
+                <p className="mt-2 text-sm font-medium text-emerald-700">
+                  Bearbeitungsmodus aktiv
+                </p>
+              ) : null}
             </div>
             <Button type="button" variant="outline" size="sm" onClick={() => setOrganizationForm(emptyOrganizationForm)}>
               <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
@@ -268,7 +285,11 @@ export function CustomerManager() {
 
           <Button type="submit" className="mt-5 w-full" disabled={isSavingOrganization}>
             <Save className="mr-2 h-4 w-4" aria-hidden="true" />
-            {isSavingOrganization ? 'Speichern laeuft' : 'Kunde speichern'}
+            {isSavingOrganization
+              ? 'Speichern laeuft'
+              : organizationForm.id
+                ? 'Aenderung speichern'
+                : 'Kunde speichern'}
           </Button>
         </form>
 
@@ -392,7 +413,7 @@ export function CustomerManager() {
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="outline" size="sm" onClick={() => setOrganizationForm(fromOrganization(item))}>
+                    <Button variant="outline" size="sm" onClick={() => editOrganization(item)}>
                       Bearbeiten
                     </Button>
                   </TableCell>

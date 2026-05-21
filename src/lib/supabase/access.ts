@@ -5,6 +5,10 @@ export type AccessState =
   | { allowed: true; reason: 'admin' | 'active' }
   | { allowed: false; reason: 'no_user' | 'no_organization' | 'expired' | 'blocked' }
 
+type AccessOptions = {
+  adminBypass?: boolean
+}
+
 type OrganizationAccessRow = {
   organization:
     | {
@@ -25,11 +29,12 @@ type OrganizationAccess = {
 
 export async function getAccessState(
   supabase: SupabaseClient,
-  userId: string | null
+  userId: string | null,
+  options: AccessOptions = {}
 ): Promise<AccessState> {
   if (!userId) return { allowed: false, reason: 'no_user' }
 
-  if (await isAdmin(supabase, userId)) {
+  if (options.adminBypass !== false && await isAdmin(supabase, userId)) {
     return { allowed: true, reason: 'admin' }
   }
 
