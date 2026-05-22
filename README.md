@@ -16,6 +16,8 @@ Der Grundsteuer-Monitor zentralisiert das: gepflegte Hebesatz-Datenbank für all
 
 **Zielgruppen:** Steuerberater, Immobilieninvestoren, Kommunen, Mittelstand.
 
+**USP:** Änderungen bei Grundsteuer- und Gewerbesteuer-Hebesätzen automatisch überwachen, vergleichen und als Excel-Auswertung für Mandanten oder Immobilienportfolios nutzen.
+
 ---
 
 ## Tech-Stack

@@ -1,10 +1,16 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { FileDown, RefreshCw, Search, Star } from 'lucide-react'
+import { ExternalLink, FileDown, Info, RefreshCw, Search, Star } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import {
   Select,
   SelectContent,
@@ -246,8 +252,26 @@ export function MunicipalityBrowser() {
                 <TableHead>Vorjahr B</TableHead>
                 <TableHead>Delta</TableHead>
                 <TableHead>GewSt</TableHead>
-                <TableHead>Stand</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>Stand & Quelle</TableHead>
+                <TableHead>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger className="inline-flex items-center gap-1">
+                        Status
+                        <Info className="h-3.5 w-3.5 text-zinc-400" aria-hidden="true" />
+                        <span className="sr-only">Bedeutung der Statuswerte anzeigen</span>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs space-y-1">
+                        <p>
+                          <strong>bestätigt</strong> – Wert aus einer dokumentierten Quelle importiert oder manuell geprüft.
+                        </p>
+                        <p>
+                          <strong>offen</strong> – Quelle noch nicht bestätigt, nur Arbeitsstand.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -292,7 +316,31 @@ export function MunicipalityBrowser() {
                       </span>
                     </TableCell>
                     <TableCell>{formatRate(item.hebesatz_gewerbe)}</TableCell>
-                    <TableCell>{formatDate(item.datenstand)}</TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="font-medium">{formatDate(item.datenstand)}</div>
+                        <div className="text-xs text-zinc-500">
+                          aktualisiert: {formatDate(item.updated_at)}
+                        </div>
+                        {item.quellenname ? (
+                          item.quellen_url ? (
+                            <a
+                              href={item.quellen_url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex max-w-64 items-center gap-1 truncate text-xs font-medium text-zinc-700 underline-offset-2 hover:underline"
+                            >
+                              <span className="truncate">{item.quellenname}</span>
+                              <ExternalLink className="h-3 w-3 shrink-0" aria-hidden="true" />
+                            </a>
+                          ) : (
+                            <div className="max-w-64 truncate text-xs text-zinc-500">{item.quellenname}</div>
+                          )
+                        ) : (
+                          <div className="text-xs text-zinc-500">Quelle offen</div>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <Badge variant={item.quellenstatus === 'bestaetigt' ? 'default' : 'secondary'}>
                         {item.quellenstatus === 'bestaetigt' ? 'bestätigt' : 'offen'}

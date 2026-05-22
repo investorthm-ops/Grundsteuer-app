@@ -327,7 +327,7 @@ export function MunicipalityCompare() {
                     <TableHead>Grundsteuer A</TableHead>
                     <TableHead>Grundsteuer B</TableHead>
                     <TableHead>Gewerbesteuer</TableHead>
-                    <TableHead>Datenstand</TableHead>
+                    <TableHead>Stand & Quelle</TableHead>
                     <TableHead>Status</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -344,10 +344,17 @@ export function MunicipalityCompare() {
                       <TableCell>{renderRateCell(item, 'hebesatz_a')}</TableCell>
                       <TableCell>{renderRateCell(item, 'hebesatz_b')}</TableCell>
                       <TableCell>{renderRateCell(item, 'hebesatz_gewerbe')}</TableCell>
-                      <TableCell>{formatDate(item.datenstand)}</TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div>{formatDate(item.datenstand)}</div>
+                          <div className="max-w-56 truncate text-xs text-zinc-500">
+                            {item.quellenname || 'Quelle offen'}
+                          </div>
+                        </div>
+                      </TableCell>
                       <TableCell>
                         <Badge variant={item.quellenstatus === 'bestaetigt' ? 'default' : 'secondary'}>
-                          {item.quellenstatus === 'bestaetigt' ? 'bestaetigt' : 'offen'}
+                          {item.quellenstatus === 'bestaetigt' ? 'bestätigt' : 'offen'}
                         </Badge>
                       </TableCell>
                     </TableRow>
@@ -432,7 +439,7 @@ export function MunicipalityCompare() {
                   <TableHead className="min-w-56">Kommune</TableHead>
                   <TableHead>Bundesland</TableHead>
                   <TableHead>{fieldLabel(rankingField)}</TableHead>
-                  <TableHead>Datenstand</TableHead>
+                  <TableHead>Stand & Quelle</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
@@ -446,10 +453,17 @@ export function MunicipalityCompare() {
                     </TableCell>
                     <TableCell>{item.bundesland}</TableCell>
                     <TableCell>{formatRate(item[rankingField])}</TableCell>
-                    <TableCell>{formatDate(item.datenstand)}</TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div>{formatDate(item.datenstand)}</div>
+                        <div className="max-w-56 truncate text-xs text-zinc-500">
+                          {item.quellenname || 'Quelle offen'}
+                        </div>
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <Badge variant={item.quellenstatus === 'bestaetigt' ? 'default' : 'secondary'}>
-                        {item.quellenstatus === 'bestaetigt' ? 'bestaetigt' : 'offen'}
+                        {item.quellenstatus === 'bestaetigt' ? 'bestätigt' : 'offen'}
                       </Badge>
                     </TableCell>
                   </TableRow>

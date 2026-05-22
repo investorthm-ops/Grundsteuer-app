@@ -38,6 +38,8 @@ export const municipalityCreateSchema = z.object({
     .nullable()
     .optional(),
   quellenstatus: z.enum(QUELLENSTATUS).optional(),
+  quellenname: z.string().trim().max(300).nullable().optional(),
+  quellen_url: z.string().trim().url().max(1000).nullable().optional(),
 })
 
 export const municipalityUpdateSchema = municipalityCreateSchema.partial()
