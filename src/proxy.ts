@@ -71,9 +71,7 @@ export async function proxy(request: NextRequest) {
   }
 
   if ((isAppPath || isProtectedApiPath) && user && !isAccessBlockedPath) {
-    const access = await getAccessState(supabase, user.id, {
-      adminBypass: !isAppPath,
-    })
+    const access = await getAccessState(supabase, user.id)
     if (!access.allowed) {
       if (isProtectedApiPath) {
         return NextResponse.json({ error: 'Access inactive', reason: access.reason }, { status: 403 })

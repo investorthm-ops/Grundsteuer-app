@@ -22,7 +22,9 @@ export const BUNDESLAENDER = [
 export const QUELLENSTATUS = ['bestaetigt', 'offen'] as const
 
 const hebesatz = z.number().int().min(0).max(2000)
+const hebesatzDifferentiated = z.number().int().min(0).max(3000)
 const hebesatzOptional = hebesatz.nullable().optional()
+const hebesatzDifferentiatedOptional = hebesatzDifferentiated.nullable().optional()
 
 export const municipalityCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
@@ -30,6 +32,8 @@ export const municipalityCreateSchema = z.object({
   kreis: z.string().trim().max(200).nullable().optional(),
   hebesatz_a: hebesatzOptional,
   hebesatz_b: hebesatz,
+  hebesatz_b_wohnen: hebesatzDifferentiatedOptional,
+  hebesatz_b_nichtwohnen: hebesatzDifferentiatedOptional,
   hebesatz_gewerbe: hebesatzOptional,
   vorjahr_b: hebesatzOptional,
   datenstand: z
@@ -50,7 +54,7 @@ export const listQuerySchema = z.object({
   bundesland: z.enum(BUNDESLAENDER).optional(),
   kreis: z.string().trim().min(1).max(200).optional(),
   q: z.string().trim().min(1).max(200).optional(),
-  sortBy: z.enum(['name', 'hebesatz_a', 'hebesatz_b', 'hebesatz_gewerbe']).optional(),
+  sortBy: z.enum(['name', 'hebesatz_a', 'hebesatz_b', 'hebesatz_b_wohnen', 'hebesatz_b_nichtwohnen', 'hebesatz_gewerbe']).optional(),
   sortDir: z.enum(['asc', 'desc']).default('asc'),
 })
 

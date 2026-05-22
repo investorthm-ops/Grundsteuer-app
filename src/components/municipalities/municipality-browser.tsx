@@ -50,6 +50,10 @@ function formatRate(value: number | null) {
   return typeof value === 'number' ? `${value} %` : '-'
 }
 
+function hasDifferentiatedB(item: Municipality) {
+  return typeof item.hebesatz_b_wohnen === 'number' || typeof item.hebesatz_b_nichtwohnen === 'number'
+}
+
 function formatDate(value: string | null) {
   if (!value) return '-'
   return new Intl.DateTimeFormat('de-DE').format(new Date(value))
@@ -237,7 +241,9 @@ export function MunicipalityBrowser() {
                 <TableHead>Merken</TableHead>
                 <TableHead>Bundesland</TableHead>
                 <TableHead>GrSt A</TableHead>
-                <TableHead>GrSt B</TableHead>
+                <TableHead>GrSt B Standard</TableHead>
+                <TableHead>B Wohnen</TableHead>
+                <TableHead>B Nichtwohnen</TableHead>
                 <TableHead>Vorjahr B</TableHead>
                 <TableHead>Delta</TableHead>
                 <TableHead>GewSt</TableHead>
@@ -290,6 +296,11 @@ export function MunicipalityBrowser() {
                     <TableCell>{item.bundesland}</TableCell>
                     <TableCell>{formatRate(item.hebesatz_a)}</TableCell>
                     <TableCell>{formatRate(item.hebesatz_b)}</TableCell>
+                    <TableCell>
+                      <div>{formatRate(item.hebesatz_b_wohnen)}</div>
+                      {hasDifferentiatedB(item) ? <div className="text-xs text-zinc-500">differenziert</div> : null}
+                    </TableCell>
+                    <TableCell>{formatRate(item.hebesatz_b_nichtwohnen)}</TableCell>
                     <TableCell>{formatRate(item.vorjahr_b)}</TableCell>
                     <TableCell>
                       <span
@@ -340,21 +351,21 @@ export function MunicipalityBrowser() {
               })}
               {!isLoading && !error && items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={10} className="h-28 text-center text-zinc-500">
+                  <TableCell colSpan={12} className="h-28 text-center text-zinc-500">
                     Für diese Auswahl sind noch keine Daten verfügbar.
                   </TableCell>
                 </TableRow>
               ) : null}
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={10} className="h-28 text-center text-zinc-500">
+                  <TableCell colSpan={12} className="h-28 text-center text-zinc-500">
                     Daten werden geladen.
                   </TableCell>
                 </TableRow>
               ) : null}
               {error ? (
                 <TableRow>
-                  <TableCell colSpan={10} className="h-28 text-center text-red-700">
+                  <TableCell colSpan={12} className="h-28 text-center text-red-700">
                     {error}
                   </TableCell>
                 </TableRow>

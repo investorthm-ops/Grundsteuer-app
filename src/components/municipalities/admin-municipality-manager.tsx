@@ -30,6 +30,8 @@ type FormState = {
   kreis: string
   hebesatz_a: string
   hebesatz_b: string
+  hebesatz_b_wohnen: string
+  hebesatz_b_nichtwohnen: string
   hebesatz_gewerbe: string
   vorjahr_b: string
   datenstand: string
@@ -44,6 +46,8 @@ const emptyForm: FormState = {
   kreis: '',
   hebesatz_a: '',
   hebesatz_b: '',
+  hebesatz_b_wohnen: '',
+  hebesatz_b_nichtwohnen: '',
   hebesatz_gewerbe: '',
   vorjahr_b: '',
   datenstand: '',
@@ -72,6 +76,8 @@ function toPayload(form: FormState) {
     kreis: form.kreis.trim() || null,
     hebesatz_a: optionalNumber(form.hebesatz_a),
     hebesatz_b: Number(form.hebesatz_b),
+    hebesatz_b_wohnen: optionalNumber(form.hebesatz_b_wohnen),
+    hebesatz_b_nichtwohnen: optionalNumber(form.hebesatz_b_nichtwohnen),
     hebesatz_gewerbe: optionalNumber(form.hebesatz_gewerbe),
     vorjahr_b: optionalNumber(form.vorjahr_b),
     datenstand: form.datenstand || null,
@@ -89,6 +95,8 @@ function fromMunicipality(item: Municipality): FormState {
     kreis: item.kreis ?? '',
     hebesatz_a: item.hebesatz_a?.toString() ?? '',
     hebesatz_b: item.hebesatz_b.toString(),
+    hebesatz_b_wohnen: item.hebesatz_b_wohnen?.toString() ?? '',
+    hebesatz_b_nichtwohnen: item.hebesatz_b_nichtwohnen?.toString() ?? '',
     hebesatz_gewerbe: item.hebesatz_gewerbe?.toString() ?? '',
     vorjahr_b: item.vorjahr_b?.toString() ?? '',
     datenstand: item.datenstand ?? '',
@@ -218,6 +226,14 @@ export function AdminMunicipalityManager() {
               <Input id="hebesatz_b" type="number" min="0" max="2000" value={form.hebesatz_b} onChange={(event) => updateField('hebesatz_b', event.target.value)} required />
             </div>
             <div className="space-y-2">
+              <Label htmlFor="hebesatz_b_wohnen">B Wohnen</Label>
+              <Input id="hebesatz_b_wohnen" type="number" min="0" max="3000" value={form.hebesatz_b_wohnen} onChange={(event) => updateField('hebesatz_b_wohnen', event.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="hebesatz_b_nichtwohnen">B Nichtwohnen</Label>
+              <Input id="hebesatz_b_nichtwohnen" type="number" min="0" max="3000" value={form.hebesatz_b_nichtwohnen} onChange={(event) => updateField('hebesatz_b_nichtwohnen', event.target.value)} />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="vorjahr_b">Vorjahr B</Label>
               <Input id="vorjahr_b" type="number" min="0" max="2000" value={form.vorjahr_b} onChange={(event) => updateField('vorjahr_b', event.target.value)} />
             </div>
@@ -292,6 +308,8 @@ export function AdminMunicipalityManager() {
                 <TableHead>Gemeinde</TableHead>
                 <TableHead>Bundesland</TableHead>
                 <TableHead>GrSt B</TableHead>
+                <TableHead>B Wohnen</TableHead>
+                <TableHead>B Nichtwohnen</TableHead>
                 <TableHead>Stand</TableHead>
                 <TableHead>Quelle</TableHead>
                 <TableHead className="text-right">Aktion</TableHead>
@@ -303,6 +321,8 @@ export function AdminMunicipalityManager() {
                   <TableCell className="font-medium">{displayText(item.name)}</TableCell>
                   <TableCell>{item.bundesland}</TableCell>
                   <TableCell>{item.hebesatz_b} %</TableCell>
+                  <TableCell>{item.hebesatz_b_wohnen ? `${item.hebesatz_b_wohnen} %` : '-'}</TableCell>
+                  <TableCell>{item.hebesatz_b_nichtwohnen ? `${item.hebesatz_b_nichtwohnen} %` : '-'}</TableCell>
                   <TableCell>{item.datenstand || '-'}</TableCell>
                   <TableCell className="max-w-64 truncate">{item.quellenname || '-'}</TableCell>
                   <TableCell>
@@ -319,7 +339,7 @@ export function AdminMunicipalityManager() {
               ))}
               {!isLoading && items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-28 text-center text-zinc-500">
+                  <TableCell colSpan={8} className="h-28 text-center text-zinc-500">
                     Noch keine Daten vorhanden. Lege links den ersten Datensatz an.
                   </TableCell>
                 </TableRow>

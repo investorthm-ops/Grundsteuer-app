@@ -56,21 +56,21 @@ Vor einem echten Verkaufsgespräch sollten mindestens 20 relevante Kommunen gepr
 | Nr. | Kommune | Bundesland | App-Wert | Fachprüfung | Status |
 |-----|---------|------------|----------|-------------|--------|
 | 1 | Dreieich | Hessen | 2022: A 500 / B 500 / GewSt 370 | 2022 historisch korrekt. 2025 laut Kreis Offenbach: A 661 / B 709 / GewSt 370. 2026 laut Hebesatzsatzung: A 900 / B 900 / GewSt 380. | geprüft: historisch korrekt, aktuell veraltet |
-| 2 | Düsseldorf | Nordrhein-Westfalen | 2022 prüfen | Gegen Original-Excel und aktuelle kommunale Quelle prüfen | offen |
-| 3 | Köln | Nordrhein-Westfalen | 2022 prüfen | Gegen Original-Excel und aktuelle kommunale Quelle prüfen | offen |
-| 4 | Essen | Nordrhein-Westfalen | 2022 prüfen | Gegen Original-Excel und aktuelle kommunale Quelle prüfen | offen |
-| 5 | Dortmund | Nordrhein-Westfalen | 2022 prüfen | Gegen Original-Excel und aktuelle kommunale Quelle prüfen | offen |
+| 2 | Düsseldorf | Nordrhein-Westfalen | 2022: A 156 / B 440 / GewSt 440 | 2022 historisch korrekt. 2025/2026: Grundsteuer nach städtischen Quellen geändert; Gewerbesteuer 440. Quellenkonflikt zwischen Grundsteuerseite und Haushaltsdaten für A/B dokumentiert. | geprüft: historisch korrekt, aktuell veraltet; Quellenkonflikt bei A/B |
+| 3 | Köln | Nordrhein-Westfalen | 2022: A 165 / B 515 / GewSt 475 | 2022 historisch korrekt. 2025: A 165 / B 475 / GewSt 475; 2026: A 165 / B 550 / GewSt 475. | geprüft: historisch korrekt, aktuell veraltet |
+| 4 | Essen | Nordrhein-Westfalen | 2022: A 255 / B 670 / GewSt 480 | 2022 historisch korrekt. 2025: A 390 / B 655 für Wohngrundstücke / B 1.290 für Nichtwohngrundstücke / GewSt 480. | geprüft: historisch korrekt, aktuell veraltet; differenzierte Grundsteuer B |
+| 5 | Dortmund | Nordrhein-Westfalen | 2022: A 325 / B 610 / GewSt 485 | 2022 historisch korrekt. 2025: A 450 / B 625 für Wohngrundstücke / B 1.245 für Nichtwohngrundstücke; 2026: A 595 / B 800 / GewSt 485. | geprüft: historisch korrekt, aktuell veraltet; differenzierte Grundsteuer B 2025 |
 | 6 | Frankfurt am Main | Hessen | 2022: A 175 / B 500 / GewSt 460 | 2022 historisch korrekt. 2025/2026: A 317,62 / B 854,69 / GewSt 460. | geprüft: historisch korrekt, aktuell veraltet |
 | 7 | Wiesbaden | Hessen | 2022: A 275 / B 492 / GewSt 454 | 2022 historisch korrekt. 2026 laut städtischer Haushaltssatzung: A 341,01 / B 690,06 / GewSt 460. IHK-Übersicht nennt abweichend GewSt 395. | geprüft: historisch korrekt, aktuell veraltet; Quellenkonflikt bei GewSt |
 | 8 | Kassel | Hessen | 2022: A 450 / B 490 / GewSt 440 | 2022 historisch korrekt. 2025/2026: A 345 / B 490 / GewSt 440. | geprüft: historisch korrekt, Grundsteuer A aktuell veraltet |
 | 9 | Darmstadt | Hessen | 2022: A 320 / B 535 / GewSt 454 | 2022 historisch korrekt. 2025/2026: A 693 / B 1.181 / GewSt 459. | geprüft: historisch korrekt, aktuell veraltet |
-| 10 | Bonn | Nordrhein-Westfalen | 2022 prüfen | Gegen Original-Excel und aktuelle kommunale Quelle prüfen | offen |
-| 11 | Duisburg | Nordrhein-Westfalen | 2022 prüfen | Gegen Original-Excel und aktuelle kommunale Quelle prüfen | offen |
-| 12 | Münster | Nordrhein-Westfalen | 2022 prüfen | Gegen Original-Excel und aktuelle kommunale Quelle prüfen | offen |
-| 13 | Aachen | Nordrhein-Westfalen | 2022 prüfen | Gegen Original-Excel und aktuelle kommunale Quelle prüfen | offen |
-| 14 | Bielefeld | Nordrhein-Westfalen | 2022 prüfen | Gegen Original-Excel und aktuelle kommunale Quelle prüfen | offen |
-| 15 | Wuppertal | Nordrhein-Westfalen | 2022 prüfen | Gegen Original-Excel und aktuelle kommunale Quelle prüfen | offen |
-| 16 | Bochum | Nordrhein-Westfalen | 2022 prüfen | Gegen Original-Excel und aktuelle kommunale Quelle prüfen | offen |
+| 10 | Bonn | Nordrhein-Westfalen | 2022: A 340 / B 680 / GewSt 490 | 2022 historisch korrekt. 2025/2026: A 543 / B 657 Wohngrundstücke / B 900 Nichtwohngrundstücke / GewSt 537 laut Haushaltssatzung. | geprüft: historisch korrekt, aktuell veraltet; differenzierte Grundsteuer B |
+| 11 | Duisburg | Nordrhein-Westfalen | 2022: A 260 / B 855 / GewSt 520 | 2022 historisch korrekt. 2025: GewSt 495; 2026: A 329 / einheitliche Grundsteuer B 1.169. | geprüft: historisch korrekt, aktuell veraltet |
+| 12 | Münster | Nordrhein-Westfalen | 2022: A 255 / B 510 / GewSt 460 | 2022 historisch korrekt. 2025: A 255 / B 410 Wohngrundstücke / B 620 Nichtwohngrundstücke / GewSt 460; 2026: A 393 / B 492 / GewSt 460. | geprüft: historisch korrekt, aktuell veraltet; differenzierte Grundsteuer B 2025 |
+| 13 | Aachen | Nordrhein-Westfalen | 2022: A 305 / B 525 / GewSt 475 | 2022 historisch korrekt. Ab 01.01.2025: A 368 / B 637 / GewSt 475. | geprüft: historisch korrekt, aktuell veraltet |
+| 14 | Bielefeld | Nordrhein-Westfalen | 2022: A 300 / B 660 / GewSt 480 | 2022 historisch korrekt. 2025/2026: A 426 / B 765; Gewerbesteuer separat zu bestätigen. | geprüft: historisch korrekt, aktuell veraltet; GewSt offen |
+| 15 | Wuppertal | Nordrhein-Westfalen | 2022: A 240 / B 620 / GewSt 490 | 2022 historisch korrekt. Ab 01.01.2025: A 309 / B 947 / GewSt 490. | geprüft: historisch korrekt, aktuell veraltet |
+| 16 | Bochum | Nordrhein-Westfalen | 2022: A 250 / B 645 / GewSt 495 | 2022 historisch korrekt. 2025: A 374 / B 715 Wohngrundstücke / B 1.190 Nichtwohngrundstücke / GewSt 495. | geprüft: historisch korrekt, aktuell veraltet; differenzierte Grundsteuer B |
 | 17 | Offenbach am Main | Hessen | 2022: A 250 / B 895 / GewSt 440 | 2022 historisch korrekt. 2025: aufkommensneutrale Grundsteuer B 1.230 (vorher 895); Gewerbesteuer 440 unverändert. | geprüft: historisch korrekt, Grundsteuer B aktuell veraltet |
 | 18 | Hanau | Hessen | 2022: A 330 / B 595 / GewSt 430 | 2022 historisch korrekt (Stand seit 2017). 2025 Reform: A 175 / B 645; Gewerbesteuer 430, ab 2026 458. | geprüft: historisch korrekt, aktuell veraltet |
 | 19 | Gießen | Hessen | 2022: A 330 / B 600 / GewSt 420 | 2022 historisch korrekt. 2025: A 259 / B 626; Gewerbesteuer 2025 nicht separat bestätigt. | geprüft: historisch korrekt, Grundsteuer A/B aktuell veraltet |
@@ -225,6 +225,29 @@ Entscheidung für PROJ-9:
 
 - 2022-Zeile bleibt historisch nachvollziehbar.
 - Für aktuelle Demo ist Grundsteuer A/B auf den 2025-Stand zu aktualisieren; Gewerbesteuer bleibt 380.
+
+#### Prüfergebnis NRW-Stichprobe
+
+Die NRW-App-Zeilen aus `data/import/nrw-hessen-2022.csv` wurden gegen den 2022-Importstand und gegen aktuelle kommunale Veröffentlichungen geprüft. Ergebnis: Die 2022-Werte sind historisch als Pilotdatenbasis nutzbar, aber viele große NRW-Städte haben ab 2025 andere oder differenzierte Grundsteuer-B-Hebesätze. Diese Stichprobe bestätigt deshalb zwei Produktentscheidungen:
+
+- In der Demo muss der Datenstand 2022 sichtbar bleiben.
+- PROJ-10 ist fachlich notwendig, weil ein einzelnes Feld `Grundsteuer B` ab 2025 für mehrere NRW-Kommunen nicht mehr ausreicht.
+
+Geprüfte kommunale Quellen:
+
+| Kommune | Quelle |
+|---------|--------|
+| Düsseldorf | https://www.duesseldorf.de/steueramt/grundsteuer/ und https://www.duesseldorf.de/finanzen/haushaltsplaene/haushaltsdaten-2025 |
+| Köln | https://www.stadt-koeln.de/artikel/06286/index.html |
+| Essen | https://www.essen.de/rathaus/haushalt_und_finanzen/grundbesitzabgaben/gba_faqs_1.de.html und https://service.essen.de/detail/-/vr-bis-detail/dienstleistung/43362/show |
+| Dortmund | https://www.dortmund.de/newsroom/nachrichten-dortmund.de/wohnen-soll-bezahlbar-bleiben-dortmund-beschliesst-unterschiedliche-grundsteuer-hebesaetze.html und https://www.dortmund.de/dortmund/projekte/rathaus/verwaltung/stadtkasse-und-steueramt/downloads/linksunddownloads/satzung-ueber-die-festsetzung-der-hebesaetze-fuer-die-realsteuern-v.-19.12.2025.pdf |
+| Bonn | https://www.bonn.de/medien-global/amt-13/amtsblatt/21_2025_Amtsblatt.pdf |
+| Duisburg | https://www.duisburg.de/vv/produkte/pro_du/dez_i/21/grundsteuer_639782_639789_639792_639795_639798_639801.php und https://www.duisburg.de/vv/produkte/pro_du/dez_i/21/gewerbesteuer_284817.php |
+| Münster | https://www.stadt-muenster.de/finanzen/steuern-und-gebuehren/steuerhebesaetze |
+| Aachen | https://serviceportal.aachen.de/suche/-/vr-bis-detail/dienstleistung/2693/show und https://www.aachen.de/in-aachen-leben/politik-und-verwaltung/stadtrecht/finanzen/satzung-ueber-die-festsetzung-der-hebesaetze.pdf?cid=bfv |
+| Bielefeld | https://www.bielefeld.de/grundsteuer |
+| Wuppertal | https://www.wuppertal.de/rathaus-buergerservice/verwaltung/politik/stadtrecht-dokumente/2-01.pdf |
+| Bochum | https://www.bochum.de/Amt-fuer-Finanzsteuerung/Steuerhebesaetze-und-Gebuehren |
 
 ## Spalten-Mapping
 

@@ -28,6 +28,10 @@ function delta(current: number, previous: number | null) {
   return current - previous
 }
 
+function hasDifferentiatedB(municipality: Municipality) {
+  return typeof municipality.hebesatz_b_wohnen === 'number' || typeof municipality.hebesatz_b_nichtwohnen === 'number'
+}
+
 function locationText(municipality: Municipality) {
   if (!municipality.kreis) return municipality.name
   return `${municipality.name}, ${municipality.kreis}`
@@ -61,7 +65,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `Grundsteuer Hebesatz ${municipality.name} | GrundsteuerMonitor`,
-    description: `Aktueller Grundsteuer-B-Hebesatz, Vorjahresvergleich und Datenstand fuer ${municipality.name}.`,
+    description: `Grundsteuer-B-Hebesatz mit Datenstand, Quelle und Vorjahresvergleich fuer ${municipality.name}.`,
   }
 }
 
@@ -74,6 +78,23 @@ export default async function MunicipalitySeoPage({ params }: PageProps) {
   const changeLabel = change === null ? 'kein Vorjahr' : change > 0 ? `+${change}` : String(change)
   const isNotable = typeof change === 'number' && change >= 100
   const canonicalSlug = municipalitySlug(municipality.name)
+  const differentiatedB = hasDifferentiatedB(municipality)
+  const overviewRows = [
+    ['Gemeinde', municipality.name],
+    ['Bundesland', municipality.bundesland],
+    ['Kreis', municipality.kreis ?? '-'],
+    ['Grundsteuer B Vorjahr', formatRate(municipality.vorjahr_b)],
+    ...(differentiatedB
+      ? [
+          ['Grundsteuer B Wohnen', formatRate(municipality.hebesatz_b_wohnen)],
+          ['Grundsteuer B Nichtwohnen', formatRate(municipality.hebesatz_b_nichtwohnen)],
+        ]
+      : []),
+    ['Delta zum Vorjahr', changeLabel],
+    ['Datenstand', formatDate(municipality.datenstand)],
+    ['In App aktualisiert', formatDate(municipality.updated_at)],
+    ['Quelle', municipality.quellenname ?? 'Quelle offen'],
+  ]
 
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
@@ -100,12 +121,12 @@ export default async function MunicipalitySeoPage({ params }: PageProps) {
                 Grundsteuer Hebesatz {municipality.name}
               </h1>
               <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-600">
-                Aktuelle Hebesaetze, Vorjahresvergleich und Datenstand fuer {locationText(municipality)}.
+                Hebesaetze mit Datenstand, Vorjahresvergleich und Quelle fuer {locationText(municipality)}.
                 Die Werte dienen als Arbeitsgrundlage fuer Standortvergleich, Watchlist und Renditepruefung.
               </p>
             </div>
             <div className="rounded-lg border bg-zinc-950 p-5 text-white">
-              <p className="text-sm text-zinc-300">Grundsteuer B</p>
+              <p className="text-sm text-zinc-300">Grundsteuer B Standard</p>
               <p className="mt-2 text-5xl font-semibold">{formatRate(municipality.hebesatz_b)}</p>
               <div className="mt-4 flex items-center justify-between text-sm text-zinc-300">
                 <span>Veraenderung</span>
@@ -116,6 +137,11 @@ export default async function MunicipalitySeoPage({ params }: PageProps) {
             </div>
           </div>
         </div>
+        {differentiatedB ? (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
+            Diese Kommune hat differenzierte Grundsteuer-B-Werte. Fuer Wohn- und Nichtwohngrundstuecke koennen unterschiedliche Hebesaetze gelten.
+          </div>
+        ) : null}
       </section>
 
       <section className="mx-auto grid max-w-6xl gap-4 px-4 py-8 sm:px-6 md:grid-cols-3 lg:px-8">
@@ -124,6 +150,20 @@ export default async function MunicipalitySeoPage({ params }: PageProps) {
           <p className="mt-4 text-sm text-zinc-500">Grundsteuer A</p>
           <p className="mt-1 text-2xl font-semibold">{formatRate(municipality.hebesatz_a)}</p>
         </div>
+        {differentiatedB ? (
+          <>
+            <div className="rounded-lg border bg-white p-5">
+              <Database className="h-5 w-5 text-zinc-700" aria-hidden="true" />
+              <p className="mt-4 text-sm text-zinc-500">Grundsteuer B Wohnen</p>
+              <p className="mt-1 text-2xl font-semibold">{formatRate(municipality.hebesatz_b_wohnen)}</p>
+            </div>
+            <div className="rounded-lg border bg-white p-5">
+              <Database className="h-5 w-5 text-zinc-700" aria-hidden="true" />
+              <p className="mt-4 text-sm text-zinc-500">Grundsteuer B Nichtwohnen</p>
+              <p className="mt-1 text-2xl font-semibold">{formatRate(municipality.hebesatz_b_nichtwohnen)}</p>
+            </div>
+          </>
+        ) : null}
         <div className="rounded-lg border bg-white p-5">
           <LineChart className="h-5 w-5 text-zinc-700" aria-hidden="true" />
           <p className="mt-4 text-sm text-zinc-500">Gewerbesteuer</p>
@@ -146,16 +186,7 @@ export default async function MunicipalitySeoPage({ params }: PageProps) {
             <h2 className="text-lg font-semibold">Hebesatz-Uebersicht</h2>
           </div>
           <dl className="divide-y">
-            {[
-              ['Gemeinde', municipality.name],
-              ['Bundesland', municipality.bundesland],
-              ['Kreis', municipality.kreis ?? '-'],
-              ['Grundsteuer B Vorjahr', formatRate(municipality.vorjahr_b)],
-              ['Delta zum Vorjahr', changeLabel],
-              ['Datenstand', formatDate(municipality.datenstand)],
-              ['In App aktualisiert', formatDate(municipality.updated_at)],
-              ['Quelle', municipality.quellenname ?? 'Quelle offen'],
-            ].map(([label, value]) => (
+            {overviewRows.map(([label, value]) => (
               <div key={label} className="grid gap-1 px-5 py-3 sm:grid-cols-2">
                 <dt className="text-sm text-zinc-500">{label}</dt>
                 <dd className="font-medium">{value}</dd>

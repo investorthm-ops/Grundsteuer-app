@@ -40,9 +40,12 @@ Der Grundsteuer-Monitor zentralisiert das: gepflegte Hebesatz-Datenbank für all
 | PROJ-1 | Bundesweite Hebesatz-Datenbank — suchbar, filterbar, paginiert | ✅ MVP |
 | PROJ-4 | Import-Pipeline — Admin-CSV-Upload mit Staging, Row-Validierung, Approval-Workflow, Audit-Trail | ✅ MVP |
 | PROJ-5 | CSV/Excel-Export der Municipality-Daten | ✅ MVP |
-| PROJ-2 | Watchlist + Änderungs-Alerts | 📋 Geplant |
-| PROJ-3 | SEO-Stadtseiten | 📋 Geplant |
-| PROJ-6 | Renditeauswirkungs-Rechner | 📋 Geplant |
+| PROJ-2 | Watchlist + Änderungs-Alerts | ✅ MVP |
+| PROJ-3 | SEO-Stadtseiten | ✅ MVP |
+| PROJ-6 | Renditeauswirkungs-Rechner | ✅ MVP |
+| PROJ-7 | Vergleich und Benchmarking | ✅ MVP |
+| PROJ-8 | Mandantenfähige Nutzerverwaltung | ✅ MVP |
+| PROJ-9 | Datenvertrauen und Demo-Daten | 🔎 In Review |
 
 Detaillierte Specs pro Feature unter [`features/`](features/). Übersicht: [`features/INDEX.md`](features/INDEX.md).
 

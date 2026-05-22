@@ -27,7 +27,7 @@ const featureCards = [
   {
     icon: Bell,
     title: 'Aenderungen sehen',
-    text: 'Aktuelle Werte mit dem Vorjahr vergleichen und auffaellige Veraenderungen schneller erkennen.',
+    text: 'Datenstand und Vorjahreswerte nebeneinander sehen und auffaellige Veraenderungen schneller erkennen.',
   },
   {
     icon: FileDown,
@@ -45,7 +45,7 @@ const valueProps = [
   {
     icon: Bell,
     title: 'Aenderungen kommen zu Ihnen',
-    text: 'Die Watchlist meldet automatisch, wenn sich ein Hebesatz in Ihren Standort-Kommunen aendert. Sie muessen nicht laufend nachschauen.',
+    text: 'Die Watchlist buendelt relevante Standort-Kommunen, damit Aenderungen nach Datenupdates schneller auffallen.',
   },
   {
     icon: LineChart,
@@ -64,8 +64,9 @@ const statusItems = [
   'Hebesatz-Datenbank live',
   'Watchlist live getestet',
   'SEO-Stadtseiten erreichbar',
+  'Quellen und Datenstand sichtbar',
   'Sitemap und robots.txt aktiv',
-  'Renditerechner im Aufbau',
+  'Renditerechner live',
 ]
 
 export default function Home() {

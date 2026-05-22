@@ -26,16 +26,18 @@ import type { Municipality, MunicipalityListResponse } from '@/lib/types/municip
 
 const ALL_STATES = 'alle'
 
-type TaxField = 'hebesatz_a' | 'hebesatz_b' | 'hebesatz_gewerbe'
+type TaxField = 'hebesatz_a' | 'hebesatz_b' | 'hebesatz_b_wohnen' | 'hebesatz_b_nichtwohnen' | 'hebesatz_gewerbe'
 type SortDir = 'asc' | 'desc'
 
 const TAX_FIELDS: Array<{ value: TaxField; label: string }> = [
   { value: 'hebesatz_b', label: 'Grundsteuer B' },
+  { value: 'hebesatz_b_wohnen', label: 'B Wohnen' },
+  { value: 'hebesatz_b_nichtwohnen', label: 'B Nichtwohnen' },
   { value: 'hebesatz_a', label: 'Grundsteuer A' },
   { value: 'hebesatz_gewerbe', label: 'Gewerbesteuer' },
 ]
 
-const COMPARISON_FIELDS: TaxField[] = ['hebesatz_a', 'hebesatz_b', 'hebesatz_gewerbe']
+const COMPARISON_FIELDS: TaxField[] = ['hebesatz_a', 'hebesatz_b', 'hebesatz_b_wohnen', 'hebesatz_b_nichtwohnen', 'hebesatz_gewerbe']
 
 function formatRate(value: number | null) {
   return typeof value === 'number' ? `${value} %` : '-'
@@ -315,6 +317,8 @@ export function MunicipalityCompare() {
                     <TableHead className="min-w-56">Kommune</TableHead>
                     <TableHead>Grundsteuer A</TableHead>
                     <TableHead>Grundsteuer B</TableHead>
+                    <TableHead>B Wohnen</TableHead>
+                    <TableHead>B Nichtwohnen</TableHead>
                     <TableHead>Gewerbesteuer</TableHead>
                     <TableHead>Stand & Quelle</TableHead>
                     <TableHead>Status</TableHead>
@@ -332,6 +336,8 @@ export function MunicipalityCompare() {
                       </TableCell>
                       <TableCell>{renderRateCell(item, 'hebesatz_a')}</TableCell>
                       <TableCell>{renderRateCell(item, 'hebesatz_b')}</TableCell>
+                      <TableCell>{renderRateCell(item, 'hebesatz_b_wohnen')}</TableCell>
+                      <TableCell>{renderRateCell(item, 'hebesatz_b_nichtwohnen')}</TableCell>
                       <TableCell>{renderRateCell(item, 'hebesatz_gewerbe')}</TableCell>
                       <TableCell>
                         <div className="space-y-1">

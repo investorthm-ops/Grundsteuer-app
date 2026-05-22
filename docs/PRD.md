@@ -33,14 +33,14 @@ Für den MVP-Start wird der Nutzen noch konkreter formuliert:
 
 | Priorität | Feature | Status |
 |-----------|---------|--------|
-| P0 (MVP) | Bundesweite Hebesatz-Datenbank (A, B, Gewerbe) — suchbar, filterbar nach Bundesland/Kreis/Kommune | Planned |
-| P0 (MVP) | Vergleich & Benchmarking-Ansicht — mehrere Kommunen nebeneinander, Ranglisten, Karten | Planned |
-| P0 (MVP) | Watchlist mit Alerts — Kommunen markieren, Benachrichtigung bei Hebesatz-Änderung | Planned |
-| P0 (MVP) | CSV/Excel-Export — Daten für eigene Auswertungen herunterladen | Planned |
-| P1 | Nutzer-Authentifizierung & Mandantentrennung (Supabase Auth + RLS) | Planned |
-| P1 | Admin-gesteuerte Kundenfreischaltung mit Rollen und Laufzeitbegrenzung | Planned |
-| P1 | Datenpflege-Workflow (Import-Pipeline, Quellenverwaltung, Versionierung) | Planned |
-| P1 | Datenvertrauen und Demo-Daten — Quellen, Datenstand und geprüfte Pilotdaten sichtbar machen | In Progress |
+| P0 (MVP) | Bundesweite Hebesatz-Datenbank (A, B, Gewerbe) — suchbar, filterbar nach Bundesland/Kreis/Kommune | Deployed |
+| P0 (MVP) | Vergleich & Benchmarking-Ansicht — mehrere Kommunen nebeneinander, Ranglisten, Karten | Deployed |
+| P0 (MVP) | Watchlist mit Alerts — Kommunen markieren, Benachrichtigung bei Hebesatz-Änderung | Deployed |
+| P0 (MVP) | CSV/Excel-Export — Daten für eigene Auswertungen herunterladen | Deployed |
+| P1 | Nutzer-Authentifizierung & Mandantentrennung (Supabase Auth + RLS) | Deployed |
+| P1 | Admin-gesteuerte Kundenfreischaltung mit Rollen und Laufzeitbegrenzung | Deployed |
+| P1 | Datenpflege-Workflow (Import-Pipeline, Quellenverwaltung, Versionierung) | Deployed |
+| P1 | Datenvertrauen und Demo-Daten — Quellen, Datenstand und geprüfte Pilotdaten sichtbar machen | In Review |
 | P1 | Differenzierte Grundsteuer-B-Hebesätze für Wohnen und Nichtwohnen ab 2025 | Planned |
 | P2 | Beratungs-Reports (PDF/Excel-Auswertungen für Mandantengespräche) | Planned |
 | P2 | Billing-Integration (sobald Geschäftsmodell validiert ist) | Planned |

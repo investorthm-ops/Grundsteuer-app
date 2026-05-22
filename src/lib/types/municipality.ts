@@ -7,6 +7,8 @@ export interface Municipality {
   kreis: string | null
   hebesatz_a: number | null
   hebesatz_b: number
+  hebesatz_b_wohnen: number | null
+  hebesatz_b_nichtwohnen: number | null
   hebesatz_gewerbe: number | null
   vorjahr_b: number | null
   datenstand: string | null

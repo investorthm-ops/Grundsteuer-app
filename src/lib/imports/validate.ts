@@ -106,7 +106,15 @@ export function validateImportRows(
   const existingByKey = new Map(
     existing.map((item) => [`${normalizeKey(item.bundesland)}|${normalizeKey(item.name)}`, item])
   )
-  const seenInFile = new Set<string>()
+  const duplicateCounts = rows.reduce((counts, raw) => {
+    const name = raw.name?.trim()
+    const bundesland = raw.bundesland?.trim()
+    if (!name || !bundesland) return counts
+
+    const key = `${normalizeKey(bundesland)}|${normalizeKey(name)}`
+    counts.set(key, (counts.get(key) ?? 0) + 1)
+    return counts
+  }, new Map<string, number>())
 
   return rows.map<ValidatedImportRow>((raw, index) => {
     const errors: string[] = []
@@ -133,8 +141,9 @@ export function validateImportRows(
     let duplicateKey: string | null = null
     if (name && bundesland) {
       duplicateKey = `${normalizeKey(bundesland)}|${normalizeKey(name)}`
-      if (seenInFile.has(duplicateKey)) warnings.push('Doppelte Gemeinde in dieser CSV.')
-      seenInFile.add(duplicateKey)
+      if ((duplicateCounts.get(duplicateKey) ?? 0) > 1) {
+        errors.push('Doppelte Gemeinde in dieser CSV. Bitte vor dem Import bereinigen.')
+      }
     }
 
     const existingItem = name && bundesland ? pickExisting(existingByKey, name, bundesland) : null

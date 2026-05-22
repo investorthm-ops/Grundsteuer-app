@@ -1,6 +1,6 @@
 # PROJ-10: Differenzierte Grundsteuer-B-Hebesaetze
 
-## Status: Planned
+## Status: In Progress
 **Created:** 2026-05-22
 **Last Updated:** 2026-05-22
 
@@ -102,7 +102,25 @@ Ab 2025 nutzen mehrere Kommunen differenzierte Grundsteuer-B-Hebesaetze fuer Woh
 <!-- Sections below are added by subsequent skills -->
 
 ## Tech Design (Solution Architect)
-_To be added by /architecture_
+### MVP-Entscheidung
+
+PROJ-10 erweitert die bestehende `municipalities`-Tabelle um zwei optionale Felder:
+
+- `hebesatz_b_wohnen`
+- `hebesatz_b_nichtwohnen`
+
+Das bestehende Feld `hebesatz_b` bleibt erhalten. Es dient weiter als Standardwert fuer historische Daten, Kommunen ohne Differenzierung und Rueckwaertskompatibilitaet. Dadurch bleiben bestehende API-Routen, Suchlogik, Watchlist und Stadtseiten stabil.
+
+### Umsetzungsschritte
+
+- Migration `0008_differentiated_property_tax_b.sql` legt die neuen Spalten und Indizes an.
+- Altena wird als Referenzfall mit B Wohnen `1010` und B Nichtwohnen `2020` gepflegt.
+- Zod-Validierung und TypeScript-Typen kennen die neuen optionalen Felder.
+- Admin-Pflege, Datenbankansicht, Vergleich, Rangliste, Export, Stadtseite und Rechner zeigen oder nutzen die neuen Werte.
+
+### Offene Produktkante
+
+Einige Kommunen haben ab 2025 keinen fachlich sinnvollen einheitlichen B-Wert mehr. Fuer diesen MVP bleibt `hebesatz_b` trotzdem Pflichtfeld, damit alte Daten und bestehende Vergleiche nicht brechen. Eine spaetere Version kann historische Werte und aktuelle differenzierte Werte zeitlich trennen.
 
 ## QA Test Results
 _To be added by /qa_

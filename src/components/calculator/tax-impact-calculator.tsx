@@ -15,6 +15,8 @@ import {
 } from '@/components/ui/select'
 import type { Municipality, MunicipalityListResponse } from '@/lib/types/municipality'
 
+type TaxRateKind = 'standard' | 'wohnen' | 'nichtwohnen'
+
 function formatCurrency(value: number) {
   return new Intl.NumberFormat('de-DE', {
     style: 'currency',
@@ -37,12 +39,27 @@ function taxFromMessbetrag(messbetrag: number, hebesatz: number) {
   return messbetrag * (hebesatz / 100)
 }
 
+function hasDifferentiatedB(municipality: Municipality | null) {
+  return Boolean(
+    municipality &&
+      (typeof municipality.hebesatz_b_wohnen === 'number' ||
+        typeof municipality.hebesatz_b_nichtwohnen === 'number')
+  )
+}
+
+function rateFor(municipality: Municipality, kind: TaxRateKind) {
+  if (kind === 'wohnen') return municipality.hebesatz_b_wohnen ?? municipality.hebesatz_b
+  if (kind === 'nichtwohnen') return municipality.hebesatz_b_nichtwohnen ?? municipality.hebesatz_b
+  return municipality.hebesatz_b
+}
+
 export function TaxImpactCalculator() {
   const [municipalities, setMunicipalities] = useState<Municipality[]>([])
   const [selectedId, setSelectedId] = useState('')
   const [messbetrag, setMessbetrag] = useState('100')
   const [annualRent, setAnnualRent] = useState('20000')
   const [manualPreviousTax, setManualPreviousTax] = useState('')
+  const [taxRateKind, setTaxRateKind] = useState<TaxRateKind>('standard')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -78,6 +95,7 @@ export function TaxImpactCalculator() {
     () => municipalities.find((municipality) => municipality.id === selectedId) ?? null,
     [municipalities, selectedId]
   )
+  const selectedHasDifferentiation = hasDifferentiatedB(selected)
 
   const calculation = useMemo(() => {
     if (!selected) return null
@@ -85,7 +103,8 @@ export function TaxImpactCalculator() {
     const messbetragValue = Math.max(0, parseNumber(messbetrag))
     const rentValue = Math.max(0, parseNumber(annualRent))
     const manualPreviousTaxValue = Math.max(0, parseNumber(manualPreviousTax))
-    const currentTax = taxFromMessbetrag(messbetragValue, selected.hebesatz_b)
+    const currentRate = rateFor(selected, taxRateKind)
+    const currentTax = taxFromMessbetrag(messbetragValue, currentRate)
     const previousTax =
       typeof selected.vorjahr_b === 'number'
         ? taxFromMessbetrag(messbetragValue, selected.vorjahr_b)
@@ -94,12 +113,13 @@ export function TaxImpactCalculator() {
 
     return {
       currentTax,
+      currentRate,
       previousTax,
       yearlyDelta,
       monthlyDelta: yearlyDelta / 12,
       rentShare: rentValue > 0 ? (currentTax / rentValue) * 100 : 0,
     }
-  }, [annualRent, manualPreviousTax, messbetrag, selected])
+  }, [annualRent, manualPreviousTax, messbetrag, selected, taxRateKind])
 
   return (
     <div className="grid gap-4 lg:grid-cols-[420px_1fr]">
@@ -112,7 +132,14 @@ export function TaxImpactCalculator() {
         <div className="mt-5 space-y-4">
           <div className="space-y-2">
             <Label>Gemeinde</Label>
-            <Select value={selectedId} onValueChange={setSelectedId} disabled={isLoading || municipalities.length === 0}>
+            <Select
+              value={selectedId}
+              onValueChange={(value) => {
+                setSelectedId(value)
+                setTaxRateKind('standard')
+              }}
+              disabled={isLoading || municipalities.length === 0}
+            >
               <SelectTrigger>
                 <SelectValue placeholder={isLoading ? 'Daten werden geladen' : 'Gemeinde auswaehlen'} />
               </SelectTrigger>
@@ -125,6 +152,25 @@ export function TaxImpactCalculator() {
               </SelectContent>
             </Select>
           </div>
+
+          {selectedHasDifferentiation ? (
+            <div className="space-y-2">
+              <Label>Grundsteuer-B-Art</Label>
+              <Select value={taxRateKind} onValueChange={(value) => setTaxRateKind(value as TaxRateKind)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="standard">Standard / historisch</SelectItem>
+                  <SelectItem value="wohnen">Wohngrundstueck</SelectItem>
+                  <SelectItem value="nichtwohnen">Nichtwohngrundstueck</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs leading-5 text-zinc-500">
+                Diese Kommune hat differenzierte Grundsteuer-B-Werte. Waehle die passende Objektart.
+              </p>
+            </div>
+          ) : null}
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
@@ -159,6 +205,7 @@ export function TaxImpactCalculator() {
               setMessbetrag('100')
               setAnnualRent('20000')
               setManualPreviousTax('')
+              setTaxRateKind('standard')
             }}
           >
             Beispielwerte einsetzen
@@ -206,7 +253,7 @@ export function TaxImpactCalculator() {
             <h2 className="mt-4 text-lg font-semibold">Hebesatz-Vergleich</h2>
             <p className="mt-2 text-sm leading-6 text-zinc-600">
               {selected
-                ? `Aktuell ${formatRate(selected.hebesatz_b)}, Vorjahr ${formatRate(selected.vorjahr_b)}.`
+                ? `Verwendeter B-Hebesatz ${formatRate(calculation?.currentRate ?? selected.hebesatz_b)}, Vorjahr ${formatRate(selected.vorjahr_b)}.`
                 : 'Noch keine Gemeinde geladen.'}
             </p>
           </div>
@@ -215,7 +262,7 @@ export function TaxImpactCalculator() {
         <div className="rounded-lg border bg-white p-5">
           <h2 className="text-lg font-semibold">Hinweis</h2>
           <p className="mt-2 text-sm leading-6 text-zinc-600">
-            Der Rechner ist eine einfache Arbeitsrechnung fuer den MVP. Er ersetzt keine Steuerberatung und nutzt nur den Grundsteuer-B-Hebesatz sowie den angegebenen Messbetrag.
+            Der Rechner ist eine einfache Arbeitsrechnung fuer den MVP. Er ersetzt keine Steuerberatung und nutzt den ausgewaehlten Grundsteuer-B-Hebesatz sowie den angegebenen Messbetrag.
           </p>
         </div>
       </section>
@@ -231,4 +278,3 @@ function ResultTile({ label, value }: { label: string; value: string }) {
     </div>
   )
 }
-
