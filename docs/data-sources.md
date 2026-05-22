@@ -21,6 +21,51 @@ aufbereitet werden und wie ein Update funktioniert.
 **Wichtiger Hinweis:** Diese Publikation wurde **mit der Ausgabe 2022 eingestellt**.
 Es ist die letzte als fertige Excel-Datei verfügbare Gemeinde-Auflistung.
 
+## Verkaufsfähige Datenbasis
+
+Für Pilotkunden wird die Datenbasis nicht nur nach Umfang bewertet, sondern nach Vertrauen:
+
+| Qualitätsstufe | Bedeutung | Verwendung |
+|----------------|-----------|------------|
+| `bestaetigt` | Wert wurde aus einer dokumentierten Quelle importiert oder manuell geprüft. | Darf in Demo, Export und Kundengespräch verwendet werden. |
+| `offen` | Quelle oder Stichprobe ist noch nicht ausreichend geprüft. | Nur als Arbeitsstand zeigen, nicht als belastbare Aussage verkaufen. |
+
+Jeder verkaufsfähige Datensatz soll mindestens diese Angaben tragen:
+
+- Datenstand, z. B. `2022-01-01` für Berichtsjahr 2022.
+- Quellenname, z. B. `Statistische Ämter des Bundes und der Länder – Hebesätze der Realsteuern 2022`.
+- Quellen-URL zur Originalquelle oder zur bestmöglichen öffentlichen Fundstelle.
+- App-Aktualisierung über `updated_at`, damit sichtbar ist, wann der Datensatz zuletzt im System geändert wurde.
+- Quellenstatus `bestaetigt` nur nach Import aus dokumentierter Quelle oder manueller Stichprobe.
+
+## Pilotdaten NRW/Hessen
+
+Der aktuelle Demo-Datensatz `data/import/nrw-hessen-2022.csv` ist als Pilotdatenbasis gedacht. Er deckt Nordrhein-Westfalen und Hessen aus der Realsteuer-Publikation 2022 ab.
+
+Für Verkaufsgespräche ist diese Einordnung wichtig:
+
+- Die Werte sind echte Hebesatzdaten aus einer amtlichen Statistikquelle.
+- Der Datenstand ist 2022 und damit nicht als aktueller 2025-Reformstand zu verkaufen.
+- Der Datensatz eignet sich für Produktdemo, Vergleichslogik, Exportlogik und Quellenvertrauen.
+- Für bezahlte Pilotkunden sollten ausgewählte Kommunen zusätzlich gegen Originalquelle oder kommunale Veröffentlichung geprüft werden.
+
+### Mindestprüfung vor Pilotkundengespräch
+
+Vor einem echten Verkaufsgespräch sollten mindestens 20 relevante Kommunen geprüft und dokumentiert werden:
+
+| Kommune | Bundesland | Prüfschritt | Status |
+|---------|------------|-------------|--------|
+| Düsseldorf | Nordrhein-Westfalen | Gegen Original-Excel prüfen | offen |
+| Köln | Nordrhein-Westfalen | Gegen Original-Excel prüfen | offen |
+| Essen | Nordrhein-Westfalen | Gegen Original-Excel prüfen | offen |
+| Dortmund | Nordrhein-Westfalen | Gegen Original-Excel prüfen | offen |
+| Frankfurt am Main | Hessen | Gegen Original-Excel prüfen | offen |
+| Wiesbaden | Hessen | Gegen Original-Excel prüfen | offen |
+| Kassel | Hessen | Gegen Original-Excel prüfen | offen |
+| Darmstadt | Hessen | Gegen Original-Excel prüfen | offen |
+
+Diese Liste ist bewusst kurz gehalten. Sie soll als Startpunkt dienen und nach jedem geprüften Import erweitert werden.
+
 ## Spalten-Mapping
 
 Das Skript `scripts/convert-realsteuer.mjs` liest die Länder-Tabellenblätter

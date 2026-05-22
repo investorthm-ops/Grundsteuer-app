@@ -34,6 +34,8 @@ type FormState = {
   vorjahr_b: string
   datenstand: string
   quellenstatus: 'bestaetigt' | 'offen'
+  quellenname: string
+  quellen_url: string
 }
 
 const emptyForm: FormState = {
@@ -46,6 +48,8 @@ const emptyForm: FormState = {
   vorjahr_b: '',
   datenstand: '',
   quellenstatus: 'offen',
+  quellenname: '',
+  quellen_url: '',
 }
 
 const DISPLAY_REPLACEMENTS: Record<string, string> = {
@@ -72,6 +76,8 @@ function toPayload(form: FormState) {
     vorjahr_b: optionalNumber(form.vorjahr_b),
     datenstand: form.datenstand || null,
     quellenstatus: form.quellenstatus,
+    quellenname: form.quellenname.trim() || null,
+    quellen_url: form.quellen_url.trim() || null,
   }
 }
 
@@ -87,6 +93,8 @@ function fromMunicipality(item: Municipality): FormState {
     vorjahr_b: item.vorjahr_b?.toString() ?? '',
     datenstand: item.datenstand ?? '',
     quellenstatus: item.quellenstatus,
+    quellenname: item.quellenname ?? '',
+    quellen_url: item.quellen_url ?? '',
   }
 }
 
@@ -239,6 +247,25 @@ export function AdminMunicipalityManager() {
               </Select>
             </div>
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="quellenname">Quellenname</Label>
+            <Input
+              id="quellenname"
+              value={form.quellenname}
+              onChange={(event) => updateField('quellenname', event.target.value)}
+              placeholder="z. B. Statistische Ämter des Bundes und der Länder"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="quellen_url">Quellen-URL</Label>
+            <Input
+              id="quellen_url"
+              type="url"
+              value={form.quellen_url}
+              onChange={(event) => updateField('quellen_url', event.target.value)}
+              placeholder="https://..."
+            />
+          </div>
         </div>
 
         {message ? <p className="mt-4 text-sm text-emerald-700">{message}</p> : null}
@@ -266,6 +293,7 @@ export function AdminMunicipalityManager() {
                 <TableHead>Bundesland</TableHead>
                 <TableHead>GrSt B</TableHead>
                 <TableHead>Stand</TableHead>
+                <TableHead>Quelle</TableHead>
                 <TableHead className="text-right">Aktion</TableHead>
               </TableRow>
             </TableHeader>
@@ -276,6 +304,7 @@ export function AdminMunicipalityManager() {
                   <TableCell>{item.bundesland}</TableCell>
                   <TableCell>{item.hebesatz_b} %</TableCell>
                   <TableCell>{item.datenstand || '-'}</TableCell>
+                  <TableCell className="max-w-64 truncate">{item.quellenname || '-'}</TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-2">
                       <Button variant="outline" size="sm" onClick={() => setForm(fromMunicipality(item))}>
@@ -290,7 +319,7 @@ export function AdminMunicipalityManager() {
               ))}
               {!isLoading && items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-28 text-center text-zinc-500">
+                  <TableCell colSpan={6} className="h-28 text-center text-zinc-500">
                     Noch keine Daten vorhanden. Lege links den ersten Datensatz an.
                   </TableCell>
                 </TableRow>

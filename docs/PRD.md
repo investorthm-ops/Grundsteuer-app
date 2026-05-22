@@ -16,6 +16,13 @@ Gemeinsamer Pain Point: Daten sind öffentlich, aber zersplittert, nicht histori
 ## Kern-Nutzenversprechen
 **Vergleich und Benchmarking.** Der Kunde zahlt für die Möglichkeit, Hebesätze zwischen Kommunen, Kreisen und Bundesländern systematisch zu vergleichen — inklusive Veränderungen über die Zeit, Risiko-Indikatoren und exportierbarer Auswertungen.
 
+## Produktpositionierung und USP
+Der Grundsteuer-Monitor zeigt Steuerberatern, Immobilienbestandshaltern und Unternehmen frühzeitig, wo sich kommunale Hebesätze ändern, wie stark die Belastung steigt und welche Standorte im Vergleich auffällig sind.
+
+Für den MVP-Start wird der Nutzen noch konkreter formuliert:
+
+**Änderungen bei Grundsteuer- und Gewerbesteuer-Hebesätzen automatisch überwachen, vergleichen und als Excel-Auswertung für Mandanten oder Immobilienportfolios nutzen.**
+
 ## Geografischer Scope
 **Bundesweit (alle 16 Bundesländer)** ab MVP. Datenpflege erfolgt schrittweise, Priorisierung nach Einwohnerzahl und Marktnachfrage.
 
@@ -33,6 +40,8 @@ Gemeinsamer Pain Point: Daten sind öffentlich, aber zersplittert, nicht histori
 | P1 | Nutzer-Authentifizierung & Mandantentrennung (Supabase Auth + RLS) | Planned |
 | P1 | Admin-gesteuerte Kundenfreischaltung mit Rollen und Laufzeitbegrenzung | Planned |
 | P1 | Datenpflege-Workflow (Import-Pipeline, Quellenverwaltung, Versionierung) | Planned |
+| P1 | Datenvertrauen und Demo-Daten — Quellen, Datenstand und geprüfte Pilotdaten sichtbar machen | In Progress |
+| P1 | Differenzierte Grundsteuer-B-Hebesätze für Wohnen und Nichtwohnen ab 2025 | Planned |
 | P2 | Beratungs-Reports (PDF/Excel-Auswertungen für Mandantengespräche) | Planned |
 | P2 | Billing-Integration (sobald Geschäftsmodell validiert ist) | Planned |
 

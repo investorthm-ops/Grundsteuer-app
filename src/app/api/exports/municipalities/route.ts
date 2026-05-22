@@ -15,10 +15,15 @@ const HEADERS = [
   'Delta B',
   'Gewerbesteuer',
   'Datenstand',
+  'In App aktualisiert',
   'Quellenstatus',
   'Quellenname',
   'Quellen-URL',
+  'Hinweis',
 ]
+
+const DATA_NOTICE =
+  'Recherche- und Vergleichsdaten; maßgeblich sind die amtlichen Veröffentlichungen der Kommune oder Behörde.'
 
 function csvCell(value: string | number | null | undefined) {
   if (value === null || typeof value === 'undefined') return ''
@@ -43,9 +48,11 @@ function toCsv(items: Municipality[]) {
     deltaB(item),
     item.hebesatz_gewerbe,
     item.datenstand,
+    item.updated_at,
     item.quellenstatus,
     item.quellenname,
     item.quellen_url,
+    DATA_NOTICE,
   ])
 
   return [HEADERS, ...rows]

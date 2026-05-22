@@ -134,7 +134,7 @@ export default async function MunicipalitySeoPage({ params }: PageProps) {
           <p className="mt-4 text-sm text-zinc-500">Quellenstatus</p>
           <div className="mt-2">
             <Badge variant={municipality.quellenstatus === 'bestaetigt' ? 'default' : 'secondary'}>
-              {municipality.quellenstatus === 'bestaetigt' ? 'bestaetigt' : 'offen'}
+              {municipality.quellenstatus === 'bestaetigt' ? 'bestätigt' : 'offen'}
             </Badge>
           </div>
         </div>
@@ -153,6 +153,8 @@ export default async function MunicipalitySeoPage({ params }: PageProps) {
               ['Grundsteuer B Vorjahr', formatRate(municipality.vorjahr_b)],
               ['Delta zum Vorjahr', changeLabel],
               ['Datenstand', formatDate(municipality.datenstand)],
+              ['In App aktualisiert', formatDate(municipality.updated_at)],
+              ['Quelle', municipality.quellenname ?? 'Quelle offen'],
             ].map(([label, value]) => (
               <div key={label} className="grid gap-1 px-5 py-3 sm:grid-cols-2">
                 <dt className="text-sm text-zinc-500">{label}</dt>
@@ -181,6 +183,10 @@ export default async function MunicipalitySeoPage({ params }: PageProps) {
               </a>
             </Button>
           ) : null}
+          <p className="mt-4 text-xs leading-5 text-zinc-500">
+            Die Daten dienen der Recherche. Maßgeblich sind die amtlichen Veröffentlichungen
+            der jeweiligen Kommune oder Behörde.
+          </p>
           <p className="mt-4 text-xs text-zinc-500">SEO-Link: /grundsteuer-hebesatz/{canonicalSlug}</p>
         </aside>
       </section>
