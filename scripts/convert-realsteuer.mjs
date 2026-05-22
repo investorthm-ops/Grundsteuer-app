@@ -46,9 +46,13 @@ function cleanNumber(value) {
   return raw
 }
 
-/** Gemeindename bereinigen: amtliche Typzusätze nach dem Komma abtrennen. */
+/** Gemeindename bereinigen: Fußnoten-Marker und amtliche Typzusätze entfernen. */
 function cleanName(value) {
-  const full = String(value ?? '').trim()
+  // Fußnoten-Marker wie "Wesertal1)" abtrennen (Ziffer + ')' ohne öffnende Klammer).
+  const full = String(value ?? '')
+    .trim()
+    .replace(/\s*\d+\)$/, '')
+    .trim()
   const name = full.split(',')[0].trim()
   const stripped = full.length > name.length ? full.slice(name.length + 1).trim() : ''
   return { name, stripped }
