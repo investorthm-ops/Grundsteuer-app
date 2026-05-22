@@ -10,9 +10,9 @@ export default function DatenbankPage() {
       description="Suche und filtere Gemeinden nach Bundesland, vergleiche aktuelle Hebesätze mit dem Vorjahr und prüfe Datenstand sowie Quellenstatus."
     >
       <Alert className="mb-4 bg-white">
-        <AlertTitle>Demo-Daten</AlertTitle>
+        <AlertTitle>Datenstand 2022</AlertTitle>
         <AlertDescription>
-          Die aktuell eingepflegten Kommunen dienen zum Testen der Oberfläche. Werte und Quellenstatus sind noch nicht amtlich geprüft.
+          Hebesätze für Nordrhein-Westfalen und Hessen aus der amtlichen Statistik der Statistischen Ämter des Bundes und der Länder (Berichtsjahr 2022). Die zum 1.1.2025 reformierten Grundsteuer-Hebesätze sind noch nicht enthalten.
         </AlertDescription>
       </Alert>
       <MunicipalityBrowser />
