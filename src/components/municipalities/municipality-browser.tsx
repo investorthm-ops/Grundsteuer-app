@@ -40,17 +40,6 @@ function displayText(value: string) {
   )
 }
 
-function normalizeSearch(value: string) {
-  return value
-    .replaceAll('ä', 'ae')
-    .replaceAll('ö', 'oe')
-    .replaceAll('ü', 'ue')
-    .replaceAll('Ä', 'Ae')
-    .replaceAll('Ö', 'Oe')
-    .replaceAll('Ü', 'Ue')
-    .replaceAll('ß', 'ss')
-}
-
 function formatRate(value: number | null) {
   return typeof value === 'number' ? `${value} %` : '-'
 }
@@ -141,7 +130,7 @@ export function MunicipalityBrowser() {
   function submitSearch(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setPage(1)
-    setSubmittedQuery(normalizeSearch(query.trim()))
+    setSubmittedQuery(query.trim())
   }
 
   function resetFilters() {
