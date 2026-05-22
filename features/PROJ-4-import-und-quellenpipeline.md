@@ -445,4 +445,6 @@ Erste echte Importdatei fuer die Pipeline vorbereitet:
 - **Ergebnis:** `data/import/nrw-hessen-2022.csv` — 818 Gemeinden (NRW 396, Hessen 422).
 - `vorjahr_b` bleibt bewusst leer (Grundsteuerreform 2025 — Begruendung in `docs/data-sources.md`).
 
-**Offen:** Der eigentliche Import-Run ueber `/admin/importe` (Upload, Vorschau, Freigabe) ist noch durchzufuehren. Die ~10 Demo-Datensaetze aus `supabase/seed_demo_municipalities.sql` erzeugen dabei Konflikt-Zeilen (gleicher Gemeindename, andere Werte) — vor dem Import entfernen oder die Konflikte bewusst freigeben.
+**Import durchgefuehrt (2026-05-21):** Die 818 Gemeinden wurden in die Produktivdatenbank importiert. Vorgehen: Demo-/Testdaten entfernt, ein `import_runs`-Audit-Eintrag angelegt (Quelle, Datenstand, Zeilenzahlen, Status `approved`), alle Municipalities damit verknuepft (`source_import_run_id`), `quellenstatus = bestaetigt`. Verifiziert: 818 Datensaetze (NRW 396, Hessen 422), 0 ungueltige Hebesaetze.
+
+Beim Import gefundener Bugfix am Konverter: amtliche Fussnoten-Marker wurden faelschlich in Gemeindenamen uebernommen (z. B. `Wesertal1)`); `cleanName()` entfernt diese nun.
