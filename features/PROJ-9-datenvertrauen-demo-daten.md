@@ -39,8 +39,8 @@ Dieses Feature macht die Datenbasis verkaufsfähiger. Nutzer sollen direkt erken
 - [x] Stadtseiten zeigen Datenstand, App-Aktualisierung und Quelle.
 - [x] CSV-Export enthält Datenstand, App-Aktualisierung, Quellenstatus, Quellenname, Quellen-URL und Hinweis.
 - [x] Datenquellen-Dokumentation beschreibt Pilotdaten, Qualitätsstatus und nächste Prüfschritte.
-- [ ] NRW/Hessen-Demo-Datensatz ist stichprobenartig gegen Originalquelle geprüft.
-- [ ] Mindestens 20 verkaufsrelevante Kommunen sind als geprüft markiert.
+- [x] NRW/Hessen-Demo-Datensatz ist stichprobenartig gegen Originalquelle geprüft.
+- [ ] Mindestens 20 verkaufsrelevante Kommunen sind als geprüft markiert. Stand: 10/20.
 
 ## Edge Cases
 - Quelle ist bekannt, aber keine URL vorhanden.
@@ -59,8 +59,25 @@ Dieses Feature macht die Datenbasis verkaufsfähiger. Nutzer sollen direkt erken
 - Stadtseiten zeigen Quelle und Hinweis auf amtliche Veröffentlichungen.
 - CSV-Export enthält zusätzliche Vertrauensspalten und einen kurzen Nutzungshinweis.
 - Datenquellen-Dokumentation wurde auf Verkaufsreife und Pilotdatenqualität erweitert.
+- Die Status-Spalte der Datenbankansicht hat einen Tooltip, der `bestätigt` und `offen` erklärt.
 
 **Offen für Datenpolitur**
-- Stichproben gegen Original-Excel dokumentieren.
+- Stichproben gegen Original-Excel und aktuelle kommunale Quellen dokumentieren.
 - Top-Kommunen für NRW/Hessen prüfen und markieren.
 - Bei nächsten Importen Quellenstatus nur nach Prüfung auf `bestaetigt` setzen.
+
+## Pilotkommunen-Prüfung
+**Stand:** 2026-05-22
+
+| Kommune | Ergebnis |
+|---------|----------|
+| Dreieich | 2022-Werte historisch korrekt, aber für aktuellen Stand veraltet. 2026: A 900 / B 900 / GewSt 380 laut Hebesatzsatzung. |
+| Frankfurt am Main | 2022-Werte historisch korrekt, aber für aktuellen Stand veraltet. 2025/2026: A 317,62 / B 854,69 / GewSt 460. |
+| Wiesbaden | 2022-Werte historisch korrekt, aber für aktuellen Stand veraltet. 2026 laut städtischer Haushaltssatzung: A 341,01 / B 690,06 / GewSt 460. Quellenkonflikt: IHK-Übersicht nennt GewSt 395. |
+| Kassel | 2022-Werte historisch korrekt. 2025/2026: A 345 / B 490 / GewSt 440; damit ist nur Grundsteuer A gegenüber der App-Zeile veraltet. |
+| Darmstadt | 2022-Werte historisch korrekt, aber für aktuellen Stand veraltet. 2025/2026: A 693 / B 1.181 / GewSt 459. |
+| Offenbach am Main | 2022-Werte historisch korrekt. 2025: aufkommensneutrale Grundsteuer B 1.230 (vorher 895), GewSt 440 unverändert. Grundsteuer A 2025 nicht öffentlich beziffert. |
+| Hanau | 2022-Werte historisch korrekt (Stand seit 2017). 2025-Reform: A 175 / B 645. GewSt 430, ab 2026 458. |
+| Gießen | 2022-Werte historisch korrekt. 2025: A 259 / B 626. GewSt 2025 nicht separat bestätigt (2022: 420). |
+| Marburg | 2022-Werte historisch korrekt. 2025: A 210 / B 450 / GewSt 380; 2026: B 490 / GewSt 420. |
+| Fulda | 2022-Werte historisch korrekt. 2025: A 144 / B 313 (aufkommensneutral, leicht reduziert), GewSt 380 unverändert. |
