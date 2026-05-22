@@ -37,17 +37,6 @@ const TAX_FIELDS: Array<{ value: TaxField; label: string }> = [
 
 const COMPARISON_FIELDS: TaxField[] = ['hebesatz_a', 'hebesatz_b', 'hebesatz_gewerbe']
 
-function normalizeSearch(value: string) {
-  return value
-    .replaceAll('ä', 'ae')
-    .replaceAll('ö', 'oe')
-    .replaceAll('ü', 'ue')
-    .replaceAll('Ä', 'Ae')
-    .replaceAll('Ö', 'Oe')
-    .replaceAll('Ü', 'Ue')
-    .replaceAll('ß', 'ss')
-}
-
 function formatRate(value: number | null) {
   return typeof value === 'number' ? `${value} %` : '-'
 }
@@ -182,7 +171,7 @@ export function MunicipalityCompare() {
 
   function submitSearch(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    setSubmittedQuery(normalizeSearch(query.trim()))
+    setSubmittedQuery(query.trim())
   }
 
   function addMunicipality(item: Municipality) {
@@ -230,7 +219,7 @@ export function MunicipalityCompare() {
               value={bundesland}
               onValueChange={(value) => {
                 setBundesland(value)
-                setSubmittedQuery(normalizeSearch(query.trim()))
+                setSubmittedQuery(query.trim())
               }}
             >
               <SelectTrigger>
