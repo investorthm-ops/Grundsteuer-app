@@ -1,11 +1,19 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { Calculator, Euro, TrendingDown, TrendingUp } from 'lucide-react'
+import { Calculator, Check, ChevronsUpDown, Euro, TrendingDown, TrendingUp } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import {
+  Command,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   Select,
   SelectContent,
@@ -13,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { cn } from '@/lib/utils'
 import type { Municipality, MunicipalityListResponse } from '@/lib/types/municipality'
 
 type TaxRateKind = 'standard' | 'wohnen' | 'nichtwohnen'
@@ -54,47 +63,59 @@ function rateFor(municipality: Municipality, kind: TaxRateKind) {
 }
 
 export function TaxImpactCalculator() {
-  const [municipalities, setMunicipalities] = useState<Municipality[]>([])
-  const [selectedId, setSelectedId] = useState('')
+  const [selected, setSelected] = useState<Municipality | null>(null)
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState<Municipality[]>([])
+  const [comboOpen, setComboOpen] = useState(false)
   const [messbetrag, setMessbetrag] = useState('100')
   const [annualRent, setAnnualRent] = useState('20000')
   const [manualPreviousTax, setManualPreviousTax] = useState('')
   const [taxRateKind, setTaxRateKind] = useState<TaxRateKind>('standard')
   const [isLoading, setIsLoading] = useState(true)
+  const [isSearching, setIsSearching] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     let isCurrent = true
-    setIsLoading(true)
-    setError(null)
+    const handle = setTimeout(
+      () => {
+        const params = new URLSearchParams({ page: '1', pageSize: '20' })
+        const trimmed = query.trim()
+        if (trimmed) params.set('q', trimmed)
 
-    fetch('/api/municipalities?page=1&pageSize=100')
-      .then(async (response) => {
-        if (!response.ok) throw new Error('Gemeindedaten konnten nicht geladen werden.')
-        return (await response.json()) as MunicipalityListResponse
-      })
-      .then((payload) => {
-        if (!isCurrent) return
-        setMunicipalities(payload.data)
-        setSelectedId(payload.data[0]?.id ?? '')
-      })
-      .catch((err) => {
-        if (!isCurrent) return
-        setError(err instanceof Error ? err.message : 'Unbekannter Fehler.')
-      })
-      .finally(() => {
-        if (isCurrent) setIsLoading(false)
-      })
+        setIsSearching(true)
+        setError(null)
+
+        fetch(`/api/municipalities?${params.toString()}`)
+          .then(async (response) => {
+            if (!response.ok) throw new Error('Gemeindedaten konnten nicht geladen werden.')
+            return (await response.json()) as MunicipalityListResponse
+          })
+          .then((payload) => {
+            if (!isCurrent) return
+            setResults(payload.data)
+            setSelected((previous) => previous ?? payload.data[0] ?? null)
+          })
+          .catch((err) => {
+            if (!isCurrent) return
+            setResults([])
+            setError(err instanceof Error ? err.message : 'Unbekannter Fehler.')
+          })
+          .finally(() => {
+            if (!isCurrent) return
+            setIsSearching(false)
+            setIsLoading(false)
+          })
+      },
+      query ? 250 : 0
+    )
 
     return () => {
       isCurrent = false
+      clearTimeout(handle)
     }
-  }, [])
+  }, [query])
 
-  const selected = useMemo(
-    () => municipalities.find((municipality) => municipality.id === selectedId) ?? null,
-    [municipalities, selectedId]
-  )
   const selectedHasDifferentiation = hasDifferentiatedB(selected)
 
   const calculation = useMemo(() => {
@@ -132,25 +153,71 @@ export function TaxImpactCalculator() {
         <div className="mt-5 space-y-4">
           <div className="space-y-2">
             <Label>Gemeinde</Label>
-            <Select
-              value={selectedId}
-              onValueChange={(value) => {
-                setSelectedId(value)
-                setTaxRateKind('standard')
-              }}
-              disabled={isLoading || municipalities.length === 0}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={isLoading ? 'Daten werden geladen' : 'Gemeinde auswaehlen'} />
-              </SelectTrigger>
-              <SelectContent>
-                {municipalities.map((municipality) => (
-                  <SelectItem key={municipality.id} value={municipality.id}>
-                    {municipality.name} - {municipality.bundesland}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={comboOpen} onOpenChange={setComboOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={comboOpen}
+                  disabled={isLoading}
+                  className="w-full justify-between font-normal"
+                >
+                  <span className={cn('truncate', !selected && 'text-zinc-500')}>
+                    {selected
+                      ? `${selected.name} - ${selected.bundesland}`
+                      : isLoading
+                        ? 'Daten werden geladen'
+                        : 'Gemeinde suchen'}
+                  </span>
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" aria-hidden="true" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                <Command shouldFilter={false}>
+                  <CommandInput
+                    placeholder="Gemeinde suchen ..."
+                    value={query}
+                    onValueChange={setQuery}
+                  />
+                  <CommandList>
+                    {isSearching ? (
+                      <p className="py-6 text-center text-sm text-zinc-500">Suche laeuft ...</p>
+                    ) : results.length === 0 ? (
+                      <p className="py-6 text-center text-sm text-zinc-500">
+                        Keine Gemeinde gefunden.
+                      </p>
+                    ) : (
+                      <CommandGroup>
+                        {results.map((municipality) => (
+                          <CommandItem
+                            key={municipality.id}
+                            value={municipality.id}
+                            onSelect={() => {
+                              setSelected(municipality)
+                              setTaxRateKind('standard')
+                              setComboOpen(false)
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                'mr-2 h-4 w-4 shrink-0',
+                                selected?.id === municipality.id ? 'opacity-100' : 'opacity-0'
+                              )}
+                              aria-hidden="true"
+                            />
+                            <span className="truncate">{municipality.name}</span>
+                            <span className="ml-2 truncate text-xs text-zinc-500">
+                              {municipality.bundesland}
+                            </span>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    )}
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
 
           {selectedHasDifferentiation ? (

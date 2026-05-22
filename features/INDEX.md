@@ -21,7 +21,7 @@
 | PROJ-7 | Vergleich und Benchmarking | Deployed | [PROJ-7-vergleich-und-benchmarking.md](PROJ-7-vergleich-und-benchmarking.md) | 2026-05-20 |
 | PROJ-8 | Mandantenfaehige Nutzerverwaltung | Deployed | [PROJ-8-mandantenfaehige-nutzerverwaltung.md](PROJ-8-mandantenfaehige-nutzerverwaltung.md) | 2026-05-21 |
 | PROJ-9 | Datenvertrauen und Demo-Daten | In Review | [PROJ-9-datenvertrauen-demo-daten.md](PROJ-9-datenvertrauen-demo-daten.md) | 2026-05-22 |
-| PROJ-10 | Differenzierte Grundsteuer-B-Hebesaetze | In Progress | [PROJ-10-differenzierte-grundsteuer-b.md](PROJ-10-differenzierte-grundsteuer-b.md) | 2026-05-22 |
+| PROJ-10 | Differenzierte Grundsteuer-B-Hebesaetze | In Review | [PROJ-10-differenzierte-grundsteuer-b.md](PROJ-10-differenzierte-grundsteuer-b.md) | 2026-05-22 |
 
 <!-- Add features above this line -->
 

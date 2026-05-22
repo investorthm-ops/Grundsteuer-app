@@ -1,6 +1,6 @@
 # PROJ-10: Differenzierte Grundsteuer-B-Hebesaetze
 
-## Status: In Progress
+## Status: In Review
 **Created:** 2026-05-22
 **Last Updated:** 2026-05-22
 
@@ -123,7 +123,47 @@ Das bestehende Feld `hebesatz_b` bleibt erhalten. Es dient weiter als Standardwe
 Einige Kommunen haben ab 2025 keinen fachlich sinnvollen einheitlichen B-Wert mehr. Fuer diesen MVP bleibt `hebesatz_b` trotzdem Pflichtfeld, damit alte Daten und bestehende Vergleiche nicht brechen. Eine spaetere Version kann historische Werte und aktuelle differenzierte Werte zeitlich trennen.
 
 ## QA Test Results
-_To be added by /qa_
+
+### 2026-05-22 — Datenbank-Migration angewendet
+Supabase-Migrationen auf Projekt `axibmcmysefexwostzsj` angewendet und in der
+Migrationshistorie registriert:
+- `0007_prevent_duplicate_municipalities` — Unique-Index auf `(bundesland, name)`.
+  Vorab-Pruefung: keine doppelten Gemeinden vorhanden, Migration lief ohne Konflikt.
+- `0008_differentiated_property_tax_b` — neue Spalten `hebesatz_b_wohnen` /
+  `hebesatz_b_nichtwohnen` (Check 0-3000), zwei Indizes, Altena-Referenzdatensatz.
+
+Datenstand-Pruefung: 818 Gemeinden gesamt, genau 1 mit differenzierten B-Werten
+(Altena). Die uebrigen 817 bleiben `NULL` — rueckwaertskompatibel.
+
+Altena (NRW) verifiziert: `hebesatz_b = 910`, `hebesatz_b_wohnen = 1010`,
+`hebesatz_b_nichtwohnen = 2020`, `datenstand = 2025-01-01`, `quellenstatus = bestaetigt`,
+Quelle gesetzt.
+
+### Verifizierte Oberflaechen
+- **Stadtseite** (`/grundsteuer-hebesatz/altena`) — LIVE geprueft: zeigt B Standard
+  910 %, B Wohnen 1010 %, B Nichtwohnen 2020 %, Datenstand 1.1.2025 + Quelle.
+- **Datenbank** — vom Nutzer geprueft: Altena zeigt B Wohnen 1010 % mit Hinweis
+  "differenziert", B Nichtwohnen 2020 %; nicht-differenzierte Gemeinden zeigen "-".
+- **Vergleich / Rangliste** — vom Nutzer geprueft: Direktvergleich und Rangliste
+  zeigen die differenzierten Werte korrekt, fehlende Werte brechen die Ansicht nicht.
+- **Export** — Code geprueft: CSV enthaelt Spalten B Wohnen / B Nichtwohnen.
+
+### Bugfix Rechner (2026-05-22)
+Beim Klick-Test fiel auf: der Renditeauswirkungs-Rechner lud nur 100 von 818
+Gemeinden (`pageSize=100`, API-Limit) und bot ein reines Dropdown ohne Suche —
+die meisten Gemeinden waren nicht auswaehlbar. Behoben: der Gemeinde-Selektor ist
+jetzt eine durchsuchbare Combobox (shadcn `Popover` + `Command`) mit
+serverseitiger Suche ueber `/api/municipalities?q=` (debounced), analog zum
+Suchmuster der Vergleichsansicht. Damit sind alle Gemeinden auffindbar.
+
+### Hinweise
+- `hebesatz_b` von Altena bleibt 910 (Wert von 2022), `datenstand` wurde durch die
+  Migration auf 2025-01-01 gesetzt. Standard-B-Wert und Datenstand sind damit aus
+  unterschiedlichen Jahren — fachlich gewollt (910 ist der historische Standard,
+  1010/2020 sind die aktuellen differenzierten Werte ab 2025).
+- Supabase-Security-Advisor: 6 WARN-Befunde, alle pre-existing (SECURITY-DEFINER-
+  Funktionen aus PROJ-6/8, deaktivierter Leaked-Password-Schutz). Migration 0007/0008
+  hat keine neuen Befunde eingefuehrt.
 
 ## Deployment
 _To be added by /deploy_
