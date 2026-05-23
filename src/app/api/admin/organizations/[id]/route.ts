@@ -61,3 +61,29 @@ export async function PATCH(
   if (error) return NextResponse.json({ error: 'Database error' }, { status: 500 })
   return NextResponse.json({ data })
 }
+
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
+  if (!idSchema.safeParse(id).success) {
+    return NextResponse.json({ error: 'Invalid id' }, { status: 400 })
+  }
+
+  const { supabase, response } = await requireAdmin()
+  if (response) return response
+
+  // organization_memberships.organization_id has ON DELETE CASCADE, so any
+  // associated memberships are removed automatically. Supabase Auth users
+  // are NOT touched — they keep their account but lose access to the app.
+  const { error, count } = await supabase
+    .from('organizations')
+    .delete({ count: 'exact' })
+    .eq('id', id)
+
+  if (error) return NextResponse.json({ error: 'Database error' }, { status: 500 })
+  if (!count) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+  return new NextResponse(null, { status: 204 })
+}
