@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { Building2, Calculator, Database, FileUp, Scale, ShieldCheck, Star, Users } from 'lucide-react'
+import { AuthButton } from '@/components/auth-button'
 import { Button } from '@/components/ui/button'
-import { LogoutButton } from '@/components/logout-button'
+import { createSupabaseServerClient } from '@/lib/supabase/server'
 
 type AppShellProps = {
   children: React.ReactNode
@@ -11,15 +12,21 @@ type AppShellProps = {
   actions?: React.ReactNode
 }
 
-export function AppShell({
+export async function AppShell({
   children,
   eyebrow,
   title,
   description,
   actions,
 }: AppShellProps) {
+  const supabase = await createSupabaseServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  const isAuthenticated = Boolean(user)
+
   return (
-    <div className="min-h-screen bg-zinc-50 text-zinc-950">
+    <>
       <header className="border-b bg-white">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
           <Link href="/" className="flex items-center gap-3">
@@ -74,11 +81,11 @@ export function AppShell({
                 Importe
               </Link>
             </Button>
-            <LogoutButton />
+            <AuthButton isAuthenticated={isAuthenticated} />
           </nav>
         </div>
       </header>
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-7 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             {eyebrow ? (
@@ -93,6 +100,6 @@ export function AppShell({
         </div>
         {children}
       </main>
-    </div>
+    </>
   )
 }

@@ -1,12 +1,28 @@
 'use client'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { LogOut } from 'lucide-react'
+import { LogIn, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
-export function LogoutButton() {
+type AuthButtonProps = {
+  isAuthenticated: boolean
+}
+
+export function AuthButton({ isAuthenticated }: AuthButtonProps) {
   const router = useRouter()
+
+  if (!isAuthenticated) {
+    return (
+      <Button asChild variant="ghost" size="sm">
+        <Link href="/login">
+          <LogIn className="mr-2 h-4 w-4" aria-hidden="true" />
+          Anmelden
+        </Link>
+      </Button>
+    )
+  }
 
   async function logout() {
     const supabase = createSupabaseBrowserClient()
