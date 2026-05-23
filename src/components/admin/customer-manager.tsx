@@ -2,6 +2,17 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Plus, RefreshCw, Save, Trash2, UserPlus } from 'lucide-react'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -196,6 +207,28 @@ export function CustomerManager() {
       return
     }
     setMessage('Nutzerzuordnung entfernt.')
+    await loadItems()
+  }
+
+  async function deleteOrganization(item: OrganizationWithMembers) {
+    setMessage(null)
+    setError(null)
+    const response = await fetch(`/api/admin/organizations/${item.id}`, { method: 'DELETE' })
+    if (!response.ok) {
+      setError(`Kunde "${item.name}" konnte nicht geloescht werden.`)
+      return
+    }
+    if (organizationForm.id === item.id) {
+      setOrganizationForm(emptyOrganizationForm)
+    }
+    if (membershipForm.organization_id === item.id) {
+      setMembershipForm((current) => ({ ...current, organization_id: '' }))
+    }
+    const memberCount = item.memberships.length
+    const memberHint = memberCount
+      ? ` und ${memberCount} Nutzerzuordnung${memberCount === 1 ? '' : 'en'}`
+      : ''
+    setMessage(`Kunde "${item.name}"${memberHint} geloescht.`)
     await loadItems()
   }
 
@@ -413,9 +446,43 @@ export function CustomerManager() {
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="outline" size="sm" onClick={() => editOrganization(item)}>
-                      Bearbeiten
-                    </Button>
+                    <div className="flex items-center justify-end gap-2">
+                      <Button variant="outline" size="sm" onClick={() => editOrganization(item)}>
+                        Bearbeiten
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            aria-label={`Kunde ${item.name} loeschen`}
+                          >
+                            <Trash2 className="h-4 w-4" aria-hidden="true" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Kunde wirklich loeschen?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              &quot;{item.name}&quot; wird dauerhaft entfernt.
+                              {item.memberships.length > 0
+                                ? ` ${item.memberships.length} zugeordnete${item.memberships.length === 1 ? 'r Nutzer verliert' : ' Nutzer verlieren'} damit den App-Zugang.`
+                                : ' Es sind keine Nutzer zugeordnet.'}
+                              {' '}Die Supabase-Login-Konten bleiben bestehen, aber ohne Organisation gibt es keinen Zugriff mehr auf die App. Dieser Schritt kann nicht rueckgaengig gemacht werden.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => deleteOrganization(item)}
+                              className="bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-600"
+                            >
+                              Loeschen
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
