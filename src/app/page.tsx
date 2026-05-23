@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import {
-  ArrowRight,
   Bell,
   Database,
   FileDown,
@@ -10,6 +9,7 @@ import {
   Star,
 } from 'lucide-react'
 import { AppShell } from '@/components/app-shell'
+import { SearchHero } from '@/components/search-hero'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 
@@ -75,21 +75,10 @@ export default function Home() {
       eyebrow="MVP live"
       title="Keine Hebesatz-Aenderung mehr verpassen"
       description="Der GrundsteuerMonitor buendelt kommunale Hebesaetze an einem Ort, meldet jede Aenderung und macht Standorte vergleichbar - fuer Investoren, Steuerberater, Kommunen und Gewerbe."
-      actions={
-        <>
-          <Button asChild>
-            <Link href="/datenbank">
-              Datenbank oeffnen
-              <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
-            </Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/grundsteuer-hebesatz/dortmund">Dortmund ansehen</Link>
-          </Button>
-        </>
-      }
     >
-      <section className="rounded-lg border bg-white p-5">
+      <SearchHero />
+
+      <section className="mt-4 rounded-lg border bg-white p-5">
         <Badge variant="secondary">Warum GrundsteuerMonitor</Badge>
         <div className="mt-5 grid gap-4 md:grid-cols-3">
           {valueProps.map((item) => (
