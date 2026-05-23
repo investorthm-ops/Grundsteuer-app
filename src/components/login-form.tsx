@@ -34,7 +34,7 @@ export function LoginForm() {
       return
     }
 
-    router.push(searchParams.get('redirectTo') || '/datenbank')
+    router.push(searchParams.get('redirectTo') || '/')
     router.refresh()
   }
 
