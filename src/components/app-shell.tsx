@@ -1,7 +1,9 @@
 import Link from 'next/link'
-import { Building2, Calculator, Database, FileUp, Scale, ShieldCheck, Star, Users } from 'lucide-react'
+import { Building2, Calculator, Database, Scale, ShieldCheck, Star } from 'lucide-react'
 import { AuthButton } from '@/components/auth-button'
 import { Button } from '@/components/ui/button'
+import { SiteDisclaimer } from '@/components/site-disclaimer'
+import { GlobalSearch } from '@/components/global-search'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 
 type AppShellProps = {
@@ -11,6 +13,13 @@ type AppShellProps = {
   description: string
   actions?: React.ReactNode
 }
+
+const primaryNavItems = [
+  { href: '/datenbank', label: 'Datenbank', icon: Database },
+  { href: '/vergleich', label: 'Vergleich', icon: Scale },
+  { href: '/rechner', label: 'Rechner', icon: Calculator },
+  { href: '/watchlist', label: 'Watchlist', icon: Star },
+]
 
 export async function AppShell({
   children,
@@ -25,12 +34,22 @@ export async function AppShell({
   } = await supabase.auth.getUser()
   const isAuthenticated = Boolean(user)
 
+  const { data: roleRow } = user
+    ? await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .maybeSingle()
+    : { data: null }
+  const isAdmin = roleRow?.role === 'admin'
+
   return (
     <>
-      <header className="border-b bg-white">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+      <header className="sticky top-0 z-40 border-b border-zinc-200 bg-white/95 backdrop-blur">
+        <div className="mx-auto grid max-w-7xl gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[260px_1fr_420px] lg:items-center lg:px-8">
           <Link href="/" className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-md bg-zinc-950 text-white">
+            <span className="flex h-10 w-10 items-center justify-center rounded-md bg-zinc-950 text-white shadow-sm">
               <Building2 className="h-5 w-5" aria-hidden="true" />
             </span>
             <span>
@@ -38,53 +57,33 @@ export async function AppShell({
               <span className="block text-sm text-zinc-500">Hebesaetze im Blick</span>
             </span>
           </Link>
-          <nav className="flex flex-wrap items-center gap-2">
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/datenbank">
-                <Database className="mr-2 h-4 w-4" aria-hidden="true" />
-                Datenbank
-              </Link>
-            </Button>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/watchlist">
-                <Star className="mr-2 h-4 w-4" aria-hidden="true" />
-                Watchlist
-              </Link>
-            </Button>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/vergleich">
-                <Scale className="mr-2 h-4 w-4" aria-hidden="true" />
-                Vergleich
-              </Link>
-            </Button>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/rechner">
-                <Calculator className="mr-2 h-4 w-4" aria-hidden="true" />
-                Rechner
-              </Link>
-            </Button>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/admin/datenbank">
-                <ShieldCheck className="mr-2 h-4 w-4" aria-hidden="true" />
-                Admin
-              </Link>
-            </Button>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/admin/kunden">
-                <Users className="mr-2 h-4 w-4" aria-hidden="true" />
-                Kunden
-              </Link>
-            </Button>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/admin/importe">
-                <FileUp className="mr-2 h-4 w-4" aria-hidden="true" />
-                Importe
-              </Link>
-            </Button>
-            <AuthButton isAuthenticated={isAuthenticated} />
+
+          <nav className="flex flex-wrap items-center justify-start gap-1 lg:justify-center">
+            {primaryNavItems.map((item) => (
+              <Button key={item.href} asChild variant="ghost" size="sm" className="text-zinc-700">
+                <Link href={item.href}>
+                  <item.icon className="mr-2 h-4 w-4" aria-hidden="true" />
+                  {item.label}
+                </Link>
+              </Button>
+            ))}
+            {isAdmin ? (
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/admin/datenbank">
+                  <ShieldCheck className="mr-2 h-4 w-4" aria-hidden="true" />
+                  Admin
+                </Link>
+              </Button>
+            ) : null}
           </nav>
+
+          <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+            <GlobalSearch className="w-full sm:w-64 lg:w-72" />
+            <AuthButton isAuthenticated={isAuthenticated} />
+          </div>
         </div>
       </header>
+
       <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-7 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
@@ -99,6 +98,7 @@ export async function AppShell({
           {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
         </div>
         {children}
+        <SiteDisclaimer />
       </main>
     </>
   )

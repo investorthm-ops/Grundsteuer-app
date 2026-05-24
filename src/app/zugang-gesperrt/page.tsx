@@ -8,11 +8,11 @@ const REASONS: Record<string, { title: string; text: string }> = {
   },
   expired: {
     title: 'Zugang abgelaufen',
-    text: 'Die Testphase oder Laufzeit fuer deine Organisation ist abgelaufen. Der Zugang kann durch den Betreiber verlaengert werden.',
+    text: 'Die Testphase oder Laufzeit für deine Organisation ist abgelaufen. Der Zugang kann durch den Betreiber verlängert werden.',
   },
   blocked: {
     title: 'Zugang gesperrt',
-    text: 'Der Zugang deiner Organisation ist aktuell gesperrt. Bitte klaere die Freischaltung mit dem Betreiber.',
+    text: 'Der Zugang deiner Organisation ist aktuell gesperrt. Bitte kläre die Freischaltung mit dem Betreiber.',
   },
 }
 
@@ -39,7 +39,7 @@ async function AccessBlockedContent({
     <AppShell
       eyebrow="Zugang"
       title={copy.title}
-      description="Der GrundsteuerMonitor ist fuer Pilotkunden und freigeschaltete Organisationen vorgesehen."
+      description="Der GrundsteuerMonitor ist für Pilotkunden und freigeschaltete Organisationen vorgesehen."
     >
       <Alert className="max-w-2xl bg-white">
         <AlertTitle>{copy.title}</AlertTitle>

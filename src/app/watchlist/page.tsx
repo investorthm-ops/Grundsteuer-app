@@ -6,7 +6,7 @@ export default function WatchlistPage() {
     <AppShell
       eyebrow="PROJ-2"
       title="Watchlist"
-      description="Behalte wichtige Gemeinden im Blick und erkenne auffaellige Hebesatz-Aenderungen schneller."
+      description="Behalte wichtige Gemeinden im Blick und erkenne auffällige Hebesatz-Änderungen schneller."
     >
       <WatchlistView />
     </AppShell>

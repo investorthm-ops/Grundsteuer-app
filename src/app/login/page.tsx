@@ -7,7 +7,7 @@ export default function LoginPage() {
     <AppShell
       eyebrow="Zugang"
       title="Einloggen"
-      description="Melde dich mit deinem freigeschalteten Nutzer an. Zugänge werden aktuell durch den Betreiber fuer Pilotkunden und Kundenorganisationen aktiviert."
+      description="Melde dich mit deinem freigeschalteten Nutzer an. Zugänge werden aktuell durch den Betreiber für Pilotkunden und Kundenorganisationen aktiviert."
     >
       <div className="max-w-md">
         <Suspense fallback={<div className="rounded-lg border bg-white p-5">Login wird geladen.</div>}>

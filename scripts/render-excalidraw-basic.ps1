@@ -44,7 +44,7 @@ function Draw-ArrowHead {
   $Graphics.DrawLine($Pen, $p1, $p3)
 }
 
-$json = Get-Content -LiteralPath $InputPath -Raw | ConvertFrom-Json
+$json = Get-Content -LiteralPath $InputPath -Raw -Encoding UTF8 | ConvertFrom-Json
 $elements = @($json.elements | Where-Object { -not $_.isDeleted })
 
 $minX = 999999
@@ -60,7 +60,7 @@ foreach ($el in $elements) {
 }
 
 $padding = 80
-$scale = 1.0
+$scale = 2.0
 $canvasW = [int][Math]::Ceiling(($maxX - $minX + 2 * $padding) * $scale)
 $canvasH = [int][Math]::Ceiling(($maxY - $minY + 2 * $padding) * $scale)
 
@@ -126,10 +126,11 @@ foreach ($el in $elements) {
   }
 
   if ($el.type -eq "text") {
-    $fontSize = [float]$el.fontSize
+    $originalFontSize = [float]$el.fontSize
+    $fontSize = $originalFontSize * $script:scale
     $fontStyle = [System.Drawing.FontStyle]::Regular
-    if ($fontSize -ge 24) { $fontStyle = [System.Drawing.FontStyle]::Bold }
-    $font = [System.Drawing.Font]::new("Consolas", $fontSize, $fontStyle, [System.Drawing.GraphicsUnit]::Pixel)
+    if ($originalFontSize -ge 24) { $fontStyle = [System.Drawing.FontStyle]::Bold }
+    $font = [System.Drawing.Font]::new("Segoe UI", $fontSize, $fontStyle, [System.Drawing.GraphicsUnit]::Pixel)
     $brush = [System.Drawing.SolidBrush]::new((Convert-Color $stroke))
     $format = [System.Drawing.StringFormat]::new()
     $format.Alignment = switch ($el.textAlign) {

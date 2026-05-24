@@ -213,7 +213,7 @@ export function MunicipalityCompare() {
               <Input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Gemeinde fuer Vergleich suchen"
+                placeholder="Gemeinde für Vergleich suchen"
                 className="pl-9"
               />
             </div>
@@ -228,7 +228,7 @@ export function MunicipalityCompare() {
                 <SelectValue placeholder="Bundesland" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={ALL_STATES}>Alle Bundeslaender</SelectItem>
+                <SelectItem value={ALL_STATES}>Alle Bundesländer</SelectItem>
                 {BUNDESLAENDER.map((state) => (
                   <SelectItem key={state} value={state}>
                     {state}
@@ -244,7 +244,7 @@ export function MunicipalityCompare() {
           <div className="rounded-lg border bg-white">
             <div className="border-b px-4 py-3">
               <p className="font-medium">Suchergebnisse</p>
-              <p className="text-sm text-zinc-500">Bis zu 5 Kommunen fuer den Vergleich auswaehlen.</p>
+              <p className="text-sm text-zinc-500">Bis zu 5 Kommunen für den Vergleich auswählen.</p>
             </div>
             <div className="divide-y">
               {searchResults.map((item) => (
@@ -264,7 +264,7 @@ export function MunicipalityCompare() {
                     onClick={() => addMunicipality(item)}
                   >
                     <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-                    Hinzufuegen
+                    Hinzufügen
                   </Button>
                 </div>
               ))}
@@ -279,7 +279,7 @@ export function MunicipalityCompare() {
 
           <div className="rounded-lg border bg-white">
             <div className="border-b px-4 py-3">
-              <p className="font-medium">Ausgewaehlt</p>
+              <p className="font-medium">Ausgewählt</p>
               <p className="text-sm text-zinc-500">{selected.length} von 5 Kommunen</p>
             </div>
             <div className="flex flex-wrap gap-2 p-4">
@@ -292,7 +292,7 @@ export function MunicipalityCompare() {
                 </Badge>
               ))}
               {selected.length === 0 ? (
-                <p className="text-sm text-zinc-500">Noch keine Kommune ausgewaehlt.</p>
+                <p className="text-sm text-zinc-500">Noch keine Kommune ausgewählt.</p>
               ) : null}
             </div>
           </div>
@@ -302,12 +302,12 @@ export function MunicipalityCompare() {
           <div className="border-b px-4 py-3">
             <p className="font-medium">Vergleichstabelle</p>
             <p className="text-sm text-zinc-500">
-              Gruen markiert den niedrigsten Wert, rot den hoechsten Wert je Steuerart.
+              Grün markiert den niedrigsten Wert, rot den höchsten Wert je Steuerart.
             </p>
           </div>
           {selected.length < 2 ? (
             <div className="px-4 py-10 text-center text-sm text-zinc-500">
-              Bitte mindestens zwei Kommunen auswaehlen, um den Vergleich zu starten.
+              Bitte mindestens zwei Kommunen auswählen, um den Vergleich zu starten.
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -389,7 +389,7 @@ export function MunicipalityCompare() {
                 <SelectValue placeholder="Bundesland" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={ALL_STATES}>Alle Bundeslaender</SelectItem>
+                <SelectItem value={ALL_STATES}>Alle Bundesländer</SelectItem>
                 {BUNDESLAENDER.map((state) => (
                   <SelectItem key={state} value={state}>
                     {state}
@@ -473,7 +473,7 @@ export function MunicipalityCompare() {
                 {!isRankingLoading && rankingItems.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="h-24 text-center text-zinc-500">
-                      Keine Daten fuer diese Auswahl verfuegbar.
+                      Keine Daten für diese Auswahl verfügbar.
                     </TableCell>
                   </TableRow>
                 ) : null}

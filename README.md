@@ -49,6 +49,16 @@ Der Grundsteuer-Monitor zentralisiert das: gepflegte Hebesatz-Datenbank für all
 
 Detaillierte Specs pro Feature unter [`features/`](features/). Übersicht: [`features/INDEX.md`](features/INDEX.md).
 
+Stakeholder-Zusammenfassung mit Problem, Nutzenversprechen, Geschäftsmodell und Haftungshinweis: [`docs/stakeholder-summary.md`](docs/stakeholder-summary.md).
+
+Datenschutz- und DSGVO-Arbeitsnotizen: [`docs/privacy-dsgvo-notes.md`](docs/privacy-dsgvo-notes.md).
+
+Erste Datenschutzerklaerung in der App: [`src/app/datenschutz/page.tsx`](src/app/datenschutz/page.tsx).
+
+Legal-Checkliste vor zahlenden Kunden: [`docs/legal-checklist.md`](docs/legal-checklist.md).
+
+Technische Voraussetzungen und Betriebsmodell: [`docs/technical-requirements.md`](docs/technical-requirements.md).
+
 ---
 
 ## Lokales Setup

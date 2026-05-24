@@ -16,6 +16,7 @@ const INFO_LINKS = [
 const LEGAL_LINKS = [
   { href: '/impressum', label: 'Impressum' },
   { href: '/datenschutz', label: 'Datenschutz' },
+  { href: '/hinweise', label: 'Hinweise' },
   { href: '/agb', label: 'AGB' },
   { href: '/haftungsausschluss', label: 'Haftungsausschluss' },
 ]

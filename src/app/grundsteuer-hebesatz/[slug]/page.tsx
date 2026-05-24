@@ -4,6 +4,7 @@ import { ArrowLeft, Database, ExternalLink, LineChart, ShieldCheck } from 'lucid
 import { notFound } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { SiteDisclaimer } from '@/components/site-disclaimer'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import type { Municipality } from '@/lib/types/municipality'
 import { findMunicipalityBySlug, municipalitySlug } from '@/lib/seo/municipality-slug'
@@ -65,7 +66,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `Grundsteuer Hebesatz ${municipality.name} | GrundsteuerMonitor`,
-    description: `Grundsteuer-B-Hebesatz mit Datenstand, Quelle und Vorjahresvergleich fuer ${municipality.name}.`,
+    description: `Grundsteuer-B-Hebesatz mit Datenstand, Quelle und Vorjahresvergleich für ${municipality.name}.`,
   }
 }
 
@@ -107,7 +108,7 @@ export default async function MunicipalitySeoPage({ params }: PageProps) {
             </Link>
             <Button asChild variant="outline" size="sm">
               <Link href={`/datenbank?q=${encodeURIComponent(municipality.name)}`}>
-                In Datenbank oeffnen
+                In Datenbank öffnen
               </Link>
             </Button>
           </div>
@@ -121,15 +122,15 @@ export default async function MunicipalitySeoPage({ params }: PageProps) {
                 Grundsteuer Hebesatz {municipality.name}
               </h1>
               <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-600">
-                Hebesaetze mit Datenstand, Vorjahresvergleich und Quelle fuer {locationText(municipality)}.
-                Die Werte dienen als Arbeitsgrundlage fuer Standortvergleich, Watchlist und Renditepruefung.
+                Hebesätze mit Datenstand, Vorjahresvergleich und Quelle für {locationText(municipality)}.
+                Die Werte dienen als Arbeitsgrundlage für Standortvergleich, Watchlist und Renditeprüfung.
               </p>
             </div>
             <div className="rounded-lg border bg-zinc-950 p-5 text-white">
               <p className="text-sm text-zinc-300">Grundsteuer B Standard</p>
               <p className="mt-2 text-5xl font-semibold">{formatRate(municipality.hebesatz_b)}</p>
               <div className="mt-4 flex items-center justify-between text-sm text-zinc-300">
-                <span>Veraenderung</span>
+                <span>Veränderung</span>
                 <span className={isNotable ? 'font-semibold text-red-300' : 'font-semibold text-white'}>
                   {changeLabel}
                 </span>
@@ -139,7 +140,7 @@ export default async function MunicipalitySeoPage({ params }: PageProps) {
         </div>
         {differentiatedB ? (
           <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
-            Diese Kommune hat differenzierte Grundsteuer-B-Werte. Fuer Wohn- und Nichtwohngrundstuecke koennen unterschiedliche Hebesaetze gelten.
+            Diese Kommune hat differenzierte Grundsteuer-B-Werte. Für Wohn- und Nichtwohngrundstücke können unterschiedliche Hebesätze gelten.
           </div>
         ) : null}
       </section>
@@ -183,7 +184,7 @@ export default async function MunicipalitySeoPage({ params }: PageProps) {
       <section className="mx-auto grid max-w-6xl gap-6 px-4 pb-10 sm:px-6 lg:grid-cols-[1fr_360px] lg:px-8">
         <div className="rounded-lg border bg-white">
           <div className="border-b px-5 py-4">
-            <h2 className="text-lg font-semibold">Hebesatz-Uebersicht</h2>
+            <h2 className="text-lg font-semibold">Hebesatz-Übersicht</h2>
           </div>
           <dl className="divide-y">
             {overviewRows.map(([label, value]) => (
@@ -199,7 +200,7 @@ export default async function MunicipalitySeoPage({ params }: PageProps) {
           <h2 className="text-lg font-semibold">Monitoring starten</h2>
           <p className="mt-3 text-sm leading-6 text-zinc-600">
             Merke {municipality.name} in der Datenbank, um die Gemeinde auf deine Watchlist zu setzen
-            und Veraenderungen direkt im Dashboard zu sehen.
+            und Veränderungen direkt im Dashboard zu sehen.
           </p>
           <Button asChild className="mt-5 w-full">
             <Link href={`/datenbank?q=${encodeURIComponent(municipality.name)}`}>
@@ -209,7 +210,7 @@ export default async function MunicipalitySeoPage({ params }: PageProps) {
           {municipality.quellen_url ? (
             <Button asChild variant="ghost" className="mt-2 w-full">
               <a href={municipality.quellen_url} target="_blank" rel="noreferrer">
-                Quelle oeffnen
+                Quelle öffnen
                 <ExternalLink className="ml-2 h-4 w-4" aria-hidden="true" />
               </a>
             </Button>
@@ -221,6 +222,9 @@ export default async function MunicipalitySeoPage({ params }: PageProps) {
           <p className="mt-4 text-xs text-zinc-500">SEO-Link: /grundsteuer-hebesatz/{canonicalSlug}</p>
         </aside>
       </section>
+      <div className="mx-auto max-w-6xl px-4 pb-10 sm:px-6 lg:px-8">
+        <SiteDisclaimer />
+      </div>
     </main>
   )
 }

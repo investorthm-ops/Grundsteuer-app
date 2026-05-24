@@ -25,7 +25,7 @@ const HEADERS = [
 ]
 
 const DATA_NOTICE =
-  'Recherche- und Vergleichsdaten; maßgeblich sind die amtlichen Veröffentlichungen der Kommune oder Behörde.'
+  'Recherche- und Vergleichsdaten; Fehler sind möglich. Maßgeblich sind die amtlichen Veröffentlichungen der Kommune oder Behörde. Keine Garantie für Richtigkeit, Vollständigkeit oder Aktualität.'
 
 function csvCell(value: string | number | null | undefined) {
   if (value === null || typeof value === 'undefined') return ''

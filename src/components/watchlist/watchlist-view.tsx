@@ -44,8 +44,8 @@ function delta(current: number, previous: number | null) {
 
 function alertLabel(change: number | null) {
   if (change === null) return { label: 'kein Vorjahr', variant: 'secondary' as const }
-  if (change >= 100) return { label: 'auffaellig', variant: 'destructive' as const }
-  if (change > 0) return { label: 'erhoeht', variant: 'secondary' as const }
+  if (change >= 100) return { label: 'auffällig', variant: 'destructive' as const }
+  if (change > 0) return { label: 'erhöht', variant: 'secondary' as const }
   return { label: 'stabil', variant: 'default' as const }
 }
 
@@ -112,7 +112,7 @@ export function WatchlistView() {
           <p className="mt-1 text-2xl font-semibold">{items.length}</p>
         </div>
         <div className="rounded-lg border bg-white p-4">
-          <p className="text-sm text-zinc-500">Auffaellige Erhoehungen</p>
+          <p className="text-sm text-zinc-500">Auffällige Erhöhungen</p>
           <p className="mt-1 text-2xl font-semibold">{notableCount}</p>
         </div>
         <div className="rounded-lg border bg-white p-4">
@@ -127,7 +127,7 @@ export function WatchlistView() {
         <div className="flex items-center justify-between border-b px-4 py-3">
           <div>
             <h2 className="text-base font-semibold">Beobachtete Gemeinden</h2>
-            <p className="text-sm text-zinc-500">Sortiert nach groesster Aenderung von Grundsteuer B.</p>
+            <p className="text-sm text-zinc-500">Sortiert nach größter Änderung von Grundsteuer B.</p>
           </div>
           <Button variant="ghost" size="sm" onClick={loadWatchlist} disabled={isLoading}>
             Aktualisieren
@@ -200,7 +200,7 @@ export function WatchlistView() {
               {!isLoading && sortedItems.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={9} className="h-32 text-center text-zinc-500">
-                    Noch keine Gemeinden gemerkt. Fuege Gemeinden ueber die Datenbank hinzu.
+                    Noch keine Gemeinden gemerkt. Füge Gemeinden über die Datenbank hinzu.
                   </TableCell>
                 </TableRow>
               ) : null}

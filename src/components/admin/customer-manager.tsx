@@ -234,7 +234,7 @@ export function CustomerManager() {
 
   function editOrganization(item: OrganizationWithMembers) {
     setOrganizationForm(fromOrganization(item))
-    setMessage(`Bearbeitungsmodus fuer ${item.name} geoeffnet.`)
+    setMessage(`Bearbeitungsmodus für ${item.name} geöffnet.`)
     setError(null)
     organizationFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
@@ -319,9 +319,9 @@ export function CustomerManager() {
           <Button type="submit" className="mt-5 w-full" disabled={isSavingOrganization}>
             <Save className="mr-2 h-4 w-4" aria-hidden="true" />
             {isSavingOrganization
-              ? 'Speichern laeuft'
+              ? 'Speichern läuft'
               : organizationForm.id
-                ? 'Aenderung speichern'
+                ? 'Änderung speichern'
                 : 'Kunde speichern'}
           </Button>
         </form>
@@ -341,7 +341,7 @@ export function CustomerManager() {
                 onValueChange={(value) => updateMembership('organization_id', value)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Kunde auswaehlen" />
+                  <SelectValue placeholder="Kunde auswählen" />
                 </SelectTrigger>
                 <SelectContent>
                   {items.map((item) => (
@@ -383,11 +383,11 @@ export function CustomerManager() {
           </div>
           <Button type="submit" className="mt-5 w-full" disabled={isSavingMembership || !membershipForm.organization_id}>
             <UserPlus className="mr-2 h-4 w-4" aria-hidden="true" />
-            {isSavingMembership ? 'Zuordnung laeuft' : 'Nutzer zuordnen'}
+            {isSavingMembership ? 'Zuordnung läuft' : 'Nutzer zuordnen'}
           </Button>
           {selectedOrganization ? (
             <p className="mt-3 text-sm text-zinc-500">
-              Ausgewaehlt: {selectedOrganization.name}
+              Ausgewählt: {selectedOrganization.name}
             </p>
           ) : null}
         </form>

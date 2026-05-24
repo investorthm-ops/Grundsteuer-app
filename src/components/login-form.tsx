@@ -30,7 +30,7 @@ export function LoginForm() {
     setIsLoading(false)
 
     if (signInError) {
-      setError('Login fehlgeschlagen. Bitte pruefe E-Mail und Passwort.')
+      setError('Login fehlgeschlagen. Bitte prüfe E-Mail und Passwort.')
       return
     }
 
@@ -65,7 +65,7 @@ export function LoginForm() {
       {error ? <p className="text-sm text-red-700">{error}</p> : null}
       <Button type="submit" className="w-full" disabled={isLoading}>
         <LogIn className="mr-2 h-4 w-4" aria-hidden="true" />
-        {isLoading ? 'Anmeldung laeuft' : 'Anmelden'}
+        {isLoading ? 'Anmeldung läuft' : 'Anmelden'}
       </Button>
     </form>
   )

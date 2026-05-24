@@ -6,7 +6,7 @@ export default function VergleichPage() {
     <AppShell
       eyebrow="PROJ-7"
       title="Vergleich und Benchmarking"
-      description="Vergleiche mehrere Kommunen nebeneinander und finde auffaellige Hebesaetze in einfachen Ranglisten."
+      description="Vergleiche mehrere Kommunen nebeneinander und finde auffällige Hebesätze in einfachen Ranglisten."
     >
       <MunicipalityCompare />
     </AppShell>

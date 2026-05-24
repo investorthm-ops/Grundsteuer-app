@@ -67,12 +67,16 @@ function delta(current: number, previous: number | null) {
   return { label: '0', tone: 'neutral' as const }
 }
 
-export function MunicipalityBrowser() {
+type MunicipalityBrowserProps = {
+  initialQuery?: string
+}
+
+export function MunicipalityBrowser({ initialQuery = '' }: MunicipalityBrowserProps) {
   const [items, setItems] = useState<Municipality[]>([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
-  const [query, setQuery] = useState('')
-  const [submittedQuery, setSubmittedQuery] = useState('')
+  const [query, setQuery] = useState(initialQuery)
+  const [submittedQuery, setSubmittedQuery] = useState(initialQuery)
   const [bundesland, setBundesland] = useState(ALL_STATES)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -285,7 +289,7 @@ export function MunicipalityBrowser() {
                         size="sm"
                         onClick={() => toggleWatchlist(item.id)}
                         disabled={pendingWatchlistId === item.id}
-                        aria-label={watchlistIds.has(item.id) ? 'Von Watchlist entfernen' : 'Zur Watchlist hinzufuegen'}
+                        aria-label={watchlistIds.has(item.id) ? 'Von Watchlist entfernen' : 'Zur Watchlist hinzufügen'}
                       >
                         <Star
                           className={watchlistIds.has(item.id) ? 'h-4 w-4 fill-zinc-900 text-zinc-900' : 'h-4 w-4'}

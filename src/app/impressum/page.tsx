@@ -1,23 +1,104 @@
-import { AppShell } from '@/components/app-shell'
+import type { Metadata } from 'next'
+import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+
+export const metadata: Metadata = {
+  title: 'Impressum | GrundsteuerMonitor',
+  description: 'Anbieterkennzeichnung für den GrundsteuerMonitor.',
+}
+
+const providerRows = [
+  ['Betreiber', '[Vorname Nachname / Unternehmensname ergänzen]'],
+  ['Anschrift', '[Straße Hausnummer, PLZ Ort, Deutschland ergänzen]'],
+  ['E-Mail', '[info@grundsteuermonitor.de ergänzen]'],
+  ['Telefon', '[optional ergänzen]'],
+]
+
+const businessRows = [
+  ['Rechtsform', '[Einzelunternehmen / GmbH / UG etc. ergänzen]'],
+  ['Vertretungsberechtigt', '[Name ergänzen, falls juristische Person]'],
+  ['Registergericht', '[falls vorhanden ergänzen]'],
+  ['Registernummer', '[falls vorhanden ergänzen]'],
+  ['USt-IdNr.', '[falls vorhanden ergänzen]'],
+]
 
 export default function ImpressumPage() {
   return (
-    <AppShell
-      eyebrow="Rechtliches"
-      title="Impressum"
-      description="Die Pflichtangaben werden derzeit ausgearbeitet."
-    >
-      <div className="max-w-2xl space-y-4 rounded-lg border bg-white p-5">
-        <p className="text-sm leading-7 text-zinc-600">
-          Diese Seite enthaelt in Kuerze die nach § 5 TMG erforderlichen Angaben:
-          Name und Anschrift des Betreibers, Kontakt, Vertretungsberechtigte,
-          Umsatzsteuer-Identifikationsnummer und Verantwortlich i.S.d. Presserechts.
-        </p>
-        <p className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm leading-6 text-amber-900">
-          Platzhalter. Diese Pflichtangaben werden vor dem ersten zahlenden
-          Pilotkunden ergaenzt.
-        </p>
-      </div>
-    </AppShell>
+    <main className="min-h-screen bg-zinc-50 text-zinc-950">
+      <section className="border-b bg-white">
+        <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+          <Button asChild variant="ghost" className="-ml-3 mb-6">
+            <Link href="/">
+              <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
+              Zurück
+            </Link>
+          </Button>
+          <p className="text-sm font-medium text-zinc-500">Anbieterkennzeichnung</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-normal">Impressum</h1>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-600">
+            Pflichtangaben gemäß § 5 DDG. Diese Fassung enthält Platzhalter und muss vor
+            Veröffentlichung mit den echten Betreiberangaben finalisiert werden.
+          </p>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-4xl space-y-5 px-4 py-8 sm:px-6 lg:px-8">
+        <InfoCard title="Angaben zum Anbieter" rows={providerRows} />
+        <InfoCard title="Geschäftliche Angaben" rows={businessRows} />
+
+        <article className="rounded-lg border bg-white p-5">
+          <h2 className="text-lg font-semibold">Verantwortlich für den Inhalt</h2>
+          <div className="mt-3 space-y-3 text-sm leading-6 text-zinc-600">
+            <p>Verantwortlich gemäß § 18 Abs. 2 MStV:</p>
+            <p>[Vorname Nachname und Anschrift ergänzen, sofern erforderlich]</p>
+          </div>
+        </article>
+
+        <article className="rounded-lg border bg-white p-5">
+          <h2 className="text-lg font-semibold">Haftung für Inhalte</h2>
+          <p className="mt-3 text-sm leading-6 text-zinc-600">
+            Die Inhalte dieser Website werden mit Sorgfalt erstellt. Für Richtigkeit,
+            Vollständigkeit und Aktualität der Inhalte wird jedoch keine Gewähr übernommen.
+            Maßgeblich sind die amtlichen Veröffentlichungen der jeweiligen Kommunen und
+            Behörden.
+          </p>
+        </article>
+
+        <article className="rounded-lg border bg-white p-5">
+          <h2 className="text-lg font-semibold">Haftung für externe Links</h2>
+          <p className="mt-3 text-sm leading-6 text-zinc-600">
+            Diese Website kann Links zu externen Websites enthalten. Auf deren Inhalte hat der
+            Betreiber keinen Einfluss. Für fremde Inhalte wird keine Gewähr übernommen.
+          </p>
+        </article>
+
+        <article className="rounded-lg border bg-white p-5">
+          <h2 className="text-lg font-semibold">Urheberrecht</h2>
+          <p className="mt-3 text-sm leading-6 text-zinc-600">
+            Die auf dieser Website erstellten Inhalte und Werke unterliegen dem deutschen
+            Urheberrecht. Vervielfältigung, Bearbeitung und Verwertung außerhalb der Grenzen
+            des Urheberrechts bedürfen der Zustimmung des jeweiligen Rechteinhabers.
+          </p>
+        </article>
+      </section>
+    </main>
   )
 }
+
+function InfoCard({ title, rows }: { title: string; rows: string[][] }) {
+  return (
+    <article className="rounded-lg border bg-white p-5">
+      <h2 className="text-lg font-semibold">{title}</h2>
+      <dl className="mt-4 divide-y">
+        {rows.map(([label, value]) => (
+          <div key={label} className="grid gap-1 py-3 sm:grid-cols-[220px_1fr]">
+            <dt className="text-sm text-zinc-500">{label}</dt>
+            <dd className="text-sm font-medium text-zinc-800">{value}</dd>
+          </div>
+        ))}
+      </dl>
+    </article>
+  )
+}
+

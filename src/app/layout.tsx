@@ -4,7 +4,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'GrundsteuerMonitor',
-  description: 'Fruehwarnsystem fuer kommunale Steuererhoehungen',
+  description: 'Frühwarnsystem für kommunale Steuererhöhungen',
 }
 
 export default function RootLayout({

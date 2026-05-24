@@ -199,7 +199,7 @@ export function ImportManager() {
                   id="sourceName"
                   value={sourceName}
                   onChange={(event) => setSourceName(event.target.value)}
-                  placeholder="z. B. Amtsblatt Koeln"
+                  placeholder="z. B. Amtsblatt Köln"
                   required
                 />
               </div>
