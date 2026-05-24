@@ -1,8 +1,8 @@
 # PROJ-9: Datenvertrauen und Demo-Daten
 
-## Status: In Review
+## Status: Deployed
 **Created:** 2026-05-22
-**Last Updated:** 2026-05-22
+**Last Updated:** 2026-05-24
 
 ## Übersicht
 Dieses Feature macht die Datenbasis verkaufsfähiger. Nutzer sollen direkt erkennen, woher ein Hebesatz stammt, welchen Datenstand er hat, wann der Datensatz in der App aktualisiert wurde und ob die Quelle bestätigt ist.

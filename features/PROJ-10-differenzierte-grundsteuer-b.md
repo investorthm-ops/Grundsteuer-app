@@ -1,8 +1,8 @@
 # PROJ-10: Differenzierte Grundsteuer-B-Hebesaetze
 
-## Status: In Review
+## Status: Deployed
 **Created:** 2026-05-22
-**Last Updated:** 2026-05-22
+**Last Updated:** 2026-05-24
 
 ## Uebersicht
 Ab 2025 nutzen mehrere Kommunen differenzierte Grundsteuer-B-Hebesaetze fuer Wohngrundstuecke und Nichtwohngrundstuecke. Der Grundsteuer-Monitor muss diese Werte getrennt speichern, anzeigen, vergleichen und exportieren koennen. Ein einzelnes Feld `Grundsteuer B` reicht fuer diese Kommunen fachlich nicht mehr aus.
