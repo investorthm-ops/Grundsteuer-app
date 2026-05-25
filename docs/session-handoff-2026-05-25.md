@@ -57,6 +57,12 @@ Der GrundsteuerMonitor ist als MVP inzwischen deutlich vorzeigbar:
    - Disclaimer ist eingebaut.
    - Vor zahlenden Kunden muessen Datenabdeckung, Quellenstatus und Aktualitaet weiter verbessert werden.
 
+5. **Eigene Domain**
+   - Geplante Hauptdomain: `grundsteuermonitor.de`.
+   - Domain ist noch nicht gekauft.
+   - Kauf, Vercel-Domain-Zuordnung, DNS-Records und Supabase-Auth-Umstellung werden spaeter gemeinsam eingerichtet.
+   - Repo ist vorbereitet: Security Headers, Domain-Doku und Production-Readiness-Checkliste sind vorhanden.
+
 ## Naechster sinnvoller Einstieg
 
 Empfohlener Start fuer die naechste Session:

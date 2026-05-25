@@ -20,6 +20,8 @@ Ziel für den Pilotbetrieb:
 - Hauptdomain: `https://grundsteuermonitor.de`
 - `https://www.grundsteuermonitor.de` leitet auf die Hauptdomain weiter.
 - Pilotkunden bekommen nur die Hauptdomain genannt.
+- Status: Domain noch nicht gekauft. Kauf und Einrichtung werden später gemeinsam durchgeführt.
+- Im Repo vorbereitet: Security Headers, Produktionshinweis für `NEXT_PUBLIC_SITE_URL` und Anleitung `docs/production/custom-domain.md`.
 
 In Vercel unter Project Settings -> Domains:
 

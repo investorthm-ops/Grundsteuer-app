@@ -2,6 +2,13 @@
 
 Ziel: Die App läuft unter `https://grundsteuermonitor.de`. Die `www`-Variante leitet auf die Hauptdomain weiter.
 
+## Aktueller Projektentscheid
+
+- `grundsteuermonitor.de` ist die geplante Hauptdomain.
+- Die Domain ist noch nicht gekauft.
+- Domain-Kauf, Vercel-Domain-Zuordnung, DNS-Records und Supabase-Auth-Umstellung werden später gemeinsam eingerichtet.
+- Der Repo-Teil ist vorbereitet: Security Headers, Produktionshinweise und Domain-Checkliste sind dokumentiert.
+
 ## 1. Domain vorbereiten
 
 - Domain kaufen oder in den eigenen Account übernehmen: `grundsteuermonitor.de`
