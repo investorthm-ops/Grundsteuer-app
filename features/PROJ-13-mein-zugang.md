@@ -1,6 +1,6 @@
 # PROJ-13: Mein Zugang (Account-Selbstanzeige)
 
-## Status: In Review
+## Status: Deployed
 **Created:** 2026-05-25
 **Last Updated:** 2026-05-25
 
