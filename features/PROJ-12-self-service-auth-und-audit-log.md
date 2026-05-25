@@ -1,8 +1,8 @@
 # PROJ-12: Self-Service-Auth und Audit-Log
 
-## Status: In Review
+## Status: Deployed
 **Created:** 2026-05-24
-**Last Updated:** 2026-05-24
+**Last Updated:** 2026-05-25
 
 ## Übersicht
 Schließt drei harte Lücken in der bestehenden Mandantenverwaltung (PROJ-8), bevor der erste zahlende Kunde anfangen kann:

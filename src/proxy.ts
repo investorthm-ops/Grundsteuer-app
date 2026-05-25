@@ -40,13 +40,17 @@ export async function proxy(request: NextRequest) {
   const isWatchlistPath = pathname.startsWith('/watchlist')
   const isCalculatorPath = pathname.startsWith('/rechner')
   const isComparePath = pathname.startsWith('/vergleich')
+  const isAccountPath = pathname.startsWith('/mein-zugang')
   const isAccessBlockedPath = pathname.startsWith('/zugang-gesperrt')
   const isProtectedApiPath =
     pathname.startsWith('/api/municipalities') ||
     pathname.startsWith('/api/watchlist') ||
     pathname.startsWith('/api/exports')
+  // App paths require BOTH auth AND active org. Account page requires auth only —
+  // a user without org should still see the friendly explanation on /mein-zugang.
   const isAppPath = isDatabasePath || isWatchlistPath || isCalculatorPath || isComparePath
-  const isProtectedPath = isAdminPath || isAppPath
+  const isAuthOnlyPath = isAccountPath
+  const isProtectedPath = isAdminPath || isAppPath || isAuthOnlyPath
 
   if ((isProtectedPath || isProtectedApiPath) && !user) {
     if (isProtectedApiPath) {
