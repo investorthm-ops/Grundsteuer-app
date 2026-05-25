@@ -95,6 +95,7 @@ export const config = {
     '/watchlist/:path*',
     '/rechner/:path*',
     '/vergleich/:path*',
+    '/mein-zugang/:path*',
     '/admin/:path*',
     '/api/municipalities/:path*',
     '/api/watchlist/:path*',

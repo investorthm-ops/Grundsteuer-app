@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { KeyRound } from 'lucide-react'
+import Link from 'next/link'
+import { KeyRound, Mail } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -10,21 +10,43 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
 type Status = 'idle' | 'no-session' | 'submitting' | 'done' | 'error'
 
+function hasAuthTokenInUrl(): boolean {
+  if (typeof window === 'undefined') return false
+
+  const url = new URL(window.location.href)
+
+  return (
+    url.searchParams.has('code') ||
+    url.searchParams.has('token_hash') ||
+    url.hash.includes('access_token=') ||
+    url.hash.includes('refresh_token=')
+  )
+}
+
 export function SetPasswordForm() {
-  const router = useRouter()
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [status, setStatus] = useState<Status>('idle')
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    if (!hasAuthTokenInUrl()) {
+      setStatus('no-session')
+      return
+    }
+
     const supabase = createSupabaseBrowserClient()
     // Supabase parses the recovery / invite token from the URL hash and
     // creates a temporary session. Wait for that, otherwise updateUser
     // would have nothing to act on.
-    supabase.auth.getSession().then(({ data }) => {
-      if (!data.session) setStatus('no-session')
-    })
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (!data.session) setStatus('no-session')
+      })
+      .catch(() => {
+        setStatus('no-session')
+      })
   }, [])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -43,6 +65,9 @@ export function SetPasswordForm() {
     setStatus('submitting')
     const supabase = createSupabaseBrowserClient()
     const { error: updateError } = await supabase.auth.updateUser({ password })
+      .catch(() => ({
+        error: new Error('Password update failed'),
+      }))
 
     if (updateError) {
       setStatus('error')
@@ -61,15 +86,35 @@ export function SetPasswordForm() {
 
   if (status === 'no-session') {
     return (
-      <div className="rounded-lg border bg-white p-5 text-sm">
-        <p className="font-medium text-zinc-900">Link ungültig oder abgelaufen</p>
-        <p className="mt-2 text-zinc-600">
-          Der Einladungs- oder Reset-Link ist nicht mehr gültig. Fordere bitte
-          unter{' '}
-          <a className="underline" href="/passwort-vergessen">
-            Passwort vergessen
-          </a>{' '}
-          einen neuen Link an oder bitte den Admin um eine erneute Einladung.
+      <div className="space-y-5 rounded-lg border bg-white p-5 text-sm">
+        <div>
+          <p className="font-medium text-zinc-900">
+            Link ungültig oder abgelaufen
+          </p>
+          <p className="mt-2 leading-6 text-zinc-600">
+            Der Einladungs- oder Reset-Link ist nicht mehr gültig. Fordere bitte
+            einen neuen Link an und nutze dabei die E-Mail-Adresse, mit der dein
+            Zugang angelegt wurde.
+          </p>
+        </div>
+        <div className="rounded-md bg-zinc-50 p-4 text-zinc-600">
+          <p className="font-medium text-zinc-800">Falls keine E-Mail ankommt:</p>
+          <ul className="mt-2 list-disc space-y-1 pl-5">
+            <li>Spam-Ordner prüfen.</li>
+            <li>Einige Minuten warten, falls zu viele Links angefordert wurden.</li>
+            <li>Den Admin bitten, die Einladung erneut zu senden.</li>
+          </ul>
+        </div>
+        <Button asChild className="w-full">
+          <Link href="/passwort-vergessen">
+            <Mail className="mr-2 h-4 w-4" aria-hidden="true" />
+            Neuen Link anfordern
+          </Link>
+        </Button>
+        <p className="text-xs leading-5 text-zinc-500">
+          Hinweis: Jeder Link kann nur zeitlich begrenzt verwendet werden. Wenn
+          du ihn mehrfach öffnest oder zu spät verwendest, brauchst du einen
+          frischen Link.
         </p>
       </div>
     )

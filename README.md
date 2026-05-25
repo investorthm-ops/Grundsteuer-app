@@ -45,7 +45,11 @@ Der Grundsteuer-Monitor zentralisiert das: gepflegte Hebesatz-Datenbank für all
 | PROJ-6 | Renditeauswirkungs-Rechner | ✅ MVP |
 | PROJ-7 | Vergleich und Benchmarking | ✅ MVP |
 | PROJ-8 | Mandantenfähige Nutzerverwaltung | ✅ MVP |
-| PROJ-9 | Datenvertrauen und Demo-Daten | 🔎 In Review |
+| PROJ-9 | Datenvertrauen und Demo-Daten | ✅ MVP |
+| PROJ-10 | Differenzierte Grundsteuer-B-Hebesätze | ✅ MVP |
+| PROJ-11 | Homepage- und Legal-Seiten-Redesign | ✅ MVP |
+| PROJ-12 | Self-Service-Auth und Audit-Log | ✅ MVP |
+| PROJ-13 | Mein Zugang | ✅ MVP |
 
 Detaillierte Specs pro Feature unter [`features/`](features/). Übersicht: [`features/INDEX.md`](features/INDEX.md).
 
@@ -58,6 +62,8 @@ Erste Datenschutzerklaerung in der App: [`src/app/datenschutz/page.tsx`](src/app
 Legal-Checkliste vor zahlenden Kunden: [`docs/legal-checklist.md`](docs/legal-checklist.md).
 
 Technische Voraussetzungen und Betriebsmodell: [`docs/technical-requirements.md`](docs/technical-requirements.md).
+
+Production-Readiness vor Pilotkunden: [`docs/production-readiness.md`](docs/production-readiness.md).
 
 ---
 
@@ -89,7 +95,8 @@ App läuft auf http://localhost:3000.
 
 ## Architektur-Highlights
 
-- **Row Level Security statt Service-Role-Key.** Server-side-Zugriffe gehen über die User-Session via `@supabase/ssr`. Autorisierung wird durch RLS + `user_roles`-Tabelle erzwungen. Kein Bypass-Pfad.
+- **Row Level Security als Standard.** Server-side-Zugriffe gehen im Normalfall über die User-Session via `@supabase/ssr`. Autorisierung wird durch RLS + `user_roles`-Tabelle erzwungen.
+- **Service-Role-Key nur serverseitig.** Für PROJ-12 wird `SUPABASE_SERVICE_ROLE_KEY` ausschließlich serverseitig für Nutzer-Einladungen und Audit-Log-Schreibvorgänge genutzt. Der Key darf nie im Client-Bundle oder mit `NEXT_PUBLIC_` auftauchen.
 - **Import-Staging.** CSV-Uploads landen zuerst in `import_runs` + `import_rows`, werden validiert (Pflichtfelder, Bundesland-Whitelist, Hebesatz 0–2000, Delta-Flagging), und müssen pro Run vom Admin approved werden, bevor sie in die Live-Tabelle wandern.
 - **Audit-Trail.** Jeder Import-Run trägt Quelle, Datum, ausführender User, Resultat-Counts.
 

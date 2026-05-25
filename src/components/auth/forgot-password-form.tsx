@@ -16,6 +16,7 @@ function resolveOrigin(): string {
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState('')
+  const [requestedEmail, setRequestedEmail] = useState('')
   const [status, setStatus] = useState<Status>('idle')
   const [error, setError] = useState<string | null>(null)
 
@@ -24,9 +25,12 @@ export function ForgotPasswordForm() {
     setStatus('submitting')
     setError(null)
 
+    const normalizedEmail = email.trim().toLowerCase()
+    setRequestedEmail(normalizedEmail)
+
     const supabase = createSupabaseBrowserClient()
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(
-      email.trim().toLowerCase(),
+      normalizedEmail,
       { redirectTo: `${resolveOrigin()}/passwort-setzen` }
     )
 
@@ -39,15 +43,45 @@ export function ForgotPasswordForm() {
       return
     }
 
+    if (resetError && /rate limit|too many|429/i.test(resetError.message)) {
+      setStatus('error')
+      setError(
+        'Aktuell wurden zu viele E-Mails angefordert. Bitte warte einige Minuten und versuche es dann erneut.'
+      )
+      return
+    }
+
     setStatus('done')
   }
 
   if (status === 'done') {
     return (
-      <div className="rounded-lg border border-green-200 bg-green-50 p-5 text-sm text-green-900">
-        Falls ein Konto zu dieser E-Mail-Adresse existiert, ist eine Nachricht
-        mit einem Link zum Zurücksetzen unterwegs. Bitte prüfe auch deinen
-        Spam-Ordner.
+      <div className="space-y-4 rounded-lg border border-green-200 bg-green-50 p-5 text-sm text-green-900">
+        <p>
+          Falls ein Konto zu dieser E-Mail-Adresse existiert, ist eine Nachricht
+          mit einem Link zum Zurücksetzen unterwegs.
+        </p>
+        {requestedEmail ? (
+          <p>
+            Verwendete Adresse:{' '}
+            <span className="font-medium">{requestedEmail}</span>
+          </p>
+        ) : null}
+        <p>
+          Bitte prüfe auch Spam, Werbung oder sonstige Posteingangs-Ordner. Wenn
+          nichts ankommt, warte einige Minuten, bevor du erneut anforderst.
+        </p>
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full border-green-300 bg-white text-green-900 hover:bg-green-100"
+          onClick={() => {
+            setStatus('idle')
+            setError(null)
+          }}
+        >
+          Andere E-Mail-Adresse verwenden
+        </Button>
       </div>
     )
   }
@@ -67,6 +101,9 @@ export function ForgotPasswordForm() {
           autoComplete="email"
           required
         />
+        <p className="text-xs leading-5 text-zinc-500">
+          Nutze die E-Mail-Adresse, mit der dein Zugang angelegt wurde.
+        </p>
       </div>
       {error ? <p className="text-sm text-red-700">{error}</p> : null}
       <Button type="submit" className="w-full" disabled={status === 'submitting'}>

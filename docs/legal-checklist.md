@@ -91,9 +91,9 @@ Naechster Schritt:
 | Datenschutzerklaerung | Erledigt als MVP-Fassung | `/datenschutz` | Verantwortlicher und Dienstleisterdetails noch ergaenzen |
 | Haftungshinweis / Disclaimer | Erledigt | `src/components/site-disclaimer.tsx` | sichtbar in App und Stadtseiten |
 | Impressum | Offen, Vorlage gesichert | `/impressum`, `docs/impressum-template.md` | Seite und Template existieren, enthalten aber noch Platzhalter |
-| Footer-Link Datenschutz | Erledigt | `src/components/legal-footer.tsx` | vorhanden |
-| Footer-Link Impressum | Erledigt | `src/components/legal-footer.tsx` | vorhanden |
-| Footer-Link Hinweise | Erledigt | `src/components/legal-footer.tsx` | vorhanden |
+| Footer-Link Datenschutz | Erledigt | `src/components/footer.tsx` | vorhanden |
+| Footer-Link Impressum | Erledigt | `src/components/footer.tsx` | vorhanden |
+| Footer-Link Hinweise | Erledigt | `src/components/footer.tsx` | vorhanden |
 
 ## 6. Prozesse fuer Nutzerrechte
 
@@ -132,6 +132,7 @@ Naechster Schritt:
 - Loesch- und Auskunftsprozess dokumentieren.
 - Datenschutzerklaerung nach Pruefung aktualisieren.
 - Optional: rechtliche Pruefung durch Anwalt oder Datenschutzberater.
+- Production-Readiness-Check aus `docs/production-readiness.md` vor Pilotkundeneinladung abarbeiten.
 
 ## Quellen
 
