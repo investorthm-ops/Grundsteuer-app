@@ -1,6 +1,6 @@
 # PROJ-14: Pilotkunden-Onboarding und Datenqualitaet
 
-## Status: Planned
+## Status: Deployed
 **Created:** 2026-05-25
 **Last Updated:** 2026-05-25
 
