@@ -91,7 +91,33 @@ In Supabase Authentication prüfen:
 - Invite-Mail führt auf `/passwort-setzen`.
 - Passwort-Reset-Mail führt auf `/passwort-setzen`.
 - E-Mail-Templates sind auf Deutsch und enthalten keine verwirrenden Standardtexte.
-- Optional: eigener SMTP-Absender ist eingerichtet, bevor viele Pilotkunden eingeladen werden.
+
+## E-Mail-Infrastruktur
+
+Vor dem ersten zahlenden Kunden sollten Auth-Mails und Kontakt-Postfach unter
+eigener Domain laufen, statt unter Supabase-Standardabsender und privater Gmail.
+
+Volle Schritt-für-Schritt-Anleitung: `docs/production/email-setup.md`.
+DNS-Referenz: `docs/production/email-dns-records.md`.
+
+Checkliste:
+
+- [ ] Postfach-Anbieter aktiv (Empfehlung: Mailbox.org, 1 €/Monat).
+- [ ] App-Mail-Anbieter aktiv (Empfehlung: Resend, Free-Tier bis 3.000 Mails/Monat).
+- [ ] DNS-Einträge gesetzt: 2× MX (Mailbox.org), 1× SPF, 1× DKIM (Resend),
+      1× DMARC, 1× Mailbox-Verifikations-TXT.
+- [ ] Domain in Mailbox.org als „verifiziert" markiert.
+- [ ] Domain in Resend als „verified" markiert (alle drei Häkchen grün).
+- [ ] Postfach `info@grundsteuermonitor.de` empfängt Mails (Test mit externer
+      Adresse).
+- [ ] Supabase Auth → SMTP Settings → Custom SMTP mit Resend-API-Key aktiviert,
+      Sender `noreply@grundsteuermonitor.de`.
+- [ ] Supabase „Send test email" erfolgreich, Absender stimmt.
+- [ ] Einladung an Testkunden kommt von `noreply@grundsteuermonitor.de`.
+- [ ] Test-Mail von Mailbox.org an externe Adresse landet NICHT im Spam.
+- [ ] Mailto-Links im Repo auf neue Adresse umgestellt (Claude erledigt per PR).
+- [ ] Resend-API-Key sicher gespeichert (nur in Supabase und Resend-Dashboard).
+- [ ] 2FA bei Mailbox.org und Resend aktiviert.
 
 ## Security Headers
 
