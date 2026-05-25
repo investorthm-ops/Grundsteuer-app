@@ -1,7 +1,6 @@
 import Link from 'next/link'
-import { KeyRound, LifeBuoy, Trash2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { AccountActions } from '@/components/account/account-actions'
 
 type Organization = {
   id: string
@@ -58,12 +57,6 @@ function remainingDays(value: string | null): number | null {
   return Math.ceil(diffMs / (1000 * 60 * 60 * 24))
 }
 
-function buildMailto(subject: string, body?: string): string {
-  const params = new URLSearchParams({ subject })
-  if (body) params.set('body', body)
-  return `mailto:${SUPPORT_EMAIL}?${params.toString()}`
-}
-
 export function AccountOverview({
   email,
   memberSince,
@@ -118,7 +111,7 @@ export function AccountOverview({
             Dein Konto ist aktuell keiner Organisation zugeordnet. Bitte wende
             dich an{' '}
             <a
-              href={buildMailto('Zugang freischalten')}
+              href={`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent('Zugang freischalten')}`}
               className="font-medium underline hover:text-zinc-950"
             >
               {SUPPORT_EMAIL}
@@ -199,36 +192,7 @@ export function AccountOverview({
           Profilbearbeitung läuft aktuell noch manuell. Wir kümmern uns
           schnellstmöglich um deine Anfrage.
         </p>
-        <div className="mt-5 flex flex-wrap gap-3">
-          <Button asChild variant="outline">
-            <Link href="/passwort-vergessen">
-              <KeyRound className="mr-2 h-4 w-4" aria-hidden="true" />
-              Passwort ändern
-            </Link>
-          </Button>
-          <Button asChild variant="outline">
-            <a
-              href={buildMailto(
-                `Anfrage zum Zugang – ${organization.name}`,
-                'Hallo Markus,\n\n'
-              )}
-            >
-              <LifeBuoy className="mr-2 h-4 w-4" aria-hidden="true" />
-              Kontakt aufnehmen
-            </a>
-          </Button>
-          <Button asChild variant="ghost" className="text-red-700 hover:text-red-900">
-            <a
-              href={buildMailto(
-                `Account-Löschung gemäß DSGVO Art. 17 – ${organization.name}`,
-                'Hallo Markus,\n\nhiermit beantrage ich die Löschung meines Accounts beim Grundsteuer-Monitor gemäß DSGVO Art. 17.\n\n'
-              )}
-            >
-              <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />
-              Account-Löschung anfragen
-            </a>
-          </Button>
-        </div>
+        <AccountActions organizationName={organization.name} />
       </section>
     </div>
   )
