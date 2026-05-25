@@ -1,4 +1,5 @@
 import { AppShell } from '@/components/app-shell'
+import { AdminTabs } from '@/components/admin/admin-tabs'
 import { CustomerManager } from '@/components/admin/customer-manager'
 
 export default function AdminKundenPage() {
@@ -8,6 +9,7 @@ export default function AdminKundenPage() {
       title="Kundenverwaltung"
       description="Lege Kundenorganisationen an, steuere Laufzeiten und ordne freigeschaltete Nutzer zu."
     >
+      <AdminTabs />
       <CustomerManager />
     </AppShell>
   )

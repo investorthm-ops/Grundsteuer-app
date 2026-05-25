@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { LogIn } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -52,7 +53,15 @@ export function LoginForm() {
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="password">Passwort</Label>
+        <div className="flex items-baseline justify-between">
+          <Label htmlFor="password">Passwort</Label>
+          <Link
+            href="/passwort-vergessen"
+            className="text-xs text-zinc-600 underline hover:text-zinc-900"
+          >
+            Passwort vergessen?
+          </Link>
+        </div>
         <Input
           id="password"
           type="password"

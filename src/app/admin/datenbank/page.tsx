@@ -1,4 +1,5 @@
 import { AppShell } from '@/components/app-shell'
+import { AdminTabs } from '@/components/admin/admin-tabs'
 import { AdminMunicipalityManager } from '@/components/municipalities/admin-municipality-manager'
 
 export default function AdminDatenbankPage() {
@@ -8,6 +9,7 @@ export default function AdminDatenbankPage() {
       title="Datenpflege"
       description="Lege Hebesatz-Datensätze an, bearbeite bestehende Gemeinden und pflege Datenstand sowie Quellenstatus."
     >
+      <AdminTabs />
       <AdminMunicipalityManager />
     </AppShell>
   )

@@ -23,7 +23,8 @@
 | PROJ-9 | Datenvertrauen und Demo-Daten | Deployed | [PROJ-9-datenvertrauen-demo-daten.md](PROJ-9-datenvertrauen-demo-daten.md) | 2026-05-22 |
 | PROJ-10 | Differenzierte Grundsteuer-B-Hebesaetze | Deployed | [PROJ-10-differenzierte-grundsteuer-b.md](PROJ-10-differenzierte-grundsteuer-b.md) | 2026-05-22 |
 | PROJ-11 | Homepage- und Legal-Seiten-Redesign | Deployed | [PROJ-11-homepage-und-legal-redesign.md](PROJ-11-homepage-und-legal-redesign.md) | 2026-05-24 |
+| PROJ-12 | Self-Service-Auth und Audit-Log | In Review | [PROJ-12-self-service-auth-und-audit-log.md](PROJ-12-self-service-auth-und-audit-log.md) | 2026-05-24 |
 
 <!-- Add features above this line -->
 
-## Next Available ID: PROJ-12
+## Next Available ID: PROJ-13

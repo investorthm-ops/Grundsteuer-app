@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { isAdmin } from '@/lib/supabase/is-admin'
+import { logAdminAction } from '@/lib/supabase/audit'
 import { organizationCreateSchema } from '@/lib/validation/organization'
 
 async function requireAdmin() {
@@ -9,12 +10,22 @@ async function requireAdmin() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) return { supabase, response: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) }
+  if (!user) {
+    return {
+      supabase,
+      user: null,
+      response: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }),
+    }
+  }
   if (!(await isAdmin(supabase, user.id))) {
-    return { supabase, response: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) }
+    return {
+      supabase,
+      user,
+      response: NextResponse.json({ error: 'Forbidden' }, { status: 403 }),
+    }
   }
 
-  return { supabase, response: null }
+  return { supabase, user, response: null }
 }
 
 export async function GET() {
@@ -31,7 +42,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const { supabase, response } = await requireAdmin()
+  const { supabase, user, response } = await requireAdmin()
   if (response) return response
 
   let body: unknown
@@ -56,5 +67,14 @@ export async function POST(request: NextRequest) {
     .single()
 
   if (error) return NextResponse.json({ error: 'Database error' }, { status: 500 })
+
+  await logAdminAction({
+    actor: { id: user!.id, email: user!.email ?? null },
+    action: 'org.create',
+    entityType: 'organization',
+    entityId: data.id,
+    payload: { input: parsed.data },
+  })
+
   return NextResponse.json({ data }, { status: 201 })
 }
