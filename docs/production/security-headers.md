@@ -4,6 +4,8 @@ Protect against XSS, Clickjacking, MIME sniffing, and other common web attacks.
 
 ## Setup
 
+Status: im Repo in `next.config.ts` umgesetzt.
+
 Add security headers to `next.config.ts`:
 
 ```typescript
