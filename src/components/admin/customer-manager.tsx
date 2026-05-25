@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Plus, RefreshCw, Save, Trash2, UserPlus } from 'lucide-react'
+import { Mail, Plus, RefreshCw, Save, Trash2, UserPlus } from 'lucide-react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -55,6 +55,13 @@ type MembershipForm = {
   role: OrganizationRole
 }
 
+type InvitationForm = {
+  organization_id: string
+  email: string
+  full_name: string
+  role: OrganizationRole
+}
+
 const emptyOrganizationForm: OrganizationForm = {
   name: '',
   status: 'trial',
@@ -65,6 +72,13 @@ const emptyOrganizationForm: OrganizationForm = {
 const emptyMembershipForm: MembershipForm = {
   organization_id: '',
   user_id: '',
+  role: 'member',
+}
+
+const emptyInvitationForm: InvitationForm = {
+  organization_id: '',
+  email: '',
+  full_name: '',
   role: 'member',
 }
 
@@ -105,9 +119,11 @@ export function CustomerManager() {
   const [items, setItems] = useState<OrganizationWithMembers[]>([])
   const [organizationForm, setOrganizationForm] = useState<OrganizationForm>(emptyOrganizationForm)
   const [membershipForm, setMembershipForm] = useState<MembershipForm>(emptyMembershipForm)
+  const [invitationForm, setInvitationForm] = useState<InvitationForm>(emptyInvitationForm)
   const [isLoading, setIsLoading] = useState(true)
   const [isSavingOrganization, setIsSavingOrganization] = useState(false)
   const [isSavingMembership, setIsSavingMembership] = useState(false)
+  const [isSendingInvitation, setIsSendingInvitation] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -127,6 +143,9 @@ export function CustomerManager() {
       if (!membershipForm.organization_id && payload.data[0]) {
         setMembershipForm((current) => ({ ...current, organization_id: payload.data[0].id }))
       }
+      if (!invitationForm.organization_id && payload.data[0]) {
+        setInvitationForm((current) => ({ ...current, organization_id: payload.data[0].id }))
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unbekannter Fehler.')
     } finally {
@@ -145,6 +164,53 @@ export function CustomerManager() {
 
   function updateMembership<K extends keyof MembershipForm>(key: K, value: MembershipForm[K]) {
     setMembershipForm((current) => ({ ...current, [key]: value }))
+  }
+
+  function updateInvitation<K extends keyof InvitationForm>(key: K, value: InvitationForm[K]) {
+    setInvitationForm((current) => ({ ...current, [key]: value }))
+  }
+
+  async function sendInvitation(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setIsSendingInvitation(true)
+    setMessage(null)
+    setError(null)
+
+    try {
+      const response = await fetch('/api/admin/invitations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: invitationForm.email.trim().toLowerCase(),
+          full_name: invitationForm.full_name.trim(),
+          organization_id: invitationForm.organization_id,
+          role: invitationForm.role,
+        }),
+      })
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}))
+        throw new Error(
+          payload?.detail || payload?.error || 'Einladung konnte nicht verschickt werden.'
+        )
+      }
+      const payload = (await response.json()) as {
+        data: { invitation_sent: boolean; email: string }
+      }
+      setMessage(
+        payload.data.invitation_sent
+          ? `Einladung an ${payload.data.email} verschickt.`
+          : `Nutzer war bereits angelegt — ${payload.data.email} wurde der Organisation zugeordnet.`
+      )
+      setInvitationForm((current) => ({
+        ...emptyInvitationForm,
+        organization_id: current.organization_id,
+      }))
+      await loadItems()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unbekannter Fehler.')
+    } finally {
+      setIsSendingInvitation(false)
+    }
   }
 
   async function saveOrganization(event: React.FormEvent<HTMLFormElement>) {
@@ -326,11 +392,95 @@ export function CustomerManager() {
           </Button>
         </form>
 
-        <form onSubmit={saveMembership} className="rounded-lg border bg-white p-5">
+        <form onSubmit={sendInvitation} className="rounded-lg border bg-white p-5">
           <div className="mb-5">
-            <h2 className="text-lg font-semibold">Nutzer zuordnen</h2>
+            <h2 className="text-lg font-semibold">Kunde per E-Mail einladen</h2>
             <p className="mt-1 text-sm text-zinc-500">
-              Der Nutzer muss vorher in Supabase Auth existieren. Im MVP wird die Nutzer-ID eingetragen.
+              Standardweg: Wir senden eine Einladung. Der Kunde klickt auf den
+              Link und setzt sein Passwort selbst. Die Zuordnung zur Organisation
+              passiert automatisch.
+            </p>
+          </div>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Organisation</Label>
+              <Select
+                value={invitationForm.organization_id}
+                onValueChange={(value) => updateInvitation('organization_id', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Kunde auswählen" />
+                </SelectTrigger>
+                <SelectContent>
+                  {items.map((item) => (
+                    <SelectItem key={item.id} value={item.id}>
+                      {item.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="invite-email">E-Mail</Label>
+              <Input
+                id="invite-email"
+                type="email"
+                value={invitationForm.email}
+                onChange={(event) => updateInvitation('email', event.target.value)}
+                placeholder="kunde@example.com"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="invite-name">Voller Name</Label>
+              <Input
+                id="invite-name"
+                value={invitationForm.full_name}
+                onChange={(event) => updateInvitation('full_name', event.target.value)}
+                placeholder="Anna Beispiel"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Rolle</Label>
+              <Select
+                value={invitationForm.role}
+                onValueChange={(value) => updateInvitation('role', value as OrganizationRole)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {ORGANIZATION_ROLES.map((role) => (
+                    <SelectItem key={role} value={role}>
+                      {role === 'owner' ? 'Owner' : 'Member'}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <Button
+            type="submit"
+            className="mt-5 w-full"
+            disabled={isSendingInvitation || !invitationForm.organization_id}
+          >
+            <Mail className="mr-2 h-4 w-4" aria-hidden="true" />
+            {isSendingInvitation ? 'Einladung wird verschickt' : 'Einladung verschicken'}
+          </Button>
+        </form>
+      </div>
+
+      <details className="rounded-lg border bg-white p-5">
+        <summary className="cursor-pointer text-sm font-semibold">
+          Erweitert: Bestehenden Supabase-Nutzer per UUID zuordnen
+        </summary>
+        <form onSubmit={saveMembership} className="mt-5">
+          <div className="mb-5">
+            <p className="text-sm text-zinc-500">
+              Nur nötig wenn der Nutzer bereits in Supabase Auth existiert und
+              nicht via Einladung kam. Die Nutzer-UUID findest du in der
+              Supabase-Console unter Authentication.
             </p>
           </div>
           <div className="space-y-4">
@@ -391,7 +541,7 @@ export function CustomerManager() {
             </p>
           ) : null}
         </form>
-      </div>
+      </details>
 
       {message ? <p className="text-sm text-emerald-700">{message}</p> : null}
       {error ? <p className="text-sm text-red-700">{error}</p> : null}

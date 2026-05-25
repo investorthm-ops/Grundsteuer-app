@@ -11,6 +11,8 @@ const PRODUCT_LINKS = [
 const INFO_LINKS = [
   { href: '/', label: 'Startseite' },
   { href: '/kontakt', label: 'Kontakt' },
+  { href: '/login', label: 'Anmelden' },
+  { href: '/passwort-vergessen', label: 'Passwort vergessen' },
 ]
 
 const LEGAL_LINKS = [
