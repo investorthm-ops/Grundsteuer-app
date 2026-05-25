@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import { Building2, Calculator, Database, Scale, ShieldCheck, Star, UserCircle } from 'lucide-react'
 import { AuthButton } from '@/components/auth-button'
 import { Button } from '@/components/ui/button'
@@ -47,18 +47,18 @@ export async function AppShell({
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-zinc-200 bg-white/95 backdrop-blur">
-        <div className="mx-auto grid max-w-7xl gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[260px_1fr_420px] lg:items-center lg:px-8">
+        <div className="mx-auto grid max-w-screen-2xl gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[300px_minmax(460px,1fr)_auto] lg:items-center lg:px-8">
           <Link href="/" className="flex items-center gap-3">
             <span className="flex h-10 w-10 items-center justify-center rounded-md bg-zinc-950 text-white shadow-sm">
               <Building2 className="h-5 w-5" aria-hidden="true" />
             </span>
             <span>
               <span className="block text-base font-semibold">GrundsteuerMonitor</span>
-              <span className="block text-sm text-zinc-500">Hebesaetze im Blick</span>
+              <span className="block text-sm text-zinc-500">Hebesätze im Blick</span>
             </span>
           </Link>
 
-          <nav className="flex flex-wrap items-center justify-start gap-1 lg:justify-center">
+          <nav className="flex flex-wrap items-center justify-start gap-1 lg:flex-nowrap lg:justify-center">
             {primaryNavItems.map((item) => (
               <Button key={item.href} asChild variant="ghost" size="sm" className="text-zinc-700">
                 <Link href={item.href}>
@@ -67,18 +67,23 @@ export async function AppShell({
                 </Link>
               </Button>
             ))}
+          </nav>
+
+          <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+            <GlobalSearch className="w-full sm:w-56 2xl:w-64" />
             {isAdmin ? (
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/admin/datenbank">
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="shrink-0 border-zinc-300 bg-zinc-50 text-zinc-800 hover:bg-zinc-100"
+              >
+                <Link href="/admin/pilotstart">
                   <ShieldCheck className="mr-2 h-4 w-4" aria-hidden="true" />
                   Admin
                 </Link>
               </Button>
             ) : null}
-          </nav>
-
-          <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
-            <GlobalSearch className="w-full sm:w-64 lg:w-72" />
             {isAuthenticated ? (
               <Button asChild variant="ghost" size="sm" className="text-zinc-700">
                 <Link href="/mein-zugang">
@@ -111,3 +116,4 @@ export async function AppShell({
     </>
   )
 }
+

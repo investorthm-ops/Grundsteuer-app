@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Database, FileInput, ScrollText, Users } from 'lucide-react'
+import { Database, FileInput, Rocket, ScrollText, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type TabItem = {
@@ -12,6 +12,7 @@ type TabItem = {
 }
 
 const TABS: TabItem[] = [
+  { href: '/admin/pilotstart', label: 'Pilotstart', icon: Rocket },
   { href: '/admin/datenbank', label: 'Datenpflege', icon: Database },
   { href: '/admin/kunden', label: 'Kunden', icon: Users },
   { href: '/admin/importe', label: 'Importe', icon: FileInput },

@@ -88,6 +88,7 @@ Aktives Billing ist bewusst noch nicht umgesetzt.
 | P1 | Homepage- und Legal-Seiten-Redesign | Deployed |
 | P1 | Self-Service-Auth, Einladung, Passwort-Reset und Audit-Log | Deployed |
 | P1 | Mein Zugang: Account-Selbstanzeige fuer Nutzer | Deployed |
+| P1 | Pilotkunden-Onboarding und Datenqualitaets-Startzentrale | Planned |
 | P2 | Beratungsreports als PDF/Excel fuer Mandantengespraeche | Planned |
 | P2 | Billing-Integration nach Geschaeftsmodell-Validierung | Planned |
 | P2 | Multi-User-Teamverwaltung pro Organisation | Planned |
@@ -141,4 +142,4 @@ Diese Funktionen sind fuer V1 bewusst nicht im Scope:
 1. Produktionskonfiguration pruefen: Supabase-Migrationen, Vercel ENV, Redirect URLs, E-Mail-Templates.
 2. Impressum, Datenschutz, AGB und Haftungstexte mit echten Betreiberangaben finalisieren.
 3. Datenbasis priorisieren: aktuelle 2025/2026-Hebesaetze fuer relevante Pilotkommunen nachziehen.
-4. PROJ-14 planen: entweder Datenqualitaets-Dashboard oder Pilotkunden-Onboarding-Check.
+4. PROJ-14 umsetzen: Pilotkunden-Onboarding und Datenqualitaets-Startzentrale.

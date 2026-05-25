@@ -1,6 +1,6 @@
-'use client'
+﻿'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Pencil, Plus, RefreshCw, Save, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -109,29 +109,44 @@ function fromMunicipality(item: Municipality): FormState {
 export function AdminMunicipalityManager() {
   const [items, setItems] = useState<Municipality[]>([])
   const [form, setForm] = useState<FormState>(emptyForm)
+  const [search, setSearch] = useState('')
+  const [submittedSearch, setSubmittedSearch] = useState('')
+  const [total, setTotal] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  async function loadItems() {
+  const loadItems = useCallback(async function loadItems() {
     setIsLoading(true)
     setError(null)
     try {
-      const response = await fetch('/api/municipalities?page=1&pageSize=100')
+      const params = new URLSearchParams({
+        page: '1',
+        pageSize: '25',
+      })
+      if (submittedSearch) params.set('q', submittedSearch)
+
+      const response = await fetch(`/api/municipalities?${params.toString()}`)
       if (!response.ok) throw new Error('Daten konnten nicht geladen werden.')
       const payload = (await response.json()) as MunicipalityListResponse
       setItems(payload.data)
+      setTotal(payload.total)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unbekannter Fehler.')
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [submittedSearch])
 
   useEffect(() => {
     loadItems()
-  }, [])
+  }, [loadItems])
+
+  async function handleSearch(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setSubmittedSearch(search.trim())
+  }
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }))
@@ -294,12 +309,27 @@ export function AdminMunicipalityManager() {
       </form>
 
       <section className="rounded-lg border bg-white">
-        <div className="flex flex-col gap-2 border-b px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 border-b px-4 py-3 xl:flex-row xl:items-center xl:justify-between">
           <p className="text-sm text-zinc-600">{isLoading ? 'Daten werden geladen' : `${items.length} Einträge geladen`}</p>
+          <span className="text-xs text-zinc-500">
+            Gesamt passend: {total}. Maximal 25 Treffer werden angezeigt.
+          </span>
           <Button variant="ghost" size="sm" onClick={loadItems}>
             <RefreshCw className="mr-2 h-4 w-4" aria-hidden="true" />
             Aktualisieren
           </Button>
+          <form onSubmit={handleSearch} className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+            <Input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Gemeinde suchen, z. B. Dortmund"
+              className="w-full sm:w-80"
+              aria-label="Gemeinde in der Datenpflege suchen"
+            />
+            <Button type="submit" variant="outline" size="sm" disabled={isLoading}>
+              Suchen
+            </Button>
+          </form>
         </div>
         <div className="overflow-x-auto">
           <Table>
@@ -351,3 +381,4 @@ export function AdminMunicipalityManager() {
     </div>
   )
 }
+

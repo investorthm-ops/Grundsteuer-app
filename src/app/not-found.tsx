@@ -23,12 +23,12 @@ export default function NotFound() {
             </li>
             <li>
               <strong className="font-semibold text-zinc-950">Datenbank durchsuchen.</strong>{' '}
-              In der vollstaendigen Datenbank kannst du nach Bundesland und Kreis
+              In der vollständigen Datenbank kannst du nach Bundesland und Kreis
               filtern (Login erforderlich).
             </li>
             <li>
               <strong className="font-semibold text-zinc-950">Gemeinde fehlt?</strong>{' '}
-              Die Datenpflege laeuft schrittweise. Derzeit sind 818 Kommunen aus
+              Die Datenpflege läuft schrittweise. Derzeit sind 818 Kommunen aus
               Nordrhein-Westfalen und Hessen erfasst, weitere Bundeslaender folgen.
             </li>
           </ul>
@@ -41,7 +41,7 @@ export default function NotFound() {
             </Button>
             <Button asChild variant="outline">
               <Link href="/datenbank">
-                Datenbank oeffnen
+                Datenbank öffnen
                 <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
               </Link>
             </Button>

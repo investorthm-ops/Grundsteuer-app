@@ -182,7 +182,7 @@ export function TaxImpactCalculator() {
                   />
                   <CommandList>
                     {isSearching ? (
-                      <p className="py-6 text-center text-sm text-zinc-500">Suche laeuft ...</p>
+                      <p className="py-6 text-center text-sm text-zinc-500">Suche läuft ...</p>
                     ) : results.length === 0 ? (
                       <p className="py-6 text-center text-sm text-zinc-500">
                         Keine Gemeinde gefunden.
@@ -234,7 +234,7 @@ export function TaxImpactCalculator() {
                 </SelectContent>
               </Select>
               <p className="text-xs leading-5 text-zinc-500">
-                Diese Kommune hat differenzierte Grundsteuer-B-Werte. Waehle die passende Objektart.
+                Diese Kommune hat differenzierte Grundsteuer-B-Werte. Wähle die passende Objektart.
               </p>
             </div>
           ) : null}
@@ -307,7 +307,7 @@ export function TaxImpactCalculator() {
             <p className="mt-2 text-sm leading-6 text-zinc-600">
               {calculation
                 ? `Die aktuelle Grundsteuer entspricht etwa ${calculation.rentShare.toFixed(2).replace('.', ',')} % der angegebenen Jahresnettomiete.`
-                : 'Waehle eine Gemeinde, um den Anteil an der Jahresnettomiete zu sehen.'}
+                : 'Wähle eine Gemeinde, um den Anteil an der Jahresnettomiete zu sehen.'}
             </p>
           </div>
 
@@ -329,7 +329,7 @@ export function TaxImpactCalculator() {
         <div className="rounded-lg border bg-white p-5">
           <h2 className="text-lg font-semibold">Hinweis</h2>
           <p className="mt-2 text-sm leading-6 text-zinc-600">
-            Der Rechner ist eine einfache Arbeitsrechnung fuer den MVP. Er ersetzt keine Steuerberatung und nutzt den ausgewaehlten Grundsteuer-B-Hebesatz sowie den angegebenen Messbetrag.
+            Der Rechner ist eine einfache Arbeitsrechnung für den MVP. Er ersetzt keine Steuerberatung und nutzt den ausgewählten Grundsteuer-B-Hebesatz sowie den angegebenen Messbetrag.
           </p>
         </div>
       </section>

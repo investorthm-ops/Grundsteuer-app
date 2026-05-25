@@ -47,6 +47,7 @@ All features tracked in `features/INDEX.md`. Every skill reads it at start and u
 - **Single Responsibility:** One feature per spec file
 - **shadcn/ui first:** NEVER create custom versions of installed shadcn components
 - **Human-in-the-loop:** All workflows have user approval checkpoints
+- **Deutsche UI-Texte:** Immer echte Umlaute und ß verwenden (`ä`, `ö`, `ü`, `Ä`, `Ö`, `Ü`, `ß`) statt Ersatzschreibweisen wie `ae`, `oe`, `ue` oder kaputter Zeichenkodierung.
 
 ## Build & Test Commands
 

@@ -281,7 +281,7 @@ export function CustomerManager() {
     setError(null)
     const response = await fetch(`/api/admin/organizations/${item.id}`, { method: 'DELETE' })
     if (!response.ok) {
-      setError(`Kunde "${item.name}" konnte nicht geloescht werden.`)
+      setError(`Kunde "${item.name}" konnte nicht gelöscht werden.`)
       return
     }
     if (organizationForm.id === item.id) {
@@ -294,7 +294,7 @@ export function CustomerManager() {
     const memberHint = memberCount
       ? ` und ${memberCount} Nutzerzuordnung${memberCount === 1 ? '' : 'en'}`
       : ''
-    setMessage(`Kunde "${item.name}"${memberHint} geloescht.`)
+    setMessage(`Kunde "${item.name}"${memberHint} gelöscht.`)
     await loadItems()
   }
 
@@ -605,14 +605,14 @@ export function CustomerManager() {
                           <Button
                             variant="destructive"
                             size="sm"
-                            aria-label={`Kunde ${item.name} loeschen`}
+                            aria-label={`Kunde ${item.name} löschen`}
                           >
                             <Trash2 className="h-4 w-4" aria-hidden="true" />
                           </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>Kunde wirklich loeschen?</AlertDialogTitle>
+                            <AlertDialogTitle>Kunde wirklich löschen?</AlertDialogTitle>
                             <AlertDialogDescription>
                               &quot;{item.name}&quot; wird dauerhaft entfernt.
                               {item.memberships.length > 0
@@ -627,7 +627,7 @@ export function CustomerManager() {
                               onClick={() => deleteOrganization(item)}
                               className="bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-600"
                             >
-                              Loeschen
+                              Löschen
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>

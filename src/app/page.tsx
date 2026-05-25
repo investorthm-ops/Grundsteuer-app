@@ -17,28 +17,28 @@ const benefitItems = [
   {
     icon: Search,
     title: 'Suchen',
-    text: 'Gemeinde eingeben und Hebesaetze mit Datenstand und Quelle pruefen.',
+    text: 'Gemeinde eingeben und Hebesätze mit Datenstand und Quelle prüfen.',
   },
   {
     icon: LineChart,
     title: 'Vergleichen',
-    text: 'Standorte, Vorjahreswerte und auffaellige Veraenderungen nebeneinander sehen.',
+    text: 'Standorte, Vorjahreswerte und auffällige Veränderungen nebeneinander sehen.',
   },
   {
     icon: Star,
     title: 'Merken',
-    text: 'Relevante Gemeinden auf die Watchlist setzen und spaeter schneller wiederfinden.',
+    text: 'Relevante Gemeinden auf die Watchlist setzen und später schneller wiederfinden.',
   },
   {
     icon: FileDown,
     title: 'Exportieren',
-    text: 'Gefilterte Daten als CSV fuer Beratung, Analyse oder Portfolio-Checks nutzen.',
+    text: 'Gefilterte Daten als CSV für Beratung, Analyse oder Portfolio-Checks nutzen.',
   },
 ]
 
 const previewRows = [
-  { city: 'Luedenscheid', state: 'Nordrhein-Westfalen', value: '766 %', status: 'bestaetigt' },
-  { city: 'Dortmund', state: 'Nordrhein-Westfalen', value: '610 %', status: 'bestaetigt' },
+  { city: 'Lüdenscheid', state: 'Nordrhein-Westfalen', value: '766 %', status: 'bestätigt' },
+  { city: 'Dortmund', state: 'Nordrhein-Westfalen', value: '610 %', status: 'bestätigt' },
   { city: 'Altena', state: 'Nordrhein-Westfalen', value: 'differenziert', status: 'PROJ-10' },
 ]
 
@@ -46,13 +46,13 @@ export default function Home() {
   return (
     <AppShell
       eyebrow="MVP live"
-      title="Grundsteuer-Hebesaetze zentral pruefen"
-      description="Der GrundsteuerMonitor buendelt kommunale Hebesaetze, Datenstaende und Quellen an einem Ort. So werden Suche, Vergleich, Watchlist und Export fuer Investoren, Steuerberater und Kommunen einfacher."
+      title="Grundsteuer-Hebesätze zentral prüfen"
+      description="Der GrundsteuerMonitor bündelt kommunale Hebesätze, Datenstände und Quellen an einem Ort. So werden Suche, Vergleich, Watchlist und Export für Investoren, Steuerberater und Kommunen einfacher."
       actions={
         <>
           <Button asChild>
             <Link href="/datenbank">
-              Datenbank oeffnen
+              Datenbank öffnen
               <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
             </Link>
           </Button>
@@ -67,10 +67,10 @@ export default function Home() {
           <div className="p-6 sm:p-8 lg:p-10">
             <Badge className="bg-white text-zinc-950 hover:bg-white">Willkommen</Badge>
             <h2 className="mt-6 max-w-3xl text-4xl font-semibold tracking-normal sm:text-5xl">
-              Hebesaetze finden, Quellen pruefen, Standorte besser einschaetzen.
+              Hebesätze finden, Quellen prüfen, Standorte besser einschätzen.
             </h2>
             <p className="mt-5 max-w-2xl text-base leading-7 text-zinc-300">
-              Starte ueber die Suche oben rechts oder oeffne direkt die Datenbank. Die Anwendung
+              Starte über die Suche oben rechts oder öffne direkt die Datenbank. Die Anwendung
               zeigt Werte, Datenstand und Quellenstatus transparent an.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
@@ -134,21 +134,21 @@ export default function Home() {
         <article className="rounded-lg border bg-white p-5">
           <div className="flex items-center gap-2">
             <Database className="h-5 w-5 text-zinc-700" aria-hidden="true" />
-            <h2 className="text-lg font-semibold">Fuer den MVP bewusst transparent</h2>
+            <h2 className="text-lg font-semibold">Für den MVP bewusst transparent</h2>
           </div>
           <p className="mt-3 text-sm leading-6 text-zinc-600">
             Jede Gemeinde zeigt Datenstand, Quellenstatus und Quelle, sofern vorhanden. Werte
-            dienen der Recherche und muessen bei verbindlichen Entscheidungen mit den amtlichen
-            Veroeffentlichungen abgeglichen werden.
+            dienen der Recherche und müssen bei verbindlichen Entscheidungen mit den amtlichen
+            Veröffentlichungen abgeglichen werden.
           </p>
         </article>
 
         <article className="rounded-lg border bg-white p-5">
           <Bell className="h-5 w-5 text-zinc-700" aria-hidden="true" />
-          <h2 className="mt-4 text-lg font-semibold">Naechster Nutzen</h2>
+          <h2 className="mt-4 text-lg font-semibold">Nächster Nutzen</h2>
           <p className="mt-2 text-sm leading-6 text-zinc-600">
-            Watchlist und Vergleich machen relevante Kommunen schneller sichtbar, besonders fuer
-            wiederkehrende Portfolio- und Mandantenpruefungen.
+            Watchlist und Vergleich machen relevante Kommunen schneller sichtbar, besonders für
+            wiederkehrende Portfolio- und Mandantenprüfungen.
           </p>
         </article>
       </section>

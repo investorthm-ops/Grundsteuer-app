@@ -40,7 +40,7 @@ export function Footer() {
                 <span className="block text-base font-semibold text-zinc-950">
                   GrundsteuerMonitor
                 </span>
-                <span className="block text-sm text-zinc-500">Hebesaetze im Blick</span>
+                <span className="block text-sm text-zinc-500">Hebesätze im Blick</span>
               </span>
             </Link>
             <p className="text-sm leading-6 text-zinc-500">
