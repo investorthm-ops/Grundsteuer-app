@@ -12,6 +12,7 @@ const INFO_LINKS = [
   { href: '/', label: 'Startseite' },
   { href: '/kontakt', label: 'Kontakt' },
   { href: '/login', label: 'Anmelden' },
+  { href: '/mein-zugang', label: 'Mein Zugang' },
   { href: '/passwort-vergessen', label: 'Passwort vergessen' },
 ]
 

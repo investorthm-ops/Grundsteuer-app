@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Building2, Calculator, Database, Scale, ShieldCheck, Star } from 'lucide-react'
+import { Building2, Calculator, Database, Scale, ShieldCheck, Star, UserCircle } from 'lucide-react'
 import { AuthButton } from '@/components/auth-button'
 import { Button } from '@/components/ui/button'
 import { SiteDisclaimer } from '@/components/site-disclaimer'
@@ -79,6 +79,14 @@ export async function AppShell({
 
           <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
             <GlobalSearch className="w-full sm:w-64 lg:w-72" />
+            {isAuthenticated ? (
+              <Button asChild variant="ghost" size="sm" className="text-zinc-700">
+                <Link href="/mein-zugang">
+                  <UserCircle className="mr-2 h-4 w-4" aria-hidden="true" />
+                  Konto
+                </Link>
+              </Button>
+            ) : null}
             <AuthButton isAuthenticated={isAuthenticated} />
           </div>
         </div>
