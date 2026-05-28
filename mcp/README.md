@@ -10,7 +10,7 @@ Hebesätze aus öffentlichen deutschen Statistikquellen direkt in Supabase.
 | Tool | Zweck | Auth nötig? |
 |------|-------|-------------|
 | `grundsteuer_check_sources` | Prüft Credentials + Erreichbarkeit der Quellen | Nein |
-| `grundsteuer_fetch_hebesaetze` | Ruft Hebesätze aus GENESIS-API (Destatis) ab | GENESIS-Login |
+| `grundsteuer_fetch_hebesaetze` | Ruft Hebesätze aus der Regionalstatistik-GENESIS-API ab | GENESIS-Login |
 | `grundsteuer_fetch_xlsx` | Lädt jährliches XLSX vom Statistikportal | Nein |
 | `grundsteuer_search_gemeinde` | Sucht AGS zu einer Gemeinde | GENESIS-Login |
 | `grundsteuer_import_to_supabase` | Schreibt Daten in Supabase | Supabase-Key |
@@ -31,12 +31,12 @@ Python 3.11 oder neuer empfohlen.
 
 | Variable | Pflicht | Beschreibung |
 |----------|---------|--------------|
-| `GENESIS_USERNAME` | Für GENESIS-Tools | Nutzername bei [GENESIS-Online](https://www-genesis.destatis.de) |
-| `GENESIS_PASSWORD` | Für GENESIS-Tools | Passwort bei GENESIS-Online |
+| `GENESIS_USERNAME` | Für GENESIS-Tools | Nutzername bei [Regionalstatistik](https://www.regionalstatistik.de) |
+| `GENESIS_PASSWORD` | Für GENESIS-Tools | Passwort bei Regionalstatistik |
 | `SUPABASE_URL` | Für Supabase-Import | Projekt-URL (z. B. `https://xxx.supabase.co`) |
 | `SUPABASE_SERVICE_KEY` | Für Supabase-Import | Service-Role-Key (nicht Anon-Key!) |
 
-**GENESIS-Registrierung:** kostenlos unter https://www-genesis.destatis.de  
+**GENESIS-Registrierung:** kostenlos unter https://www.regionalstatistik.de
 Hinweis: Seit Mai 2025 ist eine Registrierung für den Webservice verpflichtend.
 
 ---
@@ -120,7 +120,7 @@ grundsteuer_fetch_xlsx
 
 ## Datenquellen
 
-- **Destatis GENESIS-Online** - Tabelle `71002-02-01-4` (Realsteuerhebesätze der Gemeinden)  
+- **Regionalstatistik GENESIS-Online** - Tabelle `71231-01-03-5` (Realsteuervergleich, regionale Tiefe Gemeinden)
   Lizenz: Datenlizenz Deutschland - Namensnennung - Version 2.0
 - **Statistikportal.de** - Jährliche XLSX-Veröffentlichung der Hebesätze  
   Herausgeber: Statistische Ämter des Bundes und der Länder

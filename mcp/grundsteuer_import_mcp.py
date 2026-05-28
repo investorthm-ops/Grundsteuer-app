@@ -27,6 +27,7 @@ import io
 import json
 import logging
 import os
+import zipfile
 from enum import Enum
 from typing import Any, Optional
 
@@ -48,10 +49,15 @@ logger = logging.getLogger("grundsteuer_import_mcp")
 # Konstanten
 # ---------------------------------------------------------------------------
 GENESIS_BASE = "https://www-genesis.destatis.de/api/rest/2020"
-REGIONAL_BASE = "https://www.regionalstatistik.de/genesis/api/rest/2020"
+REGIONAL_BASE = "https://www.regionalstatistik.de/genesisws/rest/2020"
 
-# Tabelle 71002 = Realsteuerhebesätze der Gemeinden
-HEBESAETZE_TABLE = "71002-02-01-4"
+# Aktive API: Hebesätze liegen auf regionalstatistik.de (kommunale Ebene).
+# Account ist getrennt vom Destatis-GENESIS — der Nutzer registriert sich auf
+# regionalstatistik.de, daher zeigen alle Aufrufe standardmäßig dorthin.
+API_BASE = REGIONAL_BASE
+
+# Tabelle 71231-01-03-5 = Realsteuervergleich, regionale Tiefe Gemeinden
+HEBESAETZE_TABLE = "71231-01-03-5"
 
 # Direktdownload XLSX vom Statistikportal (jährliche Veröffentlichung)
 STATISTIKPORTAL_XLSX = (
@@ -140,6 +146,14 @@ def _genesis_auth_params() -> dict[str, str]:
     }
 
 
+def _genesis_auth_headers() -> dict[str, str]:
+    """Regionalstatistik erwartet die Zugangsdaten als HTTP-Header."""
+    return {
+        "username": GENESIS_USERNAME,
+        "password": GENESIS_PASSWORD,
+    }
+
+
 def _handle_http_error(e: Exception) -> str:
     """Einheitliche, sprechende Fehlermeldungen."""
     if isinstance(e, httpx.HTTPStatusError):
@@ -148,7 +162,7 @@ def _handle_http_error(e: Exception) -> str:
             return (
                 "Fehler: Authentifizierung fehlgeschlagen. "
                 "Bitte GENESIS_USERNAME und GENESIS_PASSWORD als Umgebungsvariablen setzen. "
-                "Kostenlose Registrierung: https://www-genesis.destatis.de"
+                "Kostenlose Registrierung: https://www.regionalstatistik.de"
             )
         if sc == 403:
             return "Fehler: Zugriff verweigert. Prüfe deine GENESIS-Zugangsdaten."
@@ -163,11 +177,37 @@ def _handle_http_error(e: Exception) -> str:
 
 
 async def _get(url: str, params: dict | None = None, timeout: float = 30.0) -> dict:
-    """Einfacher async GET mit JSON-Antwort."""
-    async with httpx.AsyncClient() as client:
+    """Einfacher async GET mit JSON-Antwort (folgt Redirects)."""
+    async with httpx.AsyncClient(follow_redirects=True) as client:
         resp = await client.get(url, params=params, timeout=timeout)
         resp.raise_for_status()
         return resp.json()
+
+
+async def _post_json(url: str, data: dict | None = None, timeout: float = 30.0) -> dict:
+    """POST mit Header-Login fuer Regionalstatistik-JSON-Endpunkte."""
+    async with httpx.AsyncClient(follow_redirects=True) as client:
+        resp = await client.post(
+            url,
+            headers=_genesis_auth_headers(),
+            data=data or {},
+            timeout=timeout,
+        )
+        resp.raise_for_status()
+        return resp.json()
+
+
+async def _post_bytes(url: str, data: dict | None = None, timeout: float = 60.0) -> tuple[bytes, str]:
+    """POST mit Header-Login fuer Regionalstatistik-Dateiantworten."""
+    async with httpx.AsyncClient(follow_redirects=True) as client:
+        resp = await client.post(
+            url,
+            headers=_genesis_auth_headers(),
+            data=data or {},
+            timeout=timeout,
+        )
+        resp.raise_for_status()
+        return resp.content, resp.headers.get("content-type", "")
 
 
 async def _get_bytes(url: str, timeout: float = 60.0) -> bytes:
@@ -228,12 +268,12 @@ async def grundsteuer_check_sources(params: CheckSourcesInput) -> str:
     # Erreichbarkeit GENESIS (öffentlicher Whoami-Endpunkt)
     try:
         data = await _get(
-            f"{GENESIS_BASE}/helloworld/whoami",
+            f"{API_BASE}/helloworld/whoami",
             params={"language": "de"},
             timeout=10.0,
         )
         results["genesis_api_reachable"] = True
-        results["genesis_whoami"] = data.get("Status", {}).get("Content", "OK")
+        results["genesis_whoami"] = data.get("Status", {}).get("Content") or data.get("User-Agent", "OK")
     except Exception as e:
         results["genesis_api_reachable"] = False
         results["genesis_error"] = str(e)[:200]
@@ -260,7 +300,7 @@ async def grundsteuer_check_sources(params: CheckSourcesInput) -> str:
     lines.append("## Credentials")
     lines.append(
         f"- {status_icon(results['genesis_username_set'])} "
-        f"GENESIS_USERNAME: {'gesetzt' if results['genesis_username_set'] else 'FEHLT - kostenlos registrieren auf www-genesis.destatis.de'}"
+        f"GENESIS_USERNAME: {'gesetzt' if results['genesis_username_set'] else 'FEHLT - kostenlos registrieren auf www.regionalstatistik.de'}"
     )
     lines.append(
         f"- {status_icon(results['genesis_password_set'])} "
@@ -278,7 +318,7 @@ async def grundsteuer_check_sources(params: CheckSourcesInput) -> str:
     lines.append("## Externe Endpunkte")
     lines.append(
         f"- {status_icon(results.get('genesis_api_reachable', False))} "
-        f"Destatis GENESIS-API: {results.get('genesis_whoami', results.get('genesis_error', '-'))}"
+        f"Regionalstatistik GENESIS-API: {results.get('genesis_whoami', results.get('genesis_error', '-'))}"
     )
     lines.append(
         f"- {status_icon(results.get('statistikportal_xlsx_reachable', False))} "
@@ -287,8 +327,8 @@ async def grundsteuer_check_sources(params: CheckSourcesInput) -> str:
     lines.append("")
     if not results["genesis_username_set"]:
         lines.append(
-            "> **Nächster Schritt:** Kostenlose GENESIS-Registrierung unter "
-            "https://www-genesis.destatis.de, dann `GENESIS_USERNAME` und "
+            "> **Nächster Schritt:** Kostenlose Registrierung unter "
+            "https://www.regionalstatistik.de, dann `GENESIS_USERNAME` und "
             "`GENESIS_PASSWORD` als Umgebungsvariablen setzen."
         )
     else:
@@ -361,10 +401,10 @@ class FetchHebesaetzeInput(BaseModel):
 )
 async def grundsteuer_fetch_hebesaetze(params: FetchHebesaetzeInput) -> str:
     """Ruft kommunale Hebesätze (Grundsteuer A, B + Gewerbesteuer) aus der
-    Destatis GENESIS-Online REST-API ab (Tabelle 71002).
+    Regionalstatistik-GENESIS-REST-API ab (Tabelle 71231-01-03-5).
 
     Erfordert GENESIS_USERNAME und GENESIS_PASSWORD als Umgebungsvariablen.
-    Kostenlose Registrierung: https://www-genesis.destatis.de
+    Kostenlose Registrierung: https://www.regionalstatistik.de
 
     Args:
         params (FetchHebesaetzeInput):
@@ -409,34 +449,34 @@ async def grundsteuer_fetch_hebesaetze(params: FetchHebesaetzeInput) -> str:
             "Fehler: GENESIS_USERNAME und GENESIS_PASSWORD sind nicht gesetzt.\n"
             "Bitte zuerst `grundsteuer_check_sources` ausführen und die Zugangsdaten "
             "als Umgebungsvariablen eintragen.\n"
-            "Kostenlose Registrierung: https://www-genesis.destatis.de"
+            "Kostenlose Registrierung: https://www.regionalstatistik.de"
         )
 
     try:
-        # GENESIS-API: Tabellendaten abrufen
+        # Regionalstatistik-API: Tabellendaten abrufen
         api_params = {
-            **_genesis_auth_params(),
             "name": HEBESAETZE_TABLE,
             "area": "all",
             "compress": "false",
             "transpose": "false",
             "startyear": str(params.jahr),
             "endyear": str(params.jahr),
-            "classifyingvariable1": "GEMEIN",
-            "classifyingkey1": (
+            "regionalvariable": "GEMEIN",
+            "regionalkey": (
                 BUNDESLAND_KEY[params.bundesland] + "*"
                 if params.bundesland
-                else "DG"
+                else "*"
             ),
+            "language": "de",
         }
 
-        data = await _get(
-            f"{GENESIS_BASE}/data/tablefile",
-            params=api_params,
-            timeout=60.0,
+        content, content_type = await _post_bytes(
+            f"{API_BASE}/data/tablefile",
+            data=api_params,
+            timeout=120.0,
         )
 
-        raw_content = data.get("Object", {}).get("Content", "")
+        raw_content = _extract_tablefile_content(content, content_type)
         gemeinden = _parse_genesis_csv(raw_content, params.jahr)
 
         # Paginierung
@@ -465,26 +505,52 @@ async def grundsteuer_fetch_hebesaetze(params: FetchHebesaetzeInput) -> str:
         return _handle_http_error(e)
 
 
+def _extract_tablefile_content(content: bytes, content_type: str) -> str:
+    """Entpackt Regionalstatistik-Tablefile-Antworten als CSV-Text."""
+    if "application/zip" in content_type:
+        with zipfile.ZipFile(io.BytesIO(content)) as archive:
+            csv_names = [name for name in archive.namelist() if name.lower().endswith(".csv")]
+            if not csv_names:
+                return ""
+            raw = archive.read(csv_names[0])
+            return _decode_csv_bytes(raw)
+
+    text = _decode_csv_bytes(content)
+    try:
+        data = json.loads(text)
+    except json.JSONDecodeError:
+        return text
+
+    obj = data.get("Object")
+    if isinstance(obj, dict):
+        return obj.get("Content", "")
+    return ""
+
+
+def _decode_csv_bytes(raw: bytes) -> str:
+    """Dekodiert GENESIS-CSV-Dateien robust."""
+    for encoding in ("utf-8-sig", "utf-8", "cp1252", "latin-1"):
+        try:
+            return raw.decode(encoding)
+        except UnicodeDecodeError:
+            continue
+    return raw.decode("latin-1", errors="replace")
+
+
 def _parse_genesis_csv(content: str, jahr: int) -> list[dict]:
-    """Parst das GENESIS Flat-File-CSV in eine Liste von Gemeinde-Dicts."""
+    """Parst das Regionalstatistik-CSV in eine Liste von Gemeinde-Dicts."""
     gemeinden: list[dict] = []
     if not content:
         return gemeinden
 
-    lines = content.splitlines()
-    # GENESIS-CSVs haben Metadaten-Header - Daten beginnen nach der Leerzeile
-    data_start = 0
-    for i, line in enumerate(lines):
-        if line.startswith('"DG"') or line.startswith("DG"):
-            data_start = i
-            break
-
-    for line in lines[data_start:]:
+    for line in content.splitlines():
         parts = [p.strip('"') for p in line.split(";")]
-        if len(parts) < 6:
+        if len(parts) < 12:
             continue
-        ags = parts[0].strip()
-        if not ags or not ags.replace(" ", "").isdigit():
+        if parts[0].strip() != str(jahr):
+            continue
+        ags = parts[1].strip()
+        if not ags or not ags.isdigit() or len(ags) != 8:
             continue
 
         def _int_or_none(val: str) -> Optional[int]:
@@ -497,15 +563,22 @@ def _parse_genesis_csv(content: str, jahr: int) -> list[dict]:
         gemeinden.append(
             {
                 "ags": ags,
-                "name": parts[1].strip() if len(parts) > 1 else "",
-                "bundesland": parts[2].strip() if len(parts) > 2 else "",
-                "grundsteuer_a": _int_or_none(parts[3]) if len(parts) > 3 else None,
-                "grundsteuer_b": _int_or_none(parts[4]) if len(parts) > 4 else None,
-                "gewerbesteuer": _int_or_none(parts[5]) if len(parts) > 5 else None,
+                "name": parts[2].strip(),
+                "bundesland": _bundesland_from_ags(ags),
+                "grundsteuer_a": _int_or_none(parts[9]),
+                "grundsteuer_b": _int_or_none(parts[10]),
+                "gewerbesteuer": _int_or_none(parts[11]),
                 "jahr": jahr,
             }
         )
     return gemeinden
+
+
+def _bundesland_from_ags(ags: str) -> str:
+    for bundesland, prefix in BUNDESLAND_KEY.items():
+        if ags.startswith(prefix):
+            return bundesland
+    return ""
 
 
 def _format_hebesaetze_markdown(result: dict) -> str:
@@ -802,7 +875,7 @@ async def grundsteuer_import_to_supabase(params: ImportToSupabaseInput) -> str:
                 "grundsteuer_b": g["grundsteuer_b"],
                 "gewerbesteuer": g.get("gewerbesteuer"),
                 "jahr": g.get("jahr", 2024),
-                "quelle": g.get("quelle", "Destatis GENESIS"),
+                "quelle": g.get("quelle", "Regionalstatistik GENESIS"),
                 "datenstand": g.get("datenstand", "geprüft"),
             }
         )
@@ -928,7 +1001,7 @@ async def grundsteuer_search_gemeinde(params: SearchGemeindeInput) -> str:
 
     try:
         data = await _get(
-            f"{GENESIS_BASE}/catalogue/variables",
+            f"{API_BASE}/catalogue/variables",
             params={
                 **_genesis_auth_params(),
                 "filter": params.query,
