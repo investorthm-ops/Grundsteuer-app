@@ -12,6 +12,23 @@ Erledigt im Repo:
 - Der Service-Role-Key wird serverseitig für Einladungen und Audit-Log-Schreibvorgänge genutzt.
 - Security Headers sind in `next.config.ts` hinterlegt.
 - Build und Lint können lokal gegen die vorhandenen Variablen laufen.
+- Der Projektstandard für Konnektoren und MCP-Workflows ist in `docs/project-connectors.md` dokumentiert.
+
+## Projekt-Konnektoren
+
+Für Entwicklung und Pilotbetrieb werden diese Konnektoren bevorzugt:
+
+- GitHub für Repository, Pull Requests, Reviews und CI-Kontext.
+- Vercel für Deployments, Domains und Produktionskontext.
+- Supabase für Datenbank-, Auth- und RLS-Fragen.
+- Browser/Playwright für echte UI-Prüfungen auf Desktop und Mobil.
+- Google Drive/Sheets für Pilotkundenlisten, Datenquellen und Prüfchecklisten.
+
+Später ergänzen:
+
+- Sentry für produktives Error Tracking.
+- PostHog oder Vercel Analytics für Nutzungsanalyse.
+- Resend, Postmark oder Brevo für verlässlichen SMTP-Mailversand.
 
 ## Eigene Domain
 
@@ -67,7 +84,7 @@ In Supabase prüfen:
 - Tabelle `admin_audit_log` existiert.
 - RLS ist auf `admin_audit_log` aktiv.
 - Normale Nutzer können `admin_audit_log` nicht schreiben.
-- Mitglieder koennen ihre eigene Organisation lesen.
+- Mitglieder können ihre eigene Organisation lesen.
 
 Ein schneller SQL-Check im Supabase SQL Editor:
 
