@@ -27,6 +27,7 @@ import io
 import json
 import logging
 import os
+import re
 import zipfile
 from enum import Enum
 from typing import Any, Optional
@@ -537,6 +538,22 @@ def _decode_csv_bytes(raw: bytes) -> str:
     return raw.decode("latin-1", errors="replace")
 
 
+_GEMEINDE_SUFFIX_RE = re.compile(
+    r",\s*(?:kreisfreie\s+Stadt|Stadt|Gemeinde|Markt|Flecken)\s*$",
+    re.IGNORECASE,
+)
+
+
+def _normalize_gemeindename(name: str) -> str:
+    """Entfernt amtliche Zusaetze (', Stadt', ', Gemeinde', ', Markt' etc.) aus den
+    GENESIS-Namen. Ohne diese Normalisierung greift der Upsert ueber (bundesland, name)
+    nicht auf bestehende, kanonisch benannte Zeilen und es entstehen Duplikate
+    (z. B. 'Luedenscheid' vs. 'Luedenscheid, Stadt')."""
+    if not name:
+        return name
+    return _GEMEINDE_SUFFIX_RE.sub("", name).strip()
+
+
 def _parse_genesis_csv(content: str, jahr: int) -> list[dict]:
     """Parst das Regionalstatistik-CSV in eine Liste von Gemeinde-Dicts."""
     gemeinden: list[dict] = []
@@ -563,7 +580,7 @@ def _parse_genesis_csv(content: str, jahr: int) -> list[dict]:
         gemeinden.append(
             {
                 "ags": ags,
-                "name": parts[2].strip(),
+                "name": _normalize_gemeindename(parts[2].strip()),
                 "bundesland": _bundesland_from_ags(ags),
                 "grundsteuer_a": _int_or_none(parts[9]),
                 "grundsteuer_b": _int_or_none(parts[10]),
@@ -869,7 +886,7 @@ async def grundsteuer_import_to_supabase(params: ImportToSupabaseInput) -> str:
         rows.append(
             {
                 "ags": g["ags"],
-                "name": g["name"],
+                "name": _normalize_gemeindename(g["name"]),
                 "bundesland": g.get("bundesland", ""),
                 "grundsteuer_a": g.get("grundsteuer_a"),
                 "grundsteuer_b": g["grundsteuer_b"],
