@@ -448,3 +448,10 @@ Erste echte Importdatei fuer die Pipeline vorbereitet:
 **Import durchgefuehrt (2026-05-21):** Die 818 Gemeinden wurden in die Produktivdatenbank importiert. Vorgehen: Demo-/Testdaten entfernt, ein `import_runs`-Audit-Eintrag angelegt (Quelle, Datenstand, Zeilenzahlen, Status `approved`), alle Municipalities damit verknuepft (`source_import_run_id`), `quellenstatus = bestaetigt`. Verifiziert: 818 Datensaetze (NRW 396, Hessen 422), 0 ungueltige Hebesaetze.
 
 Beim Import gefundener Bugfix am Konverter: amtliche Fussnoten-Marker wurden faelschlich in Gemeindenamen uebernommen (z. B. `Wesertal1)`); `cleanName()` entfernt diese nun.
+
+## Bugfix: GENESIS-Namenssuffixe / Dubletten (2026-05-29)
+
+Der GENESIS-2024-Import (Migrationen 0011-0012, NRW) legte Dubletten an: Die amtlichen GENESIS-Namen tragen Zusaetze (", Stadt" / ", kreisfreie Stadt"), wodurch der Upsert ueber `(bundesland, name)` nicht auf die bestehenden kanonischen Zeilen traf (z. B. `Luedenscheid` vs. `Luedenscheid, Stadt`). Folge: SEO-/Datenbankseiten zeigten weiter den alten 2022-Stand. Das Hessen-Skript (0013) hatte bereits normalisiert, NRW nicht.
+
+- **Ursache behoben:** `mcp/grundsteuer_import_mcp.py` entfernt die Suffixe jetzt zentral (`_normalize_gemeindename`) — sowohl beim CSV-Parsen als auch beim Supabase-Import. Verhindert kuenftige Dubletten (Bayern, BaWue, ...).
+- **Daten bereinigt:** Migration `0014_dedupe_genesis_namenssuffix.sql` fuehrt 248 bestehende 2024-Dubletten in die kanonischen Zeilen zusammen (alter `hebesatz_b` wird `vorjahr_b`), loescht 249 Suffix-Dubletten und bewahrt neuere, manuell gepflegte Zeilen (Altena 2025 mit Wohnen/Nichtwohnen). Ergebnis: 1068 -> 819 Gemeinden, 0 Dubletten.
