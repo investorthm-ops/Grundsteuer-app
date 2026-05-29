@@ -1,14 +1,59 @@
 import { AppShell } from '@/components/app-shell'
 import { MunicipalityBrowser } from '@/components/municipalities/municipality-browser'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { createSupabaseServerClient } from '@/lib/supabase/server'
 
 type DatenbankPageProps = {
   searchParams: Promise<{ q?: string }>
 }
 
+export const dynamic = 'force-dynamic'
+
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat('de-DE').format(new Date(value))
+}
+
+async function getDataStand() {
+  const supabase = await createSupabaseServerClient()
+  const { data, error } = await supabase
+    .from('municipalities')
+    .select('datenstand, bundesland')
+    .not('datenstand', 'is', null)
+    .limit(20000)
+
+  if (error || !data || data.length === 0) {
+    return null
+  }
+
+  const stands = data.map((row) => row.datenstand as string).sort()
+  const bundeslaender = Array.from(
+    new Set(data.map((row) => row.bundesland as string).filter(Boolean))
+  ).sort((a, b) => a.localeCompare(b, 'de'))
+
+  return {
+    min: stands[0],
+    max: stands[stands.length - 1],
+    bundeslaender,
+  }
+}
+
+function formatBundeslaender(list: string[]) {
+  if (list.length === 0) return 'mehreren Bundesländern'
+  if (list.length === 1) return list[0]
+  return `${list.slice(0, -1).join(', ')} und ${list[list.length - 1]}`
+}
+
 export default async function DatenbankPage({ searchParams }: DatenbankPageProps) {
   const { q } = await searchParams
   const initialQuery = typeof q === 'string' ? q : ''
+  const stand = await getDataStand()
+
+  const sameStand = stand && stand.min === stand.max
+  const standTitle = stand
+    ? sameStand
+      ? `Datenstand ${formatDate(stand.max)}`
+      : `Datenstand ${formatDate(stand.min)} bis ${formatDate(stand.max)}`
+    : 'Datenstand'
 
   return (
     <AppShell
@@ -17,11 +62,18 @@ export default async function DatenbankPage({ searchParams }: DatenbankPageProps
       description="Suche und filtere Gemeinden nach Bundesland, vergleiche aktuelle Hebesätze mit dem Vorjahr und prüfe Datenstand sowie Quellenstatus."
     >
       <Alert className="mb-4 bg-white">
-        <AlertTitle>Datenstand 2022</AlertTitle>
+        <AlertTitle>{standTitle}</AlertTitle>
         <AlertDescription>
-          Hebesätze für Nordrhein-Westfalen und Hessen aus der amtlichen Statistik der Statistischen
-          Ämter des Bundes und der Länder (Berichtsjahr 2022). Die zum 1.1.2025 reformierten
-          Grundsteuer-Hebesätze sind noch nicht enthalten.
+          {stand ? (
+            <>
+              Hebesätze für {formatBundeslaender(stand.bundeslaender)}.{' '}
+              {sameStand
+                ? 'Der angezeigte Datenstand gilt für alle Gemeinden.'
+                : 'Die Datenstände unterscheiden sich je Gemeinde – der jeweils gültige Stand steht in der Detailansicht und in der Tabelle.'}
+            </>
+          ) : (
+            'Hebesätze mit Datenstand und Quellenstatus je Gemeinde.'
+          )}
         </AlertDescription>
       </Alert>
       <MunicipalityBrowser initialQuery={initialQuery} />
