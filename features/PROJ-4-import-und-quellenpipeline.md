@@ -455,3 +455,20 @@ Der GENESIS-2024-Import (Migrationen 0011-0012, NRW) legte Dubletten an: Die amt
 
 - **Ursache behoben:** `mcp/grundsteuer_import_mcp.py` entfernt die Suffixe jetzt zentral (`_normalize_gemeindename`) — sowohl beim CSV-Parsen als auch beim Supabase-Import. Verhindert kuenftige Dubletten (Bayern, BaWue, ...).
 - **Daten bereinigt:** Migration `0014_dedupe_genesis_namenssuffix.sql` fuehrt 248 bestehende 2024-Dubletten in die kanonischen Zeilen zusammen (alter `hebesatz_b` wird `vorjahr_b`), loescht 249 Suffix-Dubletten und bewahrt neuere, manuell gepflegte Zeilen (Altena 2025 mit Wohnen/Nichtwohnen). Ergebnis: 1068 -> 819 Gemeinden, 0 Dubletten.
+
+## Offener Folge-Task: NRW-Großstädte fehlen im 2024-Stand
+
+**Erkannt:** 2026-05-29 (bei der Verifikation von PR #24)
+
+Nach dem NRW-2024-Import (PR #24, live) stehen **24 NRW-Gemeinden weiterhin auf Datenstand 2022-01-01** statt 2024. Es handelt sich fast ausschließlich um die **22 kreisfreien Städte** plus Heinsberg (Altena steht abweichend bereits auf 2025-01-01 und ist ok):
+
+Bielefeld, Bochum, Bonn, Bottrop, Dortmund, Duisburg, Düsseldorf, Essen, Gelsenkirchen, Hagen, Hamm, Heinsberg, Herne, Köln, Krefeld, Leverkusen, Mönchengladbach, Mülheim an der Ruhr, Münster, Oberhausen, Remscheid, Solingen, Wuppertal.
+
+**Vermutete Ursache:** Der NRW-GENESIS-Auszug (Migrationen 0011/0012) enthielt die kreisfreien Städte nicht — anders als bei den kreisangehörigen Gemeinden gab es keine Suffix-Dublette (z. B. "Köln, kreisfreie Stadt"), die die Dedupe-Migration 0014 in die kanonische Zeile hätte mergen können. Die Stadt-Zeilen wurden im GENESIS-Fetch also gar nicht erst geliefert/extrahiert (vermutlich auf kreisangehörige Gemeinden gefiltert oder Stadt-Ebene übersprungen).
+
+**Geplantes Vorgehen:**
+1. GENESIS-Tabelle 71231-01-03-5 (Berichtsjahr 2024) erneut abrufen und prüfen, ob die kreisfreien Städte enthalten sind bzw. unter welchem Namensformat.
+2. Falls enthalten: Extraktion im `grundsteuer-import`-MCP / Fetch-Schritt korrigieren, sodass Stadt-Ebene mitgenommen wird.
+3. Neue Migration `00XX_nrw_kreisfreie_staedte_2024_genesis.sql` mit Upsert über `(bundesland, name)`; alter `hebesatz_b` wird als `vorjahr_b` gesichert.
+4. Verifikation: Köln, Düsseldorf & Co. zeigen 2024er-Werte, weiterhin 0 Dubletten, NRW-Gesamtzahl unverändert (397 Gemeinden).
+5. Falls GENESIS die Städte gar nicht führt: alternative Quelle (Statistik NRW / IT.NRW Realsteuervergleich 2024) prüfen.
