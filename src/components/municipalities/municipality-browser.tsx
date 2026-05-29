@@ -87,6 +87,12 @@ export function MunicipalityBrowser({ initialQuery = '' }: MunicipalityBrowserPr
   const pageSize = 50
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
 
+  useEffect(() => {
+    setQuery(initialQuery)
+    setSubmittedQuery(initialQuery)
+    setPage(1)
+  }, [initialQuery])
+
   const requestUrl = useMemo(() => {
     const params = new URLSearchParams({
       page: String(page),
