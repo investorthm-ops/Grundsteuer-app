@@ -48,3 +48,7 @@ supabaseuser.txt
 .vercel
 .claude/settings.local.json
 .claude/worktrees/
+
+# Python (MCP-Connector)
+__pycache__/
+*.pyc
