@@ -867,13 +867,14 @@ class ImportToSupabaseInput(BaseModel):
             "JSON-String mit einer Liste von Gemeinde-Objekten "
             "(Ausgabe von grundsteuer_fetch_hebesaetze mit response_format='json', "
             "Feld 'gemeinden'). "
-            "Jedes Objekt braucht mindestens: ags, name, grundsteuer_b, jahr."
+            "Jedes Objekt braucht mindestens: name, bundesland, grundsteuer_b. "
+            "Optional: grundsteuer_a, gewerbesteuer, jahr, quelle, quelle_url, datenstand."
         ),
     )
     upsert: bool = Field(
         default=True,
         description=(
-            "True (Standard): Vorhandene Einträge (AGS+Jahr) werden aktualisiert. "
+            "True (Standard): Vorhandene Einträge (bundesland+name) werden aktualisiert. "
             "False: Nur neue Einträge werden eingefügt."
         ),
     )
@@ -909,7 +910,7 @@ class ImportToSupabaseInput(BaseModel):
 )
 async def grundsteuer_import_to_supabase(params: ImportToSupabaseInput) -> str:
     """Schreibt eine Liste von Gemeinde-Hebesätzen direkt in die Supabase-Datenbank
-    des GrundsteuerMonitors (Tabelle: hebesaetze).
+    des GrundsteuerMonitors (Tabelle: municipalities).
 
     Erfordert SUPABASE_URL und SUPABASE_SERVICE_KEY als Umgebungsvariablen.
 
@@ -941,24 +942,33 @@ async def grundsteuer_import_to_supabase(params: ImportToSupabaseInput) -> str:
 
     gemeinden: list[dict] = json.loads(params.gemeinden_json)
 
-    # Felder auf Supabase-Schema mappen
+    # Felder auf das echte municipalities-Schema mappen.
+    # Pflichtfelder dort: name + bundesland (Unique-Schlüssel) und grundsteuer_b.
     rows = []
     errors = []
     for i, g in enumerate(gemeinden):
-        if not g.get("ags") or not g.get("name") or g.get("grundsteuer_b") is None:
-            errors.append(f"Zeile {i}: ags, name oder grundsteuer_b fehlt - übersprungen")
+        if not g.get("name") or not g.get("bundesland") or g.get("grundsteuer_b") is None:
+            errors.append(f"Zeile {i}: name, bundesland oder grundsteuer_b fehlt - übersprungen")
             continue
+
+        # datenstand ist in der DB vom Typ date -> echtes ISO-Datum erzeugen.
+        # Vorrang: explizit mitgegebener ISO-Datenstand, sonst 31.12. des Berichtsjahrs.
+        jahr = g.get("jahr", 2024)
+        datenstand = g.get("datenstand")
+        if not datenstand or not re.match(r"^\d{4}-\d{2}-\d{2}$", str(datenstand)):
+            datenstand = f"{jahr}-12-31"
+
         rows.append(
             {
-                "ags": g["ags"],
                 "name": _normalize_gemeindename(g["name"]),
-                "bundesland": g.get("bundesland", ""),
-                "grundsteuer_a": g.get("grundsteuer_a"),
-                "grundsteuer_b": g["grundsteuer_b"],
-                "gewerbesteuer": g.get("gewerbesteuer"),
-                "jahr": g.get("jahr", 2024),
-                "quelle": g.get("quelle", "Regionalstatistik GENESIS"),
-                "datenstand": g.get("datenstand", "geprüft"),
+                "bundesland": g["bundesland"],
+                "hebesatz_a": g.get("grundsteuer_a"),
+                "hebesatz_b": g["grundsteuer_b"],
+                "hebesatz_gewerbe": g.get("gewerbesteuer"),
+                "datenstand": datenstand,
+                "quellenstatus": "bestaetigt",
+                "quellenname": g.get("quelle", "Regionalstatistik GENESIS, Tabelle 71231-01-03-5"),
+                "quellen_url": g.get("quelle_url", "https://www.regionalstatistik.de"),
             }
         )
 
@@ -971,35 +981,65 @@ async def grundsteuer_import_to_supabase(params: ImportToSupabaseInput) -> str:
             + "\n\nKein Schreiben in Supabase (dry_run=True)."
         )
 
-    # Supabase REST-API: Batch-Upsert
-    url = f"{SUPABASE_URL.rstrip('/')}/rest/v1/hebesaetze"
-    headers = {
+    # Ziel: echte Tabelle municipalities, Konflikt-Schlüssel (bundesland, name).
+    base_url = f"{SUPABASE_URL.rstrip('/')}/rest/v1/municipalities"
+    auth_headers = {
         "apikey": SUPABASE_SERVICE_KEY,
         "Authorization": f"Bearer {SUPABASE_SERVICE_KEY}",
         "Content-Type": "application/json",
-        "Prefer": "resolution=merge-duplicates" if params.upsert else "resolution=ignore-duplicates",
     }
 
-    # In Batches zu 500 schreiben
-    BATCH_SIZE = 500
     created = 0
-    updated = 0
+    skipped_newer = 0
     batch_errors = []
 
     try:
         async with httpx.AsyncClient() as client:
-            for start in range(0, len(rows), BATCH_SIZE):
-                batch = rows[start : start + BATCH_SIZE]
+            # Schutz vor Datenverlust: manuell gepflegte, NEUERE Datenstände
+            # (z. B. 2025er-Satzungswerte) dürfen nicht von älteren Massendaten
+            # überschrieben werden. Dazu vorhandene Datenstände je Bundesland laden.
+            existing: dict[tuple[str, str], str] = {}
+            for bl in sorted({r["bundesland"] for r in rows}):
+                ex_resp = await client.get(
+                    base_url,
+                    headers=auth_headers,
+                    params={"select": "name,datenstand", "bundesland": f"eq.{bl}"},
+                    timeout=30.0,
+                )
+                if ex_resp.status_code == 200:
+                    for row in ex_resp.json():
+                        existing[(bl, row["name"])] = row.get("datenstand") or ""
+
+            to_write = []
+            for r in rows:
+                vorhanden = existing.get((r["bundesland"], r["name"]))
+                # ISO-Datumsstrings (YYYY-MM-DD) sind lexikografisch vergleichbar.
+                if vorhanden and vorhanden > r["datenstand"]:
+                    skipped_newer += 1
+                    continue
+                to_write.append(r)
+
+            # In Batches zu 500 upserten (merge-duplicates auf bundesland,name).
+            BATCH_SIZE = 500
+            prefer = (
+                "resolution=merge-duplicates"
+                if params.upsert
+                else "resolution=ignore-duplicates"
+            )
+            write_headers = {**auth_headers, "Prefer": prefer + ",return=minimal"}
+            for start in range(0, len(to_write), BATCH_SIZE):
+                batch = to_write[start : start + BATCH_SIZE]
                 resp = await client.post(
-                    url,
-                    headers={**headers, "Prefer": headers["Prefer"] + ",return=representation"},
+                    base_url,
+                    headers=write_headers,
+                    params={"on_conflict": "bundesland,name"},
                     json=batch,
                     timeout=30.0,
                 )
-                if resp.status_code in (200, 201):
+                if resp.status_code in (200, 201, 204):
                     created += len(batch)
                 elif resp.status_code == 409 and not params.upsert:
-                    # Duplikate ignoriert
+                    # Duplikate ignoriert (upsert=False)
                     pass
                 else:
                     batch_errors.append(
@@ -1012,6 +1052,7 @@ async def grundsteuer_import_to_supabase(params: ImportToSupabaseInput) -> str:
         f"## Import abgeschlossen\n",
         f"- **Einträge verarbeitet:** {len(rows)}",
         f"- **Einträge importiert/aktualisiert:** {created}",
+        f"- **Übersprungen (neuerer Datenstand bleibt erhalten):** {skipped_newer}",
         f"- **Übersprungen (fehlende Pflichtfelder):** {len(errors)}",
     ]
     if batch_errors:
