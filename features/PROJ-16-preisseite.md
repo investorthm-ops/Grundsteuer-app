@@ -1,8 +1,10 @@
 # PROJ-16: Preisseite (/preise) mit Tarifen Solo und Kanzlei
 
-## Status: In Review
+## Status: Deployed
 **Created:** 2026-05-30
 **Last Updated:** 2026-05-30
+
+> **Deployed 2026-05-30:** PR #28 (Squash-Commit `3398352`) auf `main` gemergt; Vercel-Produktions-Deployment `dpl_EdAuMTibD5vgwW53sUvaBnMhm6jm` READY und live unter `grundsteuer-app.vercel.app/preise`. Lokal verifiziert (Accessibility-Snapshot + Toggle 41/108 ↔ 49/129 €).
 
 ## Implementierungsnotizen (Frontend, 2026-05-30)
 - Neue Seite `src/app/preise/page.tsx` server-gerendert im `AppShell`-Rahmen, öffentlich, mit SEO-`Metadata` (Title/Description). Eyebrow „Tarife", Titel „Preise". Rechtshinweis am Seitenende (USt-Hinweis + „ersetzt keine Steuer-/Rechtsberatung").

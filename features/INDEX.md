@@ -27,7 +27,7 @@
 | PROJ-13 | Mein Zugang (Account-Selbstanzeige) | Deployed | [PROJ-13-mein-zugang.md](PROJ-13-mein-zugang.md) | 2026-05-25 |
 | PROJ-14 | Pilotkunden-Onboarding und Datenqualitaet | Deployed | [PROJ-14-pilotkunden-onboarding-datenqualitaet.md](PROJ-14-pilotkunden-onboarding-datenqualitaet.md) | 2026-05-25 |
 | PROJ-15 | Stripe-Billing Integration | Planned | [PROJ-15-stripe-billing.md](PROJ-15-stripe-billing.md) | 2026-05-30 |
-| PROJ-16 | Preisseite (/preise) mit Tarifen Solo und Kanzlei | In Review | [PROJ-16-preisseite.md](PROJ-16-preisseite.md) | 2026-05-30 |
+| PROJ-16 | Preisseite (/preise) mit Tarifen Solo und Kanzlei | Deployed | [PROJ-16-preisseite.md](PROJ-16-preisseite.md) | 2026-05-30 |
 
 <!-- Add features above this line -->
 
