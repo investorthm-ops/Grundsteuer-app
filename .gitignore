@@ -34,6 +34,7 @@ grundsteuer-monitor-export*.csv
 grundsteuer-monitor-daten*.json
 apppro_backup_*.json
 test-import*.csv
+Musterunterlagen/
 
 # Amtliche Roh-Downloads (nicht versionieren — per Skript reproduzierbar)
 data/raw/

@@ -80,6 +80,8 @@ export function MunicipalityBrowser({ initialQuery = '' }: MunicipalityBrowserPr
   const [bundesland, setBundesland] = useState(ALL_STATES)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [exportMessage, setExportMessage] = useState<string | null>(null)
+  const [isExporting, setIsExporting] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
   const [watchlistIds, setWatchlistIds] = useState<Set<string>>(new Set())
   const [pendingWatchlistId, setPendingWatchlistId] = useState<string | null>(null)
@@ -158,6 +160,37 @@ export function MunicipalityBrowser({ initialQuery = '' }: MunicipalityBrowserPr
     setSubmittedQuery('')
     setBundesland(ALL_STATES)
     setPage(1)
+    setExportMessage(null)
+  }
+
+  async function exportCsv() {
+    setIsExporting(true)
+    setError(null)
+    setExportMessage(null)
+
+    try {
+      const response = await fetch(exportUrl)
+      if (!response.ok) {
+        throw new Error('CSV-Export konnte nicht erstellt werden.')
+      }
+
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      const date = new Date().toISOString().slice(0, 10)
+
+      link.href = url
+      link.download = `grundsteuer-monitor-export-${date}.csv`
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      URL.revokeObjectURL(url)
+      setExportMessage('CSV wurde erstellt. Falls kein Download startet, blockiert der Browser Downloads.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'CSV-Export konnte nicht erstellt werden.')
+    } finally {
+      setIsExporting(false)
+    }
   }
 
   async function toggleWatchlist(municipalityId: string) {
@@ -221,17 +254,21 @@ export function MunicipalityBrowser({ initialQuery = '' }: MunicipalityBrowserPr
             </SelectContent>
           </Select>
           <Button type="submit">Suchen</Button>
-          <Button asChild variant="outline">
-            <a href={exportUrl}>
-              <FileDown className="mr-2 h-4 w-4" aria-hidden="true" />
-              CSV exportieren
-            </a>
+          <Button type="button" variant="outline" onClick={exportCsv} disabled={isExporting}>
+            <FileDown className="mr-2 h-4 w-4" aria-hidden="true" />
+            {isExporting ? 'CSV wird erstellt' : 'CSV exportieren'}
           </Button>
           <Button type="button" variant="outline" onClick={resetFilters}>
             Zurücksetzen
           </Button>
         </form>
       </section>
+
+      {exportMessage ? (
+        <p className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
+          {exportMessage}
+        </p>
+      ) : null}
 
       <section className="rounded-lg border bg-white">
         <div className="flex flex-col gap-2 border-b px-4 py-3 sm:flex-row sm:items-center sm:justify-between">

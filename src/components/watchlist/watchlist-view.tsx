@@ -190,6 +190,7 @@ export function WatchlistView() {
                         size="sm"
                         onClick={() => removeItem(municipality.id)}
                         disabled={pendingId === municipality.id}
+                        aria-label={`${displayText(municipality.name)} aus Watchlist entfernen`}
                       >
                         <Trash2 className="h-4 w-4" aria-hidden="true" />
                       </Button>
