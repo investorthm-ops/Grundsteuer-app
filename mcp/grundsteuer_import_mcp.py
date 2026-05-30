@@ -480,6 +480,17 @@ async def grundsteuer_fetch_hebesaetze(params: FetchHebesaetzeInput) -> str:
         raw_content = _extract_tablefile_content(content, content_type)
         gemeinden = _parse_genesis_csv(raw_content, params.jahr)
 
+        # Kreisfreie Staedte (Koeln, Duesseldorf, ...) stehen in dieser Tabelle
+        # mit 5-stelligem AGS in DERSELBEN Antwort und werden vom Standard-Parser
+        # (nur 8-stellige AGS) uebersprungen. Daher hier zusaetzlich aus dem
+        # gleichen Rohtext ergaenzen (Landkreise/Verbaende werden herausgefiltert).
+        vorhandene_namen = {g["name"] for g in gemeinden}
+        for stadt in _parse_genesis_kreise(raw_content, params.jahr):
+            if stadt["name"] not in vorhandene_namen:
+                gemeinden.append(stadt)
+                vorhandene_namen.add(stadt["name"])
+        gemeinden.sort(key=lambda g: g.get("ags", ""))
+
         # Paginierung
         total = len(gemeinden)
         sliced = gemeinden[params.offset : params.offset + params.limit]
@@ -596,6 +607,60 @@ def _bundesland_from_ags(ags: str) -> str:
         if ags.startswith(prefix):
             return bundesland
     return ""
+
+
+# Namensbestandteile, die auf einen Landkreis / Gemeindeverband hindeuten und
+# damit KEINE kreisfreie Stadt sind (z. B. "Kreis Dueren", "Staedteregion
+# Aachen", "Rhein-Erft-Kreis", "Regionalverband Saarbruecken").
+_KREIS_MARKER_RE = re.compile(r"(kreis|region|verband)", re.IGNORECASE)
+
+
+def _parse_genesis_kreise(content: str, jahr: int) -> list[dict]:
+    """Parst die KREIS-Ebene des Regionalstatistik-CSV und liefert ausschliesslich
+    die kreisfreien Staedte. Diese erscheinen in Tabelle 71231-01-03-5 mit
+    5-stelligem AGS (statt 8-stellig) und werden daher vom Standard-Parser
+    uebersprungen. Landkreise und
+    Gemeindeverbaende werden anhand des Namens herausgefiltert; reine
+    Aggregatzeilen ohne Grundsteuer B werden uebersprungen."""
+    staedte: list[dict] = []
+    if not content:
+        return staedte
+
+    def _int_or_none(val: str) -> Optional[int]:
+        val = val.strip().replace(".", "").replace(",", "")
+        try:
+            return int(val)
+        except ValueError:
+            return None
+
+    for line in content.splitlines():
+        parts = [p.strip('"') for p in line.split(";")]
+        if len(parts) < 12:
+            continue
+        if parts[0].strip() != str(jahr):
+            continue
+        ags = parts[1].strip()
+        # Kreis-Ebene: 5-stelliger AGS
+        if not ags or not ags.isdigit() or len(ags) != 5:
+            continue
+        name = _normalize_gemeindename(parts[2].strip())
+        if not name or _KREIS_MARKER_RE.search(name):
+            continue
+        grundsteuer_b = _int_or_none(parts[10])
+        if grundsteuer_b is None:
+            continue
+        staedte.append(
+            {
+                "ags": ags,
+                "name": name,
+                "bundesland": _bundesland_from_ags(ags),
+                "grundsteuer_a": _int_or_none(parts[9]),
+                "grundsteuer_b": grundsteuer_b,
+                "gewerbesteuer": _int_or_none(parts[11]),
+                "jahr": jahr,
+            }
+        )
+    return staedte
 
 
 def _format_hebesaetze_markdown(result: dict) -> str:

@@ -472,3 +472,14 @@ Bielefeld, Bochum, Bonn, Bottrop, Dortmund, Duisburg, Düsseldorf, Essen, Gelsen
 3. Neue Migration `00XX_nrw_kreisfreie_staedte_2024_genesis.sql` mit Upsert über `(bundesland, name)`; alter `hebesatz_b` wird als `vorjahr_b` gesichert.
 4. Verifikation: Köln, Düsseldorf & Co. zeigen 2024er-Werte, weiterhin 0 Dubletten, NRW-Gesamtzahl unverändert (397 Gemeinden).
 5. Falls GENESIS die Städte gar nicht führt: alternative Quelle (Statistik NRW / IT.NRW Realsteuervergleich 2024) prüfen.
+
+### GELÖST: 2026-05-30 (Migration 0015)
+
+**Tatsächliche Ursache (anders als oben vermutet):** Die kreisfreien Städte SIND in der GENESIS-Antwort enthalten, stehen dort aber mit **5-stelligem AGS** (z. B. `05315 Köln`) statt 8-stellig. Der Konnektor-Parser `_parse_genesis_csv` akzeptierte nur 8-stellige AGS und verwarf die 22 Städte. Ein separater Abruf auf Kreis-Ebene (`regionalvariable=KREISE`) liefert für diese Tabelle nichts — die Daten stehen in derselben GEMEIN-Antwort.
+
+**Fix:**
+- `mcp/grundsteuer_import_mcp.py`: neuer Parser `_parse_genesis_kreise()` zieht die kreisfreien Städte (5-stelliger AGS) aus demselben Rohtext, filtert Landkreise/Verbände per `_KREIS_MARKER_RE` heraus und merged sie in das Ergebnis. Künftige Importe (auch Stadtstaaten HH/HB/BE) nehmen kreisfreie Städte damit automatisch mit.
+- Migration `0015_nrw_kreisfreie_staedte_2024_genesis.sql`: 22 UPDATEs auf Stand 2024-12-31 (alter `hebesatz_b` → `vorjahr_b`, idempotent via Guard `datenstand < '2024-12-31'`). 4 echte Wertänderungen (Duisburg, Remscheid, Bonn, Herne), 18 unverändert.
+- **Heinsberg-Dublette bereinigt:** Der frühere Import hatte „Heinsberg (Rhld.)" (2024) zusätzlich zur Altzeile „Heinsberg" (2022) angelegt (Klammer-Zusatz wird nicht normalisiert). Die alte 2022-Zeile wurde gelöscht, „Heinsberg (Rhld.)" bleibt.
+
+**Verifikation (live, Prod-DB):** 0 NRW-Gemeinden auf Stand <2024; NRW gesamt 396 (vorher 397 − 1 gelöschte Dublette); 0 Dubletten; `vorjahr_b` korrekt gesichert (Stichproben Duisburg 855→845, Herne 745→830, Remscheid 620→770).
