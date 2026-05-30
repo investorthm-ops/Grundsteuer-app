@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 const providerRows = [
   ['Betreiber', 'Markus Brand'],
-  ['Anschrift', 'Annabergstr. 27, 58511 Lüdenscheid, Deutschland'],
+  ['Anschrift', 'Mustermannstr. 1, 58511 Lüdenscheid, Deutschland'],
   ['E-Mail', 'investorthm@gmail.com'],
   ['Telefon', '0152 04871153'],
 ]
@@ -47,7 +47,7 @@ export default function ImpressumPage() {
           <h2 className="text-lg font-semibold">Verantwortlich für den Inhalt</h2>
           <div className="mt-3 space-y-3 text-sm leading-6 text-zinc-600">
             <p>Verantwortlich gemäß § 18 Abs. 2 MStV:</p>
-            <p>Markus Brand, Annabergstr. 27, 58511 Lüdenscheid</p>
+            <p>Markus Brand, Mustermannstr. 1, 58511 Lüdenscheid</p>
           </div>
         </article>
 
