@@ -47,29 +47,37 @@ function normalizeKey(value: string | null | undefined) {
     .replaceAll('\u00df', 'ss')
 }
 
-function parseOptionalInt(value: string | undefined, label: string, errors: string[]) {
+function parseOptionalRate(value: string | undefined, label: string, errors: string[]) {
   const trimmed = value?.trim() ?? ''
   if (!trimmed) return null
-  const normalized = trimmed.replace('%', '').trim()
+  // Prozentzeichen weg. Deutsches Dezimalkomma zulassen
+  // (Hebesaetze koennen zwei Nachkommastellen haben, z. B. Hessen 854,69).
+  // Nur wenn ein Komma vorhanden ist, gelten Punkte als Tausendertrennzeichen;
+  // sonst bleibt ein Punkt als Dezimalpunkt erhalten ("854.69" -> 854.69).
+  const cleaned = trimmed.replace('%', '').trim()
+  const normalized = cleaned.includes(',')
+    ? cleaned.replaceAll('.', '').replace(',', '.')
+    : cleaned
   const parsed = Number(normalized)
-  if (!Number.isInteger(parsed)) {
-    errors.push(`${label} ist keine ganze Zahl.`)
+  if (!Number.isFinite(parsed)) {
+    errors.push(`${label} ist keine gueltige Zahl.`)
     return null
   }
   if (parsed < 0 || parsed > 2000) {
     errors.push(`${label} muss zwischen 0 und 2000 liegen.`)
     return null
   }
-  return parsed
+  // Auf zwei Nachkommastellen runden (Hebesaetze haben max. zwei).
+  return Math.round(parsed * 100) / 100
 }
 
-function parseRequiredInt(value: string | undefined, label: string, errors: string[]) {
+function parseRequiredRate(value: string | undefined, label: string, errors: string[]) {
   const trimmed = value?.trim() ?? ''
   if (!trimmed) {
     errors.push(`${label} fehlt.`)
     return null
   }
-  return parseOptionalInt(trimmed, label, errors)
+  return parseOptionalRate(trimmed, label, errors)
 }
 
 function normalizeDate(value: string | undefined, errors: string[]) {
@@ -125,10 +133,10 @@ export function validateImportRows(
     const quellenname = raw.quellenname?.trim() || fallbackSourceName
     const quellenUrl = raw.quellen_url?.trim() || fallbackSourceUrl
     const datenstand = normalizeDate(raw.datenstand || fallbackDataStand, errors)
-    const hebesatzA = parseOptionalInt(raw.grundsteuer_a, 'Grundsteuer A', errors)
-    const hebesatzB = parseRequiredInt(raw.grundsteuer_b, 'Grundsteuer B', errors)
-    const hebesatzGewerbe = parseOptionalInt(raw.gewerbesteuer, 'Gewerbesteuer', errors)
-    const vorjahrB = parseOptionalInt(raw.vorjahr_b, 'Vorjahr B', errors)
+    const hebesatzA = parseOptionalRate(raw.grundsteuer_a, 'Grundsteuer A', errors)
+    const hebesatzB = parseRequiredRate(raw.grundsteuer_b, 'Grundsteuer B', errors)
+    const hebesatzGewerbe = parseOptionalRate(raw.gewerbesteuer, 'Gewerbesteuer', errors)
+    const vorjahrB = parseOptionalRate(raw.vorjahr_b, 'Vorjahr B', errors)
 
     if (!name) errors.push('Gemeindename fehlt.')
     if (!bundesland) {
@@ -147,7 +155,10 @@ export function validateImportRows(
     }
 
     const existingItem = name && bundesland ? pickExisting(existingByKey, name, bundesland) : null
-    const deltaB = hebesatzB !== null && vorjahrB !== null ? hebesatzB - vorjahrB : null
+    const deltaB =
+      hebesatzB !== null && vorjahrB !== null
+        ? Math.round((hebesatzB - vorjahrB) * 100) / 100
+        : null
     if (deltaB !== null && Math.abs(deltaB) >= 100) {
       warnings.push('Auff\u00e4llige \u00c4nderung von mindestens 100 Punkten.')
     }

@@ -40,7 +40,8 @@ const TAX_FIELDS: Array<{ value: TaxField; label: string }> = [
 const COMPARISON_FIELDS: TaxField[] = ['hebesatz_a', 'hebesatz_b', 'hebesatz_b_wohnen', 'hebesatz_b_nichtwohnen', 'hebesatz_gewerbe']
 
 function formatRate(value: number | null) {
-  return typeof value === 'number' ? `${value} %` : '-'
+  // Auf max. zwei Nachkommastellen runden (Durchschnitte koennen Float-Artefakte haben).
+  return typeof value === 'number' ? `${Math.round(value * 100) / 100} %` : '-'
 }
 
 function formatDate(value: string | null) {

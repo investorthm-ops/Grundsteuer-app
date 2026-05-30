@@ -234,27 +234,27 @@ export function AdminMunicipalityManager() {
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="hebesatz_a">Grundsteuer A</Label>
-              <Input id="hebesatz_a" type="number" min="0" max="2000" value={form.hebesatz_a} onChange={(event) => updateField('hebesatz_a', event.target.value)} />
+              <Input id="hebesatz_a" type="number" min="0" max="2000" step="0.01" value={form.hebesatz_a} onChange={(event) => updateField('hebesatz_a', event.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="hebesatz_b">Grundsteuer B</Label>
-              <Input id="hebesatz_b" type="number" min="0" max="2000" value={form.hebesatz_b} onChange={(event) => updateField('hebesatz_b', event.target.value)} required />
+              <Input id="hebesatz_b" type="number" min="0" max="2000" step="0.01" value={form.hebesatz_b} onChange={(event) => updateField('hebesatz_b', event.target.value)} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="hebesatz_b_wohnen">B Wohnen</Label>
-              <Input id="hebesatz_b_wohnen" type="number" min="0" max="3000" value={form.hebesatz_b_wohnen} onChange={(event) => updateField('hebesatz_b_wohnen', event.target.value)} />
+              <Input id="hebesatz_b_wohnen" type="number" min="0" max="3000" step="0.01" value={form.hebesatz_b_wohnen} onChange={(event) => updateField('hebesatz_b_wohnen', event.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="hebesatz_b_nichtwohnen">B Nichtwohnen</Label>
-              <Input id="hebesatz_b_nichtwohnen" type="number" min="0" max="3000" value={form.hebesatz_b_nichtwohnen} onChange={(event) => updateField('hebesatz_b_nichtwohnen', event.target.value)} />
+              <Input id="hebesatz_b_nichtwohnen" type="number" min="0" max="3000" step="0.01" value={form.hebesatz_b_nichtwohnen} onChange={(event) => updateField('hebesatz_b_nichtwohnen', event.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="vorjahr_b">Vorjahr B</Label>
-              <Input id="vorjahr_b" type="number" min="0" max="2000" value={form.vorjahr_b} onChange={(event) => updateField('vorjahr_b', event.target.value)} />
+              <Input id="vorjahr_b" type="number" min="0" max="2000" step="0.01" value={form.vorjahr_b} onChange={(event) => updateField('vorjahr_b', event.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="hebesatz_gewerbe">Gewerbesteuer</Label>
-              <Input id="hebesatz_gewerbe" type="number" min="0" max="2000" value={form.hebesatz_gewerbe} onChange={(event) => updateField('hebesatz_gewerbe', event.target.value)} />
+              <Input id="hebesatz_gewerbe" type="number" min="0" max="2000" step="0.01" value={form.hebesatz_gewerbe} onChange={(event) => updateField('hebesatz_gewerbe', event.target.value)} />
             </div>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">

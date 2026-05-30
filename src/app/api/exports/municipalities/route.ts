@@ -36,7 +36,15 @@ function csvCell(value: string | number | null | undefined) {
 
 function deltaB(item: Municipality) {
   if (typeof item.vorjahr_b !== 'number') return ''
-  return item.hebesatz_b - item.vorjahr_b
+  // Auf zwei Nachkommastellen runden (Float-Artefakte bei Dezimal-Hebesaetzen vermeiden).
+  return Math.round((item.hebesatz_b - item.vorjahr_b) * 100) / 100
+}
+
+// Zahlen im deutschen Format ausgeben (Dezimalkomma), damit Excel-DE Werte wie
+// 854,69 korrekt erkennt. Ganze Zahlen bleiben ohne Nachkommastellen.
+function num(value: number | string | null | undefined) {
+  if (typeof value !== 'number') return value ?? ''
+  return value.toLocaleString('de-DE', { maximumFractionDigits: 2, useGrouping: false })
 }
 
 function toCsv(items: Municipality[]) {
@@ -44,13 +52,13 @@ function toCsv(items: Municipality[]) {
     item.name,
     item.bundesland,
     item.kreis,
-    item.hebesatz_a,
-    item.hebesatz_b,
-    item.hebesatz_b_wohnen,
-    item.hebesatz_b_nichtwohnen,
-    item.vorjahr_b,
-    deltaB(item),
-    item.hebesatz_gewerbe,
+    num(item.hebesatz_a),
+    num(item.hebesatz_b),
+    num(item.hebesatz_b_wohnen),
+    num(item.hebesatz_b_nichtwohnen),
+    num(item.vorjahr_b),
+    num(deltaB(item)),
+    num(item.hebesatz_gewerbe),
     item.datenstand,
     item.updated_at,
     item.quellenstatus,

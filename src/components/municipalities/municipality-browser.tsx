@@ -61,7 +61,8 @@ function formatDate(value: string | null) {
 
 function delta(current: number, previous: number | null) {
   if (typeof previous !== 'number') return { label: '-', tone: 'neutral' as const }
-  const change = current - previous
+  // Auf zwei Nachkommastellen runden (vermeidet Float-Artefakte bei Dezimal-Hebesaetzen).
+  const change = Math.round((current - previous) * 100) / 100
   if (change > 0) return { label: `+${change}`, tone: 'up' as const }
   if (change < 0) return { label: `${change}`, tone: 'down' as const }
   return { label: '0', tone: 'neutral' as const }

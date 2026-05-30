@@ -21,8 +21,10 @@ export const BUNDESLAENDER = [
 
 export const QUELLENSTATUS = ['bestaetigt', 'offen'] as const
 
-const hebesatz = z.number().int().min(0).max(2000)
-const hebesatzDifferentiated = z.number().int().min(0).max(3000)
+// Hebesaetze koennen zwei Nachkommastellen haben (z. B. Hessen: 854,69).
+// multipleOf 0.01 erzwingt max. zwei Nachkommastellen.
+const hebesatz = z.number().min(0).max(2000).multipleOf(0.01)
+const hebesatzDifferentiated = z.number().min(0).max(3000).multipleOf(0.01)
 const hebesatzOptional = hebesatz.nullable().optional()
 const hebesatzDifferentiatedOptional = hebesatzDifferentiated.nullable().optional()
 

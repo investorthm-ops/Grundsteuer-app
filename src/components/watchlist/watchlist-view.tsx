@@ -39,7 +39,8 @@ function formatDate(value: string | null) {
 
 function delta(current: number, previous: number | null) {
   if (typeof previous !== 'number') return null
-  return current - previous
+  // Auf zwei Nachkommastellen runden (vermeidet Float-Artefakte bei Dezimal-Hebesaetzen).
+  return Math.round((current - previous) * 100) / 100
 }
 
 function alertLabel(change: number | null) {
