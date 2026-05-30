@@ -9,18 +9,15 @@ export const metadata: Metadata = {
 }
 
 const providerRows = [
-  ['Betreiber', '[Vorname Nachname / Unternehmensname ergänzen]'],
-  ['Anschrift', '[Straße Hausnummer, PLZ Ort, Deutschland ergänzen]'],
-  ['E-Mail', '[info@grundsteuermonitor.de ergänzen]'],
-  ['Telefon', '[optional ergänzen]'],
+  ['Betreiber', 'Markus Brand'],
+  ['Anschrift', 'Annabergstr. 27, 58511 Lüdenscheid, Deutschland'],
+  ['E-Mail', 'investorthm@gmail.com'],
+  ['Telefon', '0152 04871153'],
 ]
 
 const businessRows = [
-  ['Rechtsform', '[Einzelunternehmen / GmbH / UG etc. ergänzen]'],
-  ['Vertretungsberechtigt', '[Name ergänzen, falls juristische Person]'],
-  ['Registergericht', '[falls vorhanden ergänzen]'],
-  ['Registernummer', '[falls vorhanden ergänzen]'],
-  ['USt-IdNr.', '[falls vorhanden ergänzen]'],
+  ['Rechtsform', 'Einzelunternehmen'],
+  ['Steuernummer', 'wird nachgetragen'],
 ]
 
 export default function ImpressumPage() {
@@ -37,8 +34,7 @@ export default function ImpressumPage() {
           <p className="text-sm font-medium text-zinc-500">Anbieterkennzeichnung</p>
           <h1 className="mt-2 text-3xl font-semibold tracking-normal">Impressum</h1>
           <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-600">
-            Pflichtangaben gemäß § 5 DDG. Diese Fassung enthält Platzhalter und muss vor
-            Veröffentlichung mit den echten Betreiberangaben finalisiert werden.
+            Pflichtangaben gemäß § 5 DDG.
           </p>
         </div>
       </section>
@@ -51,7 +47,7 @@ export default function ImpressumPage() {
           <h2 className="text-lg font-semibold">Verantwortlich für den Inhalt</h2>
           <div className="mt-3 space-y-3 text-sm leading-6 text-zinc-600">
             <p>Verantwortlich gemäß § 18 Abs. 2 MStV:</p>
-            <p>[Vorname Nachname und Anschrift ergänzen, sofern erforderlich]</p>
+            <p>Markus Brand, Annabergstr. 27, 58511 Lüdenscheid</p>
           </div>
         </article>
 
