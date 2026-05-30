@@ -30,27 +30,27 @@ const sections = [
   {
     title: '3. Verantwortlicher',
     body: [
-      'Verantwortlich für die Datenverarbeitung ist der Betreiber des GrundsteuerMonitors.',
-      'Die vollständigen Kontaktdaten werden vor dem produktiven Betrieb im Impressum und in dieser Datenschutzerklärung ergänzt.',
-      'Kontakt für Datenschutzanfragen: Bitte die im Impressum angegebene E-Mail-Adresse verwenden, sobald das Impressum veröffentlicht ist.',
+      'Verantwortlich für die Datenverarbeitung im Sinne der DSGVO ist:',
+      'Markus Brand, Mustermannstr. 1, 58511 Lüdenscheid, E-Mail: investorthm@gmail.com',
+      'Datenschutzanfragen können per E-Mail an die oben genannte Adresse gerichtet werden.',
     ],
   },
   {
     title: '4. Hosting und Betrieb',
     body: [
-      'Die Anwendung wird über Vercel gehostet. Beim Aufruf der Webseite können technische Zugriffsdaten verarbeitet werden, zum Beispiel IP-Adresse, Datum und Uhrzeit des Zugriffs, Browserinformationen, Betriebssystem, Referrer-URL und aufgerufene Seiten.',
+      'Die Anwendung wird über Vercel (Vercel Inc., 340 Pine Street, Suite 701, San Francisco, CA 94104, USA) gehostet. Beim Aufruf der Webseite können technische Zugriffsdaten verarbeitet werden, zum Beispiel IP-Adresse, Datum und Uhrzeit des Zugriffs, Browserinformationen, Betriebssystem, Referrer-URL und aufgerufene Seiten.',
       'Diese Daten werden verarbeitet, um die Webseite auszuliefern, den Betrieb sicherzustellen, Fehler zu analysieren und Missbrauch zu verhindern.',
       'Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO. Das berechtigte Interesse liegt im sicheren und stabilen Betrieb der Anwendung.',
-      'Die konkrete Hosting-Region, Speicherdauer der Logdaten und die Auftragsverarbeitung mit Vercel sind vor produktivem Betrieb final zu prüfen und zu dokumentieren.',
+      'Mit Vercel besteht ein Auftragsverarbeitungsvertrag gemäß Art. 28 DSGVO. Vercel setzt Standardvertragsklauseln als Grundlage für Drittlandtransfers in die USA ein.',
     ],
   },
   {
     title: '5. Authentifizierung und Datenbank',
     body: [
-      'Für Login, Nutzerverwaltung und Datenbank wird Supabase eingesetzt. Dabei können insbesondere E-Mail-Adresse, Nutzer-ID, Login-Zeitpunkte, Session-Informationen, Rollen und Organisationszuordnungen verarbeitet werden.',
+      'Für Login, Nutzerverwaltung und Datenbank wird Supabase (Supabase Inc., 970 Toa Payoh North, Singapur) eingesetzt. Das Datenbankprojekt läuft in der Region eu-central-1 (Frankfurt, Deutschland). Dabei können insbesondere E-Mail-Adresse, Nutzer-ID, Login-Zeitpunkte, Session-Informationen, Rollen und Organisationszuordnungen verarbeitet werden.',
       'Diese Daten sind erforderlich, um Nutzerkonten bereitzustellen, Zugriffe zu steuern und geschützte Funktionen nur freigeschalteten Nutzern zugänglich zu machen.',
       'Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, soweit die Verarbeitung zur Bereitstellung des Nutzerzugangs erforderlich ist. Ergänzend kommt Art. 6 Abs. 1 lit. f DSGVO für Sicherheit, Missbrauchsschutz und technische Administration in Betracht.',
-      'Die Supabase-Projektregion, Speicherdauer und Auftragsverarbeitung sind vor produktivem Betrieb final zu prüfen und zu dokumentieren.',
+      'Mit Supabase besteht ein Auftragsverarbeitungsvertrag gemäß Art. 28 DSGVO.',
     ],
   },
   {
@@ -97,8 +97,8 @@ const sections = [
   {
     title: '11. Drittlandtransfer',
     body: [
-      'Bei eingesetzten Dienstleistern kann ein Bezug zu Anbietern außerhalb der EU bestehen. In diesem Fall sind geeignete Garantien zu prüfen, zum Beispiel ein Angemessenheitsbeschluss, Standardvertragsklauseln oder weitere Schutzmaßnahmen.',
-      'Die konkrete Bewertung hängt von den final eingesetzten Diensten, Regionen und Vertragsbedingungen ab und wird vor produktivem Betrieb dokumentiert.',
+      'Vercel hat seinen Sitz in den USA. Für den Drittlandtransfer setzt Vercel Standardvertragsklauseln gemäß Art. 46 Abs. 2 lit. c DSGVO ein.',
+      'Die Datenbankdaten werden in der Supabase-Region eu-central-1 (Frankfurt) gespeichert und verlassen die EU grundsätzlich nicht. Supabase Inc. hat seinen Sitz in Singapur; für etwaige Drittlandtransfers bestehen Standardvertragsklauseln.',
     ],
   },
   {
@@ -126,7 +126,7 @@ const sections = [
   },
   {
     title: '15. Stand',
-    body: ['Stand dieser ersten Datenschutzerklärung: Mai 2026.'],
+    body: ['Stand: Mai 2026. Diese Datenschutzerklärung wird bei wesentlichen Änderungen der Verarbeitungen aktualisiert.'],
   },
 ]
 
@@ -144,9 +144,7 @@ export default function DatenschutzPage() {
           <p className="text-sm font-medium text-zinc-500">Rechtliche Hinweise</p>
           <h1 className="mt-2 text-3xl font-semibold tracking-normal">Datenschutzerklärung</h1>
           <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-600">
-            Diese erste Fassung beschreibt den aktuellen MVP-Stand. Vor dem produktiven Betrieb
-            mit zahlenden Kunden müssen Impressum, Verantwortlicher, Dienstleister, Regionen und
-            Auftragsverarbeitung final geprüft und ergänzt werden.
+            Informationen zur Verarbeitung personenbezogener Daten gemäß Art. 13, 14 DSGVO.
           </p>
         </div>
       </section>
