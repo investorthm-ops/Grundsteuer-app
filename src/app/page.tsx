@@ -81,6 +81,9 @@ export default function Home() {
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white">
+                <Link href="/preise">Preise ansehen</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white">
                 <Link href="/login">Zum Nutzerkonto</Link>
               </Button>
             </div>

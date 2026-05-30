@@ -89,6 +89,7 @@ Aktives Billing ist bewusst noch nicht umgesetzt.
 | P1 | Self-Service-Auth, Einladung, Passwort-Reset und Audit-Log | Deployed |
 | P1 | Mein Zugang: Account-Selbstanzeige fuer Nutzer | Deployed |
 | P1 | Pilotkunden-Onboarding und Datenqualitaets-Startzentrale | Planned |
+| P1 | Preisseite (/preise) mit Tarifen Solo und Kanzlei | Planned |
 | P2 | Beratungsreports als PDF/Excel fuer Mandantengespraeche | Planned |
 | P2 | Billing-Integration nach Geschaeftsmodell-Validierung | Planned |
 | P2 | Multi-User-Teamverwaltung pro Organisation | Planned |

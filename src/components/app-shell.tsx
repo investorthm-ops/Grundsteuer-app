@@ -1,5 +1,5 @@
 ﻿import Link from 'next/link'
-import { Building2, Calculator, Database, Scale, ShieldCheck, Star, UserCircle } from 'lucide-react'
+import { BadgeEuro, Building2, Calculator, Database, Scale, ShieldCheck, Star, UserCircle } from 'lucide-react'
 import { AuthButton } from '@/components/auth-button'
 import { Button } from '@/components/ui/button'
 import { SiteDisclaimer } from '@/components/site-disclaimer'
@@ -19,6 +19,7 @@ const primaryNavItems = [
   { href: '/vergleich', label: 'Vergleich', icon: Scale },
   { href: '/rechner', label: 'Rechner', icon: Calculator },
   { href: '/watchlist', label: 'Watchlist', icon: Star },
+  { href: '/preise', label: 'Preise', icon: BadgeEuro },
 ]
 
 export async function AppShell({
