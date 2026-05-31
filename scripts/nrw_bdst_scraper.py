@@ -377,7 +377,12 @@ def build_update_rows(
                 "hebesatz_b_nichtwohnen": entry["hebesatz_b_nichtwohnen"],
                 "datenstand": NRW_DATENSTAND,
                 "quellenstatus": "bestaetigt",
-                "quellenname": "BdSt NRW, Grundsteuer B-Hebesätze 2025",
+                # WICHTIG: Diese Quelle liefert NUR Grundsteuer B. hebesatz_a und
+                # hebesatz_gewerbe werden bewusst nicht geschrieben und bleiben auf
+                # ihrem bisherigen (i. d. R. 2024er) Stand. Der Quellenname macht das
+                # transparent, damit A/Gewerbe nicht faelschlich als 2025-bestaetigt
+                # gelten (vgl. Migration 0021).
+                "quellenname": "BdSt NRW - Grundsteuer B 2025; Grundsteuer A und Gewerbesteuer Stand 2024 (nicht reformbestaetigt)",
                 "quellen_url": PDF_URL,
             })
         else:
