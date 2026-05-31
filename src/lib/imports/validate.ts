@@ -1,5 +1,5 @@
-import { BUNDESLAENDER } from '@/lib/validation/municipality'
-import type { Municipality } from '@/lib/types/municipality'
+import { BUNDESLAENDER } from '../validation/municipality.ts'
+import type { Municipality } from '../types/municipality.ts'
 
 type ExistingMunicipality = Pick<
   Municipality,

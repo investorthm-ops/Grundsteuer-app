@@ -28,7 +28,8 @@
 | PROJ-14 | Pilotkunden-Onboarding und Datenqualitaet | Deployed | [PROJ-14-pilotkunden-onboarding-datenqualitaet.md](PROJ-14-pilotkunden-onboarding-datenqualitaet.md) | 2026-05-25 |
 | PROJ-15 | Stripe-Billing Integration | Planned | [PROJ-15-stripe-billing.md](PROJ-15-stripe-billing.md) | 2026-05-30 |
 | PROJ-16 | Preisseite (/preise) mit Tarifen Solo und Kanzlei | Deployed | [PROJ-16-preisseite.md](PROJ-16-preisseite.md) | 2026-05-30 |
+| PROJ-17 | GENESIS-Automation (wöchentlicher Import NRW+Hessen) | Deployed | — | 2026-05-31 |
 
 <!-- Add features above this line -->
 
-## Next Available ID: PROJ-17
+## Next Available ID: PROJ-18
