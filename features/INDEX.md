@@ -13,22 +13,22 @@
 | ID | Feature | Status | Spec | Created |
 |----|---------|--------|------|---------|
 | PROJ-1 | Bundesweite Hebesatz-Datenbank (A, B, Gewerbe) | Deployed | [PROJ-1-hebesatz-datenbank.md](PROJ-1-hebesatz-datenbank.md) | 2026-05-04 |
-| PROJ-2 | Watchlist und Aenderungsalerts | Deployed | [PROJ-2-watchlist-und-aenderungsalerts.md](PROJ-2-watchlist-und-aenderungsalerts.md) | 2026-05-20 |
-| PROJ-3 | SEO-Stadtseiten fuer Hebesatz-Suchen | Deployed | [PROJ-3-seo-stadtseiten-fuer-hebesatz-suchen.md](PROJ-3-seo-stadtseiten-fuer-hebesatz-suchen.md) | 2026-05-20 |
+| PROJ-2 | Watchlist und Änderungsalerts | Deployed | [PROJ-2-watchlist-und-aenderungsalerts.md](PROJ-2-watchlist-und-aenderungsalerts.md) | 2026-05-20 |
+| PROJ-3 | SEO-Stadtseiten für Hebesatz-Suchen | Deployed | [PROJ-3-seo-stadtseiten-fuer-hebesatz-suchen.md](PROJ-3-seo-stadtseiten-fuer-hebesatz-suchen.md) | 2026-05-20 |
 | PROJ-4 | Import- und Quellenpipeline | Deployed | [PROJ-4-import-und-quellenpipeline.md](PROJ-4-import-und-quellenpipeline.md) | 2026-05-19 |
-| PROJ-5 | CSV/Excel-Export fuer Investoren und Berater | Deployed | [PROJ-5-csv-excel-export.md](PROJ-5-csv-excel-export.md) | 2026-05-19 |
+| PROJ-5 | CSV/Excel-Export für Investoren und Berater | Deployed | [PROJ-5-csv-excel-export.md](PROJ-5-csv-excel-export.md) | 2026-05-19 |
 | PROJ-6 | Renditeauswirkungs-Rechner | Deployed | [PROJ-6-renditeauswirkungs-rechner.md](PROJ-6-renditeauswirkungs-rechner.md) | 2026-05-20 |
 | PROJ-7 | Vergleich und Benchmarking | Deployed | [PROJ-7-vergleich-und-benchmarking.md](PROJ-7-vergleich-und-benchmarking.md) | 2026-05-20 |
-| PROJ-8 | Mandantenfaehige Nutzerverwaltung | Deployed | [PROJ-8-mandantenfaehige-nutzerverwaltung.md](PROJ-8-mandantenfaehige-nutzerverwaltung.md) | 2026-05-21 |
+| PROJ-8 | Mandantenfähige Nutzerverwaltung | Deployed | [PROJ-8-mandantenfaehige-nutzerverwaltung.md](PROJ-8-mandantenfaehige-nutzerverwaltung.md) | 2026-05-21 |
 | PROJ-9 | Datenvertrauen und Demo-Daten | Deployed | [PROJ-9-datenvertrauen-demo-daten.md](PROJ-9-datenvertrauen-demo-daten.md) | 2026-05-22 |
-| PROJ-10 | Differenzierte Grundsteuer-B-Hebesaetze | Deployed | [PROJ-10-differenzierte-grundsteuer-b.md](PROJ-10-differenzierte-grundsteuer-b.md) | 2026-05-22 |
+| PROJ-10 | Differenzierte Grundsteuer-B-Hebesätze | Deployed | [PROJ-10-differenzierte-grundsteuer-b.md](PROJ-10-differenzierte-grundsteuer-b.md) | 2026-05-22 |
 | PROJ-11 | Homepage- und Legal-Seiten-Redesign | Deployed | [PROJ-11-homepage-und-legal-redesign.md](PROJ-11-homepage-und-legal-redesign.md) | 2026-05-24 |
 | PROJ-12 | Self-Service-Auth und Audit-Log | Deployed | [PROJ-12-self-service-auth-und-audit-log.md](PROJ-12-self-service-auth-und-audit-log.md) | 2026-05-24 |
 | PROJ-13 | Mein Zugang (Account-Selbstanzeige) | Deployed | [PROJ-13-mein-zugang.md](PROJ-13-mein-zugang.md) | 2026-05-25 |
-| PROJ-14 | Pilotkunden-Onboarding und Datenqualitaet | Deployed | [PROJ-14-pilotkunden-onboarding-datenqualitaet.md](PROJ-14-pilotkunden-onboarding-datenqualitaet.md) | 2026-05-25 |
+| PROJ-14 | Pilotkunden-Onboarding und Datenqualität | Deployed | [PROJ-14-pilotkunden-onboarding-datenqualitaet.md](PROJ-14-pilotkunden-onboarding-datenqualitaet.md) | 2026-05-25 |
 | PROJ-15 | Stripe-Billing Integration | Planned | [PROJ-15-stripe-billing.md](PROJ-15-stripe-billing.md) | 2026-05-30 |
 | PROJ-16 | Preisseite (/preise) mit Tarifen Solo und Kanzlei | Deployed | [PROJ-16-preisseite.md](PROJ-16-preisseite.md) | 2026-05-30 |
-| PROJ-17 | GENESIS-Automation (wöchentlicher Import NRW+Hessen) | Deployed | — | 2026-05-31 |
+| PROJ-17 | GENESIS-Automation (wöchentlicher Import NRW + Hessen) | Deployed | — | 2026-05-31 |
 
 <!-- Add features above this line -->
 
