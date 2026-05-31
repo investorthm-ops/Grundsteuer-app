@@ -1,0 +1,91 @@
+name: Datenimport (GENESIS + IHK + BdSt)
+
+on:
+  schedule:
+    # Jeden Montag um 07:00 UTC
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Nur Trockentest (keine DB-Schreibvorgänge)'
+        type: boolean
+        default: true
+      skip_genesis:
+        description: 'GENESIS-Import überspringen'
+        type: boolean
+        default: false
+      skip_ihk:
+        description: 'IHK-Hessen-Scraper überspringen'
+        type: boolean
+        default: false
+      skip_bdst:
+        description: 'BdSt-NRW-Scraper überspringen'
+        type: boolean
+        default: false
+
+env:
+  GENESIS_USERNAME: ${{ secrets.GENESIS_USERNAME }}
+  GENESIS_PASSWORD: ${{ secrets.GENESIS_PASSWORD }}
+  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+
+jobs:
+  genesis:
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.skip_genesis }}
+    name: GENESIS-Import
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements-import.txt
+        name: Install dependencies
+      - name: Import NRW + Hessen
+        run: |
+          FLAGS=""
+          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
+            FLAGS="--dry-run"
+          fi
+          python scripts/genesis_import.py $FLAGS
+
+  scraper-ihk:
+    if: ${{ github.event_name == 'workflow_dispatch' && !inputs.skip_ihk }}
+    name: IHK-Hessen-Scraper
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements-import.txt
+        name: Install dependencies
+      - name: Hessen Grundsteuer B 2025 (IHK)
+        run: |
+          FLAGS=""
+          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
+            FLAGS="--dry-run"
+          fi
+          python scripts/ihk_hessen_scraper.py $FLAGS
+
+  scraper-bdst:
+    if: ${{ github.event_name == 'workflow_dispatch' && !inputs.skip_bdst }}
+    name: BdSt-NRW-Scraper
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements-import.txt
+        name: Install dependencies
+      - name: NRW Grundsteuer B 2025 (BdSt PDF)
+        run: |
+          FLAGS=""
+          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
+            FLAGS="--dry-run"
+          fi
+          python scripts/nrw_bdst_scraper.py $FLAGS
