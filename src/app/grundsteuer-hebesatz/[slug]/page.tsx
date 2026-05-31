@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowLeft, Database, ExternalLink, LineChart, ShieldCheck } from 'lucide-react'
@@ -8,6 +9,7 @@ import { SiteDisclaimer } from '@/components/site-disclaimer'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import type { Municipality } from '@/lib/types/municipality'
 import { findMunicipalityBySlug, municipalitySlug } from '@/lib/seo/municipality-slug'
+import { isStale } from '@/lib/staleness'
 
 type PageProps = {
   params: Promise<{ slug: string }>
@@ -38,7 +40,10 @@ function locationText(municipality: Municipality) {
   return `${municipality.name}, ${municipality.kreis}`
 }
 
-async function getMunicipalities() {
+// Per-Request dedupliziert: generateMetadata und die Seite selbst rufen
+// getMunicipality() auf — ohne cache() wuerde die komplette Tabelle pro
+// Seitenaufruf zweimal geladen.
+const getMunicipalities = cache(async () => {
   const supabase = await createSupabaseServerClient()
   const { data, error } = await supabase
     .from('municipalities')
@@ -48,7 +53,7 @@ async function getMunicipalities() {
 
   if (error) return []
   return (data ?? []) as Municipality[]
-}
+})
 
 async function getMunicipality(slug: string) {
   const items = await getMunicipalities()
@@ -177,6 +182,11 @@ export default async function MunicipalitySeoPage({ params }: PageProps) {
             <Badge variant={municipality.quellenstatus === 'bestaetigt' ? 'default' : 'secondary'}>
               {municipality.quellenstatus === 'bestaetigt' ? 'bestätigt' : 'offen'}
             </Badge>
+            {isStale(municipality.datenstand) ? (
+              <Badge variant="outline" className="ml-2 border-amber-400 text-amber-700">
+                Aktualität prüfen
+              </Badge>
+            ) : null}
           </div>
         </div>
       </section>

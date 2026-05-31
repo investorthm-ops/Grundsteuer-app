@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { ExternalLink, FileDown, Info, RefreshCw, Search, Star } from 'lucide-react'
+import { isStale } from '@/lib/staleness'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -366,7 +367,12 @@ export function MunicipalityBrowser({ initialQuery = '' }: MunicipalityBrowserPr
                     <TableCell>{formatRate(item.hebesatz_gewerbe)}</TableCell>
                     <TableCell>
                       <div className="space-y-1">
-                        <div className="font-medium">{formatDate(item.datenstand)}</div>
+                        <div className="font-medium">
+                          {formatDate(item.datenstand)}
+                          {isStale(item.datenstand) ? (
+                            <span className="ml-2 text-xs font-normal text-amber-700">Aktualität prüfen</span>
+                          ) : null}
+                        </div>
                         <div className="text-xs text-zinc-500">
                           aktualisiert: {formatDate(item.updated_at)}
                         </div>

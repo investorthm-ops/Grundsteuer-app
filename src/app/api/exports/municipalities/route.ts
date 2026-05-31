@@ -29,7 +29,15 @@ const DATA_NOTICE =
 
 function csvCell(value: string | number | null | undefined) {
   if (value === null || typeof value === 'undefined') return ''
-  const text = String(value)
+  let text = String(value)
+  // Schutz vor CSV-/Formel-Injection: Zellen, die mit = + - @ oder einem
+  // Steuerzeichen (Tab/CR) beginnen, koennen von Excel/Sheets als Formel
+  // interpretiert werden. Mit einem fuehrenden Apostroph neutralisieren.
+  // Reine (auch negative) Zahlen wie "-75" bleiben unangetastet.
+  const isNumeric = /^-?\d[\d.,]*$/.test(text)
+  if (!isNumeric && /^[=+\-@\t\r]/.test(text)) {
+    text = `'${text}`
+  }
   if (!/[;"\r\n]/.test(text)) return text
   return `"${text.replaceAll('"', '""')}"`
 }
