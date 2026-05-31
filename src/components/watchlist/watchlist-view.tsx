@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, Star, Trash2 } from 'lucide-react'
+import { isStale } from '@/lib/staleness'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -179,7 +180,12 @@ export function WatchlistView() {
                     <TableCell>
                       <Badge variant={alert.variant}>{alert.label}</Badge>
                     </TableCell>
-                    <TableCell>{formatDate(municipality.datenstand)}</TableCell>
+                    <TableCell>
+                      {formatDate(municipality.datenstand)}
+                      {isStale(municipality.datenstand) ? (
+                        <span className="ml-2 text-xs text-amber-700">Aktualität prüfen</span>
+                      ) : null}
+                    </TableCell>
                     <TableCell>
                       <Badge variant={municipality.quellenstatus === 'bestaetigt' ? 'default' : 'secondary'}>
                         {municipality.quellenstatus === 'bestaetigt' ? 'bestätigt' : 'offen'}
