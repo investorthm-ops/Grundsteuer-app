@@ -96,6 +96,27 @@ function normalizeDate(value: string | undefined, errors: string[]) {
   return null
 }
 
+function normalizeOptionalUrl(value: string | null | undefined, label: string, errors: string[]) {
+  const trimmed = value?.trim() ?? ''
+  if (!trimmed) return null
+  if (trimmed.length > 1000) {
+    errors.push(`${label} ist zu lang.`)
+    return null
+  }
+
+  try {
+    const parsed = new URL(trimmed)
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+      errors.push(`${label} muss eine HTTP- oder HTTPS-URL sein.`)
+      return null
+    }
+    return parsed.href
+  } catch {
+    errors.push(`${label} ist keine gueltige URL.`)
+    return null
+  }
+}
+
 function pickExisting(
   existingByKey: Map<string, ExistingMunicipality>,
   name: string,
@@ -131,7 +152,7 @@ export function validateImportRows(
     const bundesland = raw.bundesland?.trim() || null
     const kreis = raw.kreis?.trim() || null
     const quellenname = raw.quellenname?.trim() || fallbackSourceName
-    const quellenUrl = raw.quellen_url?.trim() || fallbackSourceUrl
+    const quellenUrl = normalizeOptionalUrl(raw.quellen_url || fallbackSourceUrl, 'Quellen-URL', errors)
     const datenstand = normalizeDate(raw.datenstand || fallbackDataStand, errors)
     const hebesatzA = parseOptionalRate(raw.grundsteuer_a, 'Grundsteuer A', errors)
     const hebesatzB = parseRequiredRate(raw.grundsteuer_b, 'Grundsteuer B', errors)

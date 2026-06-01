@@ -7,6 +7,7 @@ import { LogIn } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { resolveSafeRedirectPath } from '@/lib/routing/safe-redirect'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
 export function LoginForm() {
@@ -35,7 +36,7 @@ export function LoginForm() {
       return
     }
 
-    router.push(searchParams.get('redirectTo') || '/')
+    router.push(resolveSafeRedirectPath(searchParams.get('redirectTo')))
     router.refresh()
   }
 

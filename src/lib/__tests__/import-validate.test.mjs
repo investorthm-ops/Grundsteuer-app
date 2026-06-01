@@ -110,6 +110,13 @@ describe('validateImportRows', () => {
     assert.equal(result[0].status, 'error')
   })
 
+  it('rejects invalid quellen_url values', () => {
+    const rows = [{ name: 'Neue Stadt', bundesland: 'Hessen', grundsteuer_b: '500', datenstand: '2025-01-01', quellenname: 'Q', quellen_url: 'javascript:alert(1)' }]
+    const result = validateImportRows(rows, [], FALLBACK_SOURCE, FALLBACK_URL, FALLBACK_DATE)
+    assert.equal(result[0].status, 'error')
+    assert.ok(result[0].errors.some(e => e.includes('Quellen-URL')))
+  })
+
   it('handles optional rates as null', () => {
     const rows = [{ name: 'Neue Stadt', bundesland: 'Hessen', grundsteuer_b: '500', datenstand: '2025-01-01', quellenname: 'Q' }]
     const result = validateImportRows(rows, [], FALLBACK_SOURCE, FALLBACK_URL, FALLBACK_DATE)
