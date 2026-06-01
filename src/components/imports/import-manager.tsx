@@ -49,7 +49,10 @@ function numberCell(value: number | null) {
   return value === null ? '-' : `${value} %`
 }
 
-function existingNumberCell(row: ImportRow, key: 'hebesatz_a' | 'hebesatz_b' | 'hebesatz_gewerbe') {
+function existingNumberCell(
+  row: ImportRow,
+  key: 'hebesatz_a' | 'hebesatz_b' | 'hebesatz_b_wohnen' | 'hebesatz_b_nichtwohnen' | 'hebesatz_gewerbe'
+) {
   const value = row.existing_snapshot?.[key]
   return typeof value === 'number' ? `${value} %` : null
 }
@@ -339,6 +342,12 @@ export function ImportManager() {
                           <TableCell>{row.bundesland ?? '-'}</TableCell>
                           <TableCell>
                             <div>{numberCell(row.hebesatz_b)}</div>
+                            {row.hebesatz_b_wohnen !== null || row.hebesatz_b_nichtwohnen !== null ? (
+                              <div className="text-xs text-zinc-500">
+                                Wohnen: {numberCell(row.hebesatz_b_wohnen)} · Nicht-Wohnen:{' '}
+                                {numberCell(row.hebesatz_b_nichtwohnen)}
+                              </div>
+                            ) : null}
                             {existingNumberCell(row, 'hebesatz_b') ? (
                               <div className="text-xs text-zinc-500">
                                 Bestand: {existingNumberCell(row, 'hebesatz_b')}

@@ -18,6 +18,11 @@ from pathlib import Path
 
 import httpx
 import pdfplumber
+from import_staging import (
+    build_staging_rows,
+    fetch_existing_municipalities,
+    stage_import_run,
+)
 
 PDF_URL = (
     "https://steuerzahler.de/fileadmin/user_upload/"
@@ -296,30 +301,7 @@ def _norm(s: str) -> str:
 
 def fetch_existing_nrw_municipalities() -> dict:
     """Holt alle NRW-Gemeindenamen aus Supabase."""
-    result = {}
-    if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
-        return result
-    headers = {
-        "apikey": SUPABASE_SERVICE_KEY,
-        "Authorization": f"Bearer {SUPABASE_SERVICE_KEY}",
-    }
-    with httpx.Client(timeout=30.0) as client:
-        offset = 0
-        while True:
-            url = (
-                f"{SUPABASE_URL}/rest/v1/municipalities"
-                f"?select=name,bundesland,datenstand&bundesland=eq.Nordrhein-Westfalen"
-                f"&order=name.asc&limit={FETCH_PAGE_SIZE}&offset={offset}"
-            )
-            resp = client.get(url, headers=headers)
-            resp.raise_for_status()
-            page = resp.json()
-            for r in page:
-                result[r["name"]] = r
-            if len(page) < FETCH_PAGE_SIZE:
-                break
-            offset += FETCH_PAGE_SIZE
-    return result
+    return fetch_existing_municipalities(SUPABASE_URL, SUPABASE_SERVICE_KEY, "Nordrhein-Westfalen")
 
 
 def build_update_rows(
@@ -394,45 +376,24 @@ def build_update_rows(
     return rows, matched_names, unmatched_names
 
 
-def write_batch(client: httpx.Client, batch: list) -> tuple:
-    api_url = f"{SUPABASE_URL}/rest/v1/municipalities?on_conflict=bundesland,name"
-    headers = {
-        "apikey": SUPABASE_SERVICE_KEY,
-        "Authorization": f"Bearer {SUPABASE_SERVICE_KEY}",
-        "Content-Type": "application/json",
-        "Prefer": "resolution=merge-duplicates",
-    }
-    try:
-        resp = client.post(api_url, headers=headers, json=batch, timeout=30.0)
-        if resp.status_code in (200, 201, 204):
-            return len(batch), 0
-        print(f"    HTTP {resp.status_code}: {resp.text[:200]}")
-        return 0, len(batch)
-    except Exception as e:
-        print(f"    Fehler: {e}")
-        return 0, len(batch)
-
-
-def write_to_supabase(rows: list):
-    if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
-        print("  FEHLER: SUPABASE_URL oder SUPABASE_SERVICE_KEY nicht gesetzt")
-        return 0, len(rows)
-
-    written = 0
-    errors = 0
-    with httpx.Client(timeout=30.0) as client:
-        for i in range(0, len(rows), BATCH_SIZE):
-            batch = rows[i : i + BATCH_SIZE]
-            ok, err = write_batch(client, batch)
-            written += ok
-            errors += err
-            batch_num = i // BATCH_SIZE + 1
-            detail = f"Batch {batch_num}: {ok} geschrieben"
-            if err:
-                detail += f", {err} Fehler"
-            print(f"    {detail}")
-
-    return written, errors
+def stage_to_import_pipeline(rows: list):
+    existing = fetch_existing_nrw_municipalities()
+    staging_rows = build_staging_rows(
+        rows,
+        existing,
+        warning="Automatischer BdSt-Scraper: vor Produktivuebernahme im Adminbereich freigeben.",
+    )
+    run_id, errors = stage_import_run(
+        SUPABASE_URL,
+        SUPABASE_SERVICE_KEY,
+        "BdSt NRW - Grundsteuer B 2025",
+        PDF_URL,
+        "2025-06-30",
+        staging_rows,
+    )
+    if run_id:
+        print(f"  Importlauf vorgemerkt: {run_id}")
+    return len(staging_rows) - errors, errors
 
 
 def main():
@@ -498,9 +459,9 @@ def main():
         if len(rows) > 5:
             print(f"   ... und {len(rows)-5} weitere")
     else:
-        print(f"\n5. Schreiben nach Supabase ({len(rows)} Zeilen)...")
-        written, errors = write_to_supabase(rows)
-        print(f"\nFertig: {written} geschrieben, {errors} Fehler")
+        print(f"\n5. Importlauf vormerken ({len(rows)} Zeilen)...")
+        written, errors = stage_to_import_pipeline(rows)
+        print(f"\nFertig: {written} Zeilen vorgemerkt, {errors} Fehler")
 
     print("Done")
 

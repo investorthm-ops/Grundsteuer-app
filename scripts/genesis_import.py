@@ -23,6 +23,7 @@ import zipfile
 from pathlib import Path
 
 import httpx
+from import_staging import build_staging_rows, fetch_existing_municipalities, stage_import_run
 
 REGIONAL_API = "https://www.regionalstatistik.de/genesisws/rest/2020"
 TABLE = "71231-01-03-5"
@@ -50,6 +51,7 @@ COL_GEWERBE = 11
 
 
 def load_env():
+    global SUPABASE_URL, SUPABASE_SERVICE_KEY, GENESIS_USER, GENESIS_PASS
     env_path = Path(__file__).resolve().parent.parent / ".env.local"
     if env_path.exists():
         for line in env_path.read_text(encoding="utf-8").splitlines():
@@ -58,6 +60,10 @@ def load_env():
                 continue
             key, _, val = line.partition("=")
             os.environ.setdefault(key.strip(), val.strip())
+    SUPABASE_URL = os.environ.get("NEXT_PUBLIC_SUPABASE_URL", "")
+    SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
+    GENESIS_USER = os.environ.get("GENESIS_USERNAME", "")
+    GENESIS_PASS = os.environ.get("GENESIS_PASSWORD", "")
 
 
 def _parse_rate(val: str):
@@ -249,56 +255,17 @@ def to_supabase_rows(gemeinden, bundesland: str, jahr: int):
     return rows
 
 
-def write_batch(client: httpx.Client, batch: list) -> tuple:
-    """Schreibt ein Batch per Upsert. Gibt (ok_count, error_count) zurueck."""
-    api_url = f"{SUPABASE_URL}/rest/v1/municipalities?on_conflict=bundesland,name"
-    headers = {
-        "apikey": SUPABASE_SERVICE_KEY,
-        "Authorization": f"Bearer {SUPABASE_SERVICE_KEY}",
-        "Content-Type": "application/json",
-        "Prefer": "resolution=merge-duplicates",
-    }
-    try:
-        resp = client.post(api_url, headers=headers, json=batch, timeout=30.0)
-        if resp.status_code in (200, 201, 204):
-            return len(batch), 0
-        print(f"    HTTP {resp.status_code}: {resp.text[:200]}")
-        return 0, len(batch)
-    except Exception as e:
-        print(f"    Fehler: {e}")
-        return 0, len(batch)
-
-
-def fetch_existing_timestamps(bundesland: str) -> dict:
-    """Holt existierende (bundesland, name)->datenstand aus Supabase.
-
-    Ermoeglicht das Ueberspringen von Records mit neuerem Datenstand.
-    """
-    result = {}
-    if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
-        return result
-    url = f"{SUPABASE_URL}/rest/v1/municipalities?select=name,datenstand&bundesland=eq.{bundesland}&limit=1000"
-    headers = {"apikey": SUPABASE_SERVICE_KEY, "Authorization": f"Bearer {SUPABASE_SERVICE_KEY}"}
-    with httpx.Client(timeout=30.0) as client:
-        resp = client.get(url, headers=headers)
-        if resp.status_code == 200:
-            for r in resp.json():
-                result[r["name"]] = r.get("datenstand", "")
-    return result
-
-
-def write_to_supabase(rows, bundesland: str, jahr: int):
+def stage_to_import_pipeline(rows, bundesland: str, jahr: int):
     if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
         print("  FEHLER: SUPABASE_URL oder SUPABASE_SERVICE_KEY nicht gesetzt")
         return 0, len(rows)
 
-    # Bestehende Datenstaende abrufen, um neuere nicht zu ueberschreiben
-    existing = fetch_existing_timestamps(bundesland)
+    existing = fetch_existing_municipalities(SUPABASE_URL, SUPABASE_SERVICE_KEY, bundesland)
     import_datenstand = f"{jahr}-12-31"
     filtered = []
     skipped = 0
     for r in rows:
-        old = existing.get(r["name"], "")
+        old = existing.get(r["name"], {}).get("datenstand", "")
         if old > import_datenstand:
             skipped += 1
         else:
@@ -311,21 +278,22 @@ def write_to_supabase(rows, bundesland: str, jahr: int):
         print("  Keine zu aktualisierenden Gemeinden")
         return 0, 0
 
-    written = 0
-    errors = 0
-    with httpx.Client(timeout=30.0) as client:
-        for i in range(0, len(filtered), BATCH_SIZE):
-            batch = filtered[i : i + BATCH_SIZE]
-            ok, err = write_batch(client, batch)
-            written += ok
-            errors += err
-            batch_num = i // BATCH_SIZE + 1
-            detail = f"{batch_num}: {ok} geschrieben"
-            if err:
-                detail += f", {err} Fehler"
-            print(f"    Batch {detail}")
-
-    return written, errors
+    staging_rows = build_staging_rows(
+        filtered,
+        existing,
+        warning="Automatischer GENESIS-Import: vor Produktivuebernahme im Adminbereich freigeben.",
+    )
+    run_id, errors = stage_import_run(
+        SUPABASE_URL,
+        SUPABASE_SERVICE_KEY,
+        f"Regionalstatistik GENESIS {bundesland} {jahr}",
+        "https://www.regionalstatistik.de",
+        import_datenstand,
+        staging_rows,
+    )
+    if run_id:
+        print(f"  Importlauf vorgemerkt: {run_id}")
+    return len(staging_rows) - errors, errors
 
 
 def main():
@@ -371,7 +339,7 @@ def main():
             if len(rows) > 5:
                 print(f"    ... und {len(rows)-5} weitere")
         else:
-            written, errors = write_to_supabase(rows, bundesland, jahr)
+            written, errors = stage_to_import_pipeline(rows, bundesland, jahr)
             total_written += written
             total_errors += errors
         print()
@@ -380,7 +348,7 @@ def main():
     if args.dry_run:
         print(f"DRY RUN: {total_gemeinden} Gemeinden gelesen, nichts geschrieben")
     else:
-        print(f"Fertig: {total_written} geschrieben, {total_errors} Fehler")
+        print(f"Fertig: {total_written} Zeilen vorgemerkt, {total_errors} Fehler")
     print(f"{'='*50}")
 
 
