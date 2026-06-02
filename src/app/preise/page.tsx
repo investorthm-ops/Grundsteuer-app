@@ -13,7 +13,7 @@ export default function PreisePage() {
     <AppShell
       eyebrow="Tarife"
       title="Preise"
-      description="Zwei Tarife für unterschiedliche Bedürfnisse. Solo für Recherche und Vergleich, Kanzlei zusätzlich mit aufbereiteten Reports für Mandantengespräche. Jährlich zahlen und zwei Monate sparen."
+      description="Zwei Tarife für unterschiedliche Bedürfnisse. Solo für Recherche und Vergleich, Kanzlei zusätzlich mit Renditerechner, unbegrenzter Watchlist und PDF-Reports für Mandantengespräche. Jährlich zahlen und zwei Monate sparen."
     >
       <section aria-labelledby="tarife-heading">
         <h2 id="tarife-heading" className="sr-only">

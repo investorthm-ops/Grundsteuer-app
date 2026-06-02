@@ -46,7 +46,7 @@ export const pricingPlans: PricingPlan[] = [
   {
     key: 'solo',
     name: 'Solo',
-    tagline: 'Für Einzelnutzer und kleine Teams, die Hebesätze recherchieren und vergleichen.',
+    tagline: 'Recherche & Überblick: für Einzelnutzer und kleine Teams, die Hebesätze recherchieren und vergleichen.',
     monthlyPrice: 49,
     yearlyPrice: 490,
     yearlyMonthlyEffective: 41,
@@ -54,9 +54,8 @@ export const pricingPlans: PricingPlan[] = [
     features: [
       'Bundesweite Hebesatz-Suche (Grundsteuer A, B, Gewerbe)',
       'Vergleich und Benchmarking mehrerer Kommunen',
-      'Watchlist für relevante Gemeinden',
       'CSV-/Excel-Export für Auswertungen',
-      'Renditeauswirkungs-Rechner',
+      'Watchlist für bis zu 10 Gemeinden',
     ],
     recommended: false,
     cta: {
@@ -67,15 +66,16 @@ export const pricingPlans: PricingPlan[] = [
   {
     key: 'kanzlei',
     name: 'Kanzlei',
-    tagline: 'Für Kanzleien und Berater, die Ergebnisse direkt im Mandantengespräch nutzen.',
+    tagline: 'Beratung & Mandanten: für Kanzleien und Berater, die Ergebnisse direkt im Mandantengespräch nutzen.',
     monthlyPrice: 129,
     yearlyPrice: 1290,
     yearlyMonthlyEffective: 108,
     yearlyDiscountNote: '2 Monate gratis',
     features: [
       'Alles aus Solo',
-      'PDF-/Excel-Reports für Mandantengespräche',
-      'Aufbereitete Auswertungen für Beratung und Standortfragen',
+      'Renditeauswirkungs-Rechner',
+      'Unbegrenzte Watchlist',
+      'PDF-Reports für Mandantengespräche',
     ],
     recommended: true,
     cta: {

@@ -91,7 +91,7 @@ Aktives Billing ist bewusst noch nicht umgesetzt.
 | P1 | Pilotkunden-Onboarding und Datenqualitäts-Startzentrale | Deployed |
 | P1 | Preisseite (/preise) mit Tarifen Solo und Kanzlei | Deployed |
 | P1 | GENESIS-Automation für wöchentlichen Import NRW + Hessen | Deployed |
-| P2 | Beratungsreports als PDF/Excel für Mandantengespräche | Planned |
+| P2 | Beratungsreport als PDF für Mandantengespräche (PROJ-18) | Planned |
 | P2 | Billing-Integration nach Geschäftsmodell-Validierung | Planned |
 | P2 | Multi-User-Teamverwaltung pro Organisation | Planned |
 

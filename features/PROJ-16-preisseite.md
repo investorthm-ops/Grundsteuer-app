@@ -24,8 +24,10 @@ Eine öffentliche, dedizierte Preisseite unter `/preise`, die zwei Abo-Tarife kl
 ## Tarifstruktur
 | Tarif | Monatspreis | Jahrespreis | Leistungsumfang |
 |---|---|---|---|
-| **Solo** | 49 €/Monat | ~490 €/Jahr (2 Monate gratis) | Alle bestehenden Features: Suche, Vergleich, Watchlist, CSV/Excel-Export, Renditerechner |
-| **Kanzlei** | 129 €/Monat | ~1.290 €/Jahr (2 Monate gratis) | Alles aus Solo **plus** PDF/Excel-Reports für Mandantengespräche (PROJ-17) |
+| **Solo** | 49 €/Monat | ~490 €/Jahr (2 Monate gratis) | Recherche & Überblick: Hebesatz-Suche (A, B, Gewerbe), Vergleich & Benchmarking, CSV-/Excel-Export, Watchlist für bis zu 10 Gemeinden |
+| **Kanzlei** | 129 €/Monat | ~1.290 €/Jahr (2 Monate gratis) | Beratung & Mandanten: Alles aus Solo **plus** Renditeauswirkungs-Rechner, unbegrenzte Watchlist und PDF-Reports für Mandantengespräche (PROJ-18) |
+
+**Tarif-Neuordnung 2026-06-02 (Markus):** Der Renditeauswirkungs-Rechner und die unbegrenzte Watchlist wurden aus Solo in den Kanzlei-Tarif hochgestuft, um den Preisabstand fair zu begründen; die unscharfe Zeile „Aufbereitete Auswertungen" wurde gestrichen. Die Preisseite zeigt dieses **Zielbild**; die technische Durchsetzung der Tarif-Schranken (Rechner sperren, Watchlist-Limit, PDF gaten) folgt mit PROJ-15 (Stripe). Siehe Memory `project_tarif_gating`.
 
 Hinweis: Preise sind Netto/Brutto-Darstellung später final festzulegen; für V1 werden die genannten Eurobeträge angezeigt.
 
@@ -42,8 +44,8 @@ Hinweis: Preise sind Netto/Brutto-Darstellung später final festzulegen; für V1
 - [ ] Bei „Jährlich" zeigt jede Karte den Jahrespreis und einen sichtbaren Rabatt-Hinweis („2 Monate gratis" o. ä.); bei „Monatlich" den Monatspreis.
 - [ ] Zwei Tarifkarten werden nebeneinander dargestellt: „Solo" und „Kanzlei".
 - [ ] Jede Karte zeigt: Tarifname, aktuellen Preis (abhängig vom Toggle), eine Feature-Liste und einen CTA-Button.
-- [ ] Die Solo-Karte listet die bestehenden Features (Suche, Vergleich, Watchlist, Export, Renditerechner).
-- [ ] Die Kanzlei-Karte listet „Alles aus Solo" plus PDF/Excel-Reports für Mandantengespräche.
+- [ ] Die Solo-Karte listet die Solo-Features (Suche, Vergleich & Benchmarking, CSV-/Excel-Export, Watchlist für bis zu 10 Gemeinden) — **ohne** Renditerechner.
+- [ ] Die Kanzlei-Karte listet „Alles aus Solo" plus Renditeauswirkungs-Rechner, unbegrenzte Watchlist und PDF-Reports für Mandantengespräche.
 - [ ] Eine Karte (Kanzlei) ist optisch als Empfehlung/hervorgehoben markiert.
 - [ ] Solange Stripe nicht aktiv ist, führt jeder CTA-Button zu „Kontakt aufnehmen" (E-Mail-Link oder Kontaktziel), nicht zu einem Checkout.
 - [ ] Der CTA ist so umgesetzt, dass er später ohne Layout-Umbau auf Stripe Checkout umgestellt werden kann (austauschbares Ziel/Handler).
