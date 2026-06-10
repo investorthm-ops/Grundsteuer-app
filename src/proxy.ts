@@ -42,10 +42,15 @@ export async function proxy(request: NextRequest) {
   const isComparePath = pathname.startsWith('/vergleich')
   const isAccountPath = pathname.startsWith('/mein-zugang')
   const isAccessBlockedPath = pathname.startsWith('/zugang-gesperrt')
+  // Admin-APIs pruefen Auth+Rolle auch selbst in der Route (massgebliche Ebene);
+  // die Middleware ist hier zweites Netz (Defense in depth).
+  const isAdminApiPath =
+    pathname.startsWith('/api/admin') || pathname.startsWith('/api/imports')
   const isProtectedApiPath =
     pathname.startsWith('/api/municipalities') ||
     pathname.startsWith('/api/watchlist') ||
-    pathname.startsWith('/api/exports')
+    pathname.startsWith('/api/exports') ||
+    isAdminApiPath
   // App paths require BOTH auth AND active org. Account page requires auth only —
   // a user without org should still see the friendly explanation on /mein-zugang.
   const isAppPath = isDatabasePath || isWatchlistPath || isCalculatorPath || isComparePath
@@ -61,7 +66,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  if (isAdminPath && user) {
+  if ((isAdminPath || isAdminApiPath) && user) {
     const { data: roleRow } = await supabase
       .from('user_roles')
       .select('role')
@@ -70,6 +75,9 @@ export async function proxy(request: NextRequest) {
       .maybeSingle()
 
     if (roleRow?.role !== 'admin') {
+      if (isAdminApiPath) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
       return NextResponse.redirect(new URL('/datenbank', request.url))
     }
   }
@@ -100,5 +108,7 @@ export const config = {
     '/api/municipalities/:path*',
     '/api/watchlist/:path*',
     '/api/exports/:path*',
+    '/api/admin/:path*',
+    '/api/imports/:path*',
   ],
 }
