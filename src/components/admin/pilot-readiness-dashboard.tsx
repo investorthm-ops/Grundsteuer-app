@@ -29,6 +29,7 @@ import type {
   PilotReadinessStats,
 } from '@/lib/types/pilot-readiness'
 import type { OrganizationStatus } from '@/lib/types/organization'
+import { formatDate as formatDateShared } from '@/lib/reports/format'
 
 const STATUS_LABELS: Record<OrganizationStatus, string> = {
   trial: 'Testphase',
@@ -50,8 +51,7 @@ function percent(value: number, total: number) {
 }
 
 function formatDate(value: string | null) {
-  if (!value) return 'unbegrenzt'
-  return new Intl.DateTimeFormat('de-DE').format(new Date(value))
+  return formatDateShared(value, 'unbegrenzt')
 }
 
 function statusVariant(status: OrganizationStatus) {

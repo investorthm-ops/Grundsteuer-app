@@ -10,6 +10,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import type { Municipality } from '@/lib/types/municipality'
 import { findMunicipalityBySlug, municipalitySlug } from '@/lib/seo/municipality-slug'
 import { isStale } from '@/lib/staleness'
+import { formatDate as formatDateShared, formatRate } from '@/lib/reports/format'
 
 type PageProps = {
   params: Promise<{ slug: string }>
@@ -17,13 +18,8 @@ type PageProps = {
 
 export const dynamic = 'force-dynamic'
 
-function formatRate(value: number | null) {
-  return typeof value === 'number' ? `${value} %` : '-'
-}
-
 function formatDate(value: string | null) {
-  if (!value) return 'noch offen'
-  return new Intl.DateTimeFormat('de-DE').format(new Date(value))
+  return formatDateShared(value, 'noch offen')
 }
 
 function delta(current: number, previous: number | null) {

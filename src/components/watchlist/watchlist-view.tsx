@@ -13,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { formatDate, formatRate } from '@/lib/reports/format'
 import type { WatchlistItem, WatchlistListResponse } from '@/lib/types/watchlist'
 
 const DISPLAY_REPLACEMENTS: Record<string, string> = {
@@ -27,15 +28,6 @@ function displayText(value: string) {
     (text, [search, replacement]) => text.replaceAll(search, replacement),
     value
   )
-}
-
-function formatRate(value: number | null) {
-  return typeof value === 'number' ? `${value} %` : '-'
-}
-
-function formatDate(value: string | null) {
-  if (!value) return '-'
-  return new Intl.DateTimeFormat('de-DE').format(new Date(value))
 }
 
 function delta(current: number, previous: number | null) {
