@@ -28,7 +28,8 @@ Eingeloggte Nutzer aller Pläne können kommunale Hebesätze (Grundsteuer A, Gru
 ## Acceptance Criteria
 
 ### Zugang
-- [x] Nur eingeloggte Nutzer können die Datenbank-Ansicht aufrufen — nicht eingeloggte Nutzer werden auf die Login-Seite weitergeleitet. *(Middleware + API 401)*
+- [x] Nur eingeloggte Nutzer können die Datenbank-Ansicht `/datenbank` aufrufen — nicht eingeloggte Nutzer werden auf die Login-Seite weitergeleitet. *(Middleware + API 401)*
+- [x] Aktualisierung (seit PROJ-3 / Migration 0023): Die Hebesatz-Daten selbst sind für die öffentlichen SEO-Stadtseiten bewusst anonym lesbar — aber nur Werte mit Quellenstatus `bestaetigt`. Offene (ungeprüfte) Werte sehen ausschließlich eingeloggte Nutzer und Admins. Der Login schützt die komfortable App-Ansicht (Suche, Filter, Watchlist, Export), nicht die amtlich-öffentlichen Einzelwerte.
 
 ### Datenbankinhalt
 - [x] Jeder Datensatz enthält: Bundesland, Kreis (optional), Gemeindename, Grundsteuer A (%), Grundsteuer B (%), Gewerbesteuer (%), Vorjahr-Hebesatz B, Datenstand (Datum/Jahr), Quellenstatus (bestätigt / offen). *(SQL schema)*
@@ -51,7 +52,7 @@ Eingeloggte Nutzer aller Pläne können kommunale Hebesätze (Grundsteuer A, Gru
 - [x] Ein Admin-Formular (nur für User mit Admin-Rolle zugänglich) ermöglicht: Neuen Datensatz anlegen, bestehenden Datensatz bearbeiten. *(Backend: POST/PATCH/DELETE admin-gated; UI umgesetzt)*
 - [x] Pflichtfelder: Gemeindename, Bundesland, Grundsteuer B. *(Zod + NOT NULL constraints)*
 - [x] Optionale Felder: Grundsteuer A, Gewerbesteuer, Vorjahr B, Kreis, Quellenstatus, Datenstand.
-- [x] Ungültige Werte (negativ, > 2000 %) werden clientseitig abgefangen. *(Server-side: Zod 0–2000 + DB CHECK; client validation umgesetzt)*
+- [x] Ungültige Werte (negativ, > 2000 %) werden clientseitig abgefangen. *(Server-side: Zod 0–2000 + DB CHECK; client validation umgesetzt. Präzisierung seit PROJ-10: die differenzierten Felder `hebesatz_b_wohnen`/`hebesatz_b_nichtwohnen` erlauben bewusst 0–3000.)*
 
 ### Performance
 - [x] Tabelle lädt in unter 1 Sekunde bei bis zu 5.000 Datensätzen (serverseitige Paginierung via Supabase). *(Indexes auf bundesland, name, (bundesland,name); `.range()` Paginierung)*
@@ -74,7 +75,7 @@ Eingeloggte Nutzer aller Pläne können kommunale Hebesätze (Grundsteuer A, Gru
 ## Technical Requirements
 
 - **Auth:** Supabase Auth — Session-Check server-side, kein Zugriff ohne gültige Session.
-- **Datenhaltung:** Supabase PostgreSQL, Tabelle `municipalities` mit Row Level Security (RLS); SELECT für alle authentifizierten User, INSERT/UPDATE nur für Admin-Rolle.
+- **Datenhaltung:** Supabase PostgreSQL, Tabelle `municipalities` mit Row Level Security (RLS); SELECT für alle authentifizierten User, anonym nur Zeilen mit `quellenstatus = 'bestaetigt'` (SEO-Stadtseiten, Migrationen 0004 + 0023); INSERT/UPDATE/DELETE nur für Admin-Rolle.
 - **Paginierung:** Serverseitig via Supabase `.range()` — kein Full-Table-Fetch im Client.
 - **Suche:** Supabase `.ilike()` auf `name`-Spalte; Filter via `.eq('bundesland', value)`.
 - **Performance:** Index auf `bundesland` und `name`.
