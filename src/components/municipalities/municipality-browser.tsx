@@ -28,6 +28,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { BUNDESLAENDER } from '@/lib/validation/municipality'
+import { formatDate, formatRate } from '@/lib/reports/format'
 import type { Municipality, MunicipalityListResponse } from '@/lib/types/municipality'
 import type { WatchlistListResponse } from '@/lib/types/watchlist'
 
@@ -47,17 +48,8 @@ function displayText(value: string) {
   )
 }
 
-function formatRate(value: number | null) {
-  return typeof value === 'number' ? `${value} %` : '-'
-}
-
 function hasDifferentiatedB(item: Municipality) {
   return typeof item.hebesatz_b_wohnen === 'number' || typeof item.hebesatz_b_nichtwohnen === 'number'
-}
-
-function formatDate(value: string | null) {
-  if (!value) return '-'
-  return new Intl.DateTimeFormat('de-DE').format(new Date(value))
 }
 
 function delta(current: number, previous: number | null) {

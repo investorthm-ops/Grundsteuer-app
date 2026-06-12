@@ -2,16 +2,13 @@ import { AppShell } from '@/components/app-shell'
 import { MunicipalityBrowser } from '@/components/municipalities/municipality-browser'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { formatDate } from '@/lib/reports/format'
 
 type DatenbankPageProps = {
   searchParams: Promise<{ q?: string }>
 }
 
 export const dynamic = 'force-dynamic'
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat('de-DE').format(new Date(value))
-}
 
 async function getDataStand() {
   const supabase = await createSupabaseServerClient()

@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
+import { formatRate } from '@/lib/reports/format'
 import type { Municipality, MunicipalityListResponse } from '@/lib/types/municipality'
 
 type TaxRateKind = 'standard' | 'wohnen' | 'nichtwohnen'
@@ -32,10 +33,6 @@ function formatCurrency(value: number) {
     currency: 'EUR',
     maximumFractionDigits: 2,
   }).format(value)
-}
-
-function formatRate(value: number | null) {
-  return typeof value === 'number' ? `${value} %` : '-'
 }
 
 function parseNumber(value: string) {

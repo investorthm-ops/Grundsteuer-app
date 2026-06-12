@@ -8,8 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "node --experimental-strip-types --test src/lib/__tests__/csv.test.mjs src/lib/__tests__/validation.test.mjs src/lib/__tests__/pricing.test.mjs src/lib/__tests__/import-validate.test.mjs src/lib/__tests__/safe-redirect.test.mjs",
-    "test:watch": "node --experimental-strip-types --test --watch src/lib/__tests__/csv.test.mjs src/lib/__tests__/validation.test.mjs src/lib/__tests__/pricing.test.mjs src/lib/__tests__/import-validate.test.mjs src/lib/__tests__/safe-redirect.test.mjs"
+    "test": "node --experimental-strip-types --test src/lib/__tests__/csv.test.mjs src/lib/__tests__/validation.test.mjs src/lib/__tests__/pricing.test.mjs src/lib/__tests__/import-validate.test.mjs src/lib/__tests__/safe-redirect.test.mjs src/lib/__tests__/format.test.mjs",
+    "test:watch": "node --experimental-strip-types --test --watch src/lib/__tests__/csv.test.mjs src/lib/__tests__/validation.test.mjs src/lib/__tests__/pricing.test.mjs src/lib/__tests__/import-validate.test.mjs src/lib/__tests__/safe-redirect.test.mjs src/lib/__tests__/format.test.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

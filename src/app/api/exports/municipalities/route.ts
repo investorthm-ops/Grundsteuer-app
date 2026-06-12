@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { exportQuerySchema } from '@/lib/validation/municipality'
+import { DATA_NOTICE, deltaB, num } from '@/lib/reports/format'
 import type { Municipality } from '@/lib/types/municipality'
 
 const EXPORT_LIMIT = 5000
@@ -24,9 +25,6 @@ const HEADERS = [
   'Hinweis',
 ]
 
-const DATA_NOTICE =
-  'Recherche- und Vergleichsdaten; Fehler sind möglich. Maßgeblich sind die amtlichen Veröffentlichungen der Kommune oder Behörde. Keine Garantie für Richtigkeit, Vollständigkeit oder Aktualität.'
-
 function csvCell(value: string | number | null | undefined) {
   if (value === null || typeof value === 'undefined') return ''
   let text = String(value)
@@ -40,19 +38,6 @@ function csvCell(value: string | number | null | undefined) {
   }
   if (!/[;"\r\n]/.test(text)) return text
   return `"${text.replaceAll('"', '""')}"`
-}
-
-function deltaB(item: Municipality) {
-  if (typeof item.vorjahr_b !== 'number') return ''
-  // Auf zwei Nachkommastellen runden (Float-Artefakte bei Dezimal-Hebesaetzen vermeiden).
-  return Math.round((item.hebesatz_b - item.vorjahr_b) * 100) / 100
-}
-
-// Zahlen im deutschen Format ausgeben (Dezimalkomma), damit Excel-DE Werte wie
-// 854,69 korrekt erkennt. Ganze Zahlen bleiben ohne Nachkommastellen.
-function num(value: number | string | null | undefined) {
-  if (typeof value !== 'number') return value ?? ''
-  return value.toLocaleString('de-DE', { maximumFractionDigits: 2, useGrouping: false })
 }
 
 function toCsv(items: Municipality[]) {

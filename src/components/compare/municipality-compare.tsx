@@ -22,53 +22,22 @@ import {
 } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { BUNDESLAENDER } from '@/lib/validation/municipality'
+import {
+  average,
+  COMPARISON_FIELDS,
+  extreme,
+  TAX_FIELDS,
+  type TaxField,
+} from '@/lib/reports/aggregate'
+import { formatDate, formatRate } from '@/lib/reports/format'
 import type { Municipality, MunicipalityListResponse } from '@/lib/types/municipality'
 
 const ALL_STATES = 'alle'
 
-type TaxField = 'hebesatz_a' | 'hebesatz_b' | 'hebesatz_b_wohnen' | 'hebesatz_b_nichtwohnen' | 'hebesatz_gewerbe'
 type SortDir = 'asc' | 'desc'
-
-const TAX_FIELDS: Array<{ value: TaxField; label: string }> = [
-  { value: 'hebesatz_b', label: 'Grundsteuer B' },
-  { value: 'hebesatz_b_wohnen', label: 'B Wohnen' },
-  { value: 'hebesatz_b_nichtwohnen', label: 'B Nichtwohnen' },
-  { value: 'hebesatz_a', label: 'Grundsteuer A' },
-  { value: 'hebesatz_gewerbe', label: 'Gewerbesteuer' },
-]
-
-const COMPARISON_FIELDS: TaxField[] = ['hebesatz_a', 'hebesatz_b', 'hebesatz_b_wohnen', 'hebesatz_b_nichtwohnen', 'hebesatz_gewerbe']
-
-function formatRate(value: number | null) {
-  // Auf max. zwei Nachkommastellen runden (Durchschnitte koennen Float-Artefakte haben).
-  return typeof value === 'number' ? `${Math.round(value * 100) / 100} %` : '-'
-}
-
-function formatDate(value: string | null) {
-  if (!value) return '-'
-  return new Intl.DateTimeFormat('de-DE').format(new Date(value))
-}
 
 function fieldLabel(field: TaxField) {
   return TAX_FIELDS.find((item) => item.value === field)?.label ?? 'Hebesatz'
-}
-
-function valuesFor(items: Municipality[], field: TaxField) {
-  return items
-    .map((item) => item[field])
-    .filter((value): value is number => typeof value === 'number')
-}
-
-function average(items: Municipality[], field: TaxField) {
-  const values = valuesFor(items, field)
-  if (!values.length) return null
-  return Math.round(values.reduce((sum, value) => sum + value, 0) / values.length)
-}
-
-function extreme(items: Municipality[], field: TaxField, mode: 'min' | 'max') {
-  const values = valuesFor(items, field)
-  if (!values.length) return null
-  return mode === 'min' ? Math.min(...values) : Math.max(...values)
 }
 
 function toneFor(value: number | null, min: number | null, max: number | null) {
