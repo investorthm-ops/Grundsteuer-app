@@ -37,6 +37,32 @@ function resolveSiteUrl(): string {
   return 'http://localhost:3000'
 }
 
+type AdminClient = ReturnType<typeof createSupabaseAdminClient>
+
+// Supabase Auth hat kein "get user by email" — listUsers liefert nur eine Seite
+// (Default 50). Wir blaettern durch, damit auch bei >50 Nutzern ein bereits
+// registrierter Kunde erneut eingeladen werden kann (QA-Befund PROJ-12).
+async function findAuthUserIdByEmail(
+  adminClient: AdminClient,
+  email: string
+): Promise<string | null> {
+  const target = email.toLowerCase()
+  const perPage = 200
+  // Sicherheitskappe gegen Endlosschleifen: 50 Seiten * 200 = 10.000 Nutzer.
+  for (let page = 1; page <= 50; page += 1) {
+    const { data, error } = await adminClient.auth.admin.listUsers({
+      page,
+      perPage,
+    })
+    if (error) return null
+    const users = data?.users ?? []
+    const match = users.find((u) => (u.email ?? '').toLowerCase() === target)
+    if (match) return match.id
+    if (users.length < perPage) break // letzte Seite erreicht
+  }
+  return null
+}
+
 export async function POST(request: NextRequest) {
   const { user, response } = await requireAdmin()
   if (response) return response
@@ -78,6 +104,11 @@ export async function POST(request: NextRequest) {
       redirectTo,
     })
 
+  // Wurde durch DIESEN Aufruf ein neuer Auth-Nutzer angelegt? Nur dann duerfen
+  // wir ihn bei einem spaeteren Fehler wieder loeschen (Rollback). Ein bereits
+  // vorher existierender Nutzer wird niemals geloescht.
+  const userWasNewlyCreated = Boolean(inviteResult?.user?.id)
+
   // If user already exists Supabase returns a 422 "User already registered".
   // We try to recover by looking the user up and proceeding with membership.
   let userId: string | null = inviteResult?.user?.id ?? null
@@ -92,18 +123,14 @@ export async function POST(request: NextRequest) {
         { status: 502 }
       )
     }
-    // Lookup existing user via listUsers (Supabase has no get-by-email)
-    const lookup = await adminClient.auth.admin.listUsers()
-    const existing = lookup.data?.users.find(
-      (u) => (u.email ?? '').toLowerCase() === email
-    )
-    if (!existing) {
+    // Lookup existing user via paginierte listUsers (Supabase has no get-by-email)
+    userId = await findAuthUserIdByEmail(adminClient, email)
+    if (!userId) {
       return NextResponse.json(
         { error: 'User exists but could not be located' },
         { status: 502 }
       )
     }
-    userId = existing.id
   }
 
   // 2) Upsert membership (one user = one org constraint applies)
@@ -117,8 +144,40 @@ export async function POST(request: NextRequest) {
     .single()
 
   if (membershipError) {
+    // Rollback: Haben WIR den Nutzer gerade neu angelegt, raeumen wir ihn wieder
+    // weg, damit kein "halber" Account ohne Org-Zugang zurueckbleibt. Bestehende
+    // Nutzer bleiben unangetastet.
+    let rolledBack = false
+    if (userWasNewlyCreated) {
+      const { error: deleteError } =
+        await adminClient.auth.admin.deleteUser(userId)
+      rolledBack = !deleteError
+    }
+
+    // Teilfehler protokollieren (blockiert nichts, wirft nicht).
+    await logAdminAction({
+      actor: { id: user!.id, email: user!.email ?? null },
+      action: 'invitation.failed',
+      entityType: 'invitation',
+      entityId: userId,
+      payload: {
+        email,
+        organization_id,
+        organization_name: org.name,
+        role,
+        reason: 'membership_write_failed',
+        detail: membershipError.message,
+        user_was_newly_created: userWasNewlyCreated,
+        rolled_back: rolledBack,
+      },
+    })
+
     return NextResponse.json(
-      { error: 'Membership write failed', detail: membershipError.message },
+      {
+        error: 'Membership write failed',
+        detail: membershipError.message,
+        rolled_back: rolledBack,
+      },
       { status: 500 }
     )
   }
@@ -135,7 +194,7 @@ export async function POST(request: NextRequest) {
       organization_id,
       organization_name: org.name,
       role,
-      reused_existing_user: inviteResult?.user?.id ? false : true,
+      reused_existing_user: !userWasNewlyCreated,
     },
   })
 

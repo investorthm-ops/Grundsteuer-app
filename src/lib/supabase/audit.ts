@@ -10,6 +10,7 @@ export type AuditAction =
   | 'membership.update'
   | 'membership.delete'
   | 'invitation.create'
+  | 'invitation.failed'
 
 export type AuditActor = {
   id: string
