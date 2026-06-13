@@ -21,11 +21,27 @@ jobs:
         run: |
           # Hinweis: Nach dem Domain-Umzug (grundsteuermonitor.de) hier die URL anpassen.
           URL="https://grundsteuer-app.vercel.app/api/health"
-          code=$(curl -sS --max-time 30 -o response.txt -w "%{http_code}" "$URL")
-          echo "HTTP $code"
-          cat response.txt
-          echo
-          if [ "$code" != "200" ]; then
-            echo "::error::Keep-alive-Health-Check fehlgeschlagen (erwartet 200, erhalten $code)."
-            exit 1
-          fi
+          attempts=5
+
+          for attempt in $(seq 1 "$attempts"); do
+            if code=$(curl -sS --connect-timeout 10 --max-time 30 -o response.txt -w "%{http_code}" "$URL"); then
+              if [ "$code" = "200" ] && jq -e '.ok == true and .db == "up"' response.txt > /dev/null; then
+                echo "Keep-alive erfolgreich (Versuch $attempt/$attempts)."
+                cat response.txt
+                exit 0
+              fi
+            else
+              code="000"
+            fi
+
+            echo "::warning::Keep-alive-Versuch $attempt/$attempts fehlgeschlagen (HTTP $code)."
+            head -c 500 response.txt 2>/dev/null || true
+            echo
+
+            if [ "$attempt" -lt "$attempts" ]; then
+              sleep 20
+            fi
+          done
+
+          echo "::error::Keep-alive-Health-Check nach $attempts Versuchen fehlgeschlagen."
+          exit 1
