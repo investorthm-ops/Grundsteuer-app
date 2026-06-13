@@ -1,0 +1,31 @@
+name: Supabase Keep-alive
+
+# Hält das Supabase-Free-Projekt aktiv. Ohne regelmäßige DB-Aktivität pausiert
+# der Free-Plan nach ~1 Woche automatisch und die Live-App ist ohne Daten.
+# Der Ping ruft den Health-Endpunkt der Produktions-App auf, der eine minimale
+# DB-Leseabfrage ausführt.
+
+on:
+  schedule:
+    # Alle 3 Tage um 06:30 UTC — deutlich innerhalb des ~7-Tage-Pause-Fensters,
+    # mit Reserve falls ein Lauf fehlschlägt.
+    - cron: '30 6 */3 * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    name: Health-Ping
+    runs-on: ubuntu-latest
+    steps:
+      - name: Produktions-Health-Endpunkt aufrufen
+        run: |
+          # Hinweis: Nach dem Domain-Umzug (grundsteuermonitor.de) hier die URL anpassen.
+          URL="https://grundsteuer-app.vercel.app/api/health"
+          code=$(curl -sS --max-time 30 -o response.txt -w "%{http_code}" "$URL")
+          echo "HTTP $code"
+          cat response.txt
+          echo
+          if [ "$code" != "200" ]; then
+            echo "::error::Keep-alive-Health-Check fehlgeschlagen (erwartet 200, erhalten $code)."
+            exit 1
+          fi
