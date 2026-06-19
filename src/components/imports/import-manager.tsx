@@ -15,7 +15,24 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import type { ImportDetailResponse, ImportListResponse, ImportRow, ImportRun } from '@/lib/types/imports'
+
+// Eine Konfliktzeile, die einen bereits BESTÄTIGTEN Live-Datensatz überschreiben
+// würde. Solche Werte wurden schon geprüft — Überschreiben braucht eine bewusste
+// Extra-Bestätigung (QA-Befund PROJ-4).
+function overwritesConfirmed(row: ImportRow) {
+  return row.status === 'conflict' && row.existing_snapshot?.quellenstatus === 'bestaetigt'
+}
 
 type ImportDetail = {
   run: ImportRun
@@ -59,6 +76,9 @@ function existingNumberCell(
 
 function rowHints(row: ImportRow) {
   const hints = [...row.errors, ...row.warnings]
+  if (overwritesConfirmed(row)) {
+    hints.unshift('Überschreibt einen bestätigten Wert')
+  }
   if (row.action === 'update') {
     hints.unshift('Bestehender Datensatz wird aktualisiert')
   }
@@ -75,10 +95,21 @@ export function ImportManager() {
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [confirmOpen, setConfirmOpen] = useState(false)
 
   const approvableRows = useMemo(
     () => detail?.rows.filter((row) => ['valid', 'warning', 'conflict'].includes(row.status)) ?? [],
     [detail]
+  )
+  // Zeilen, die einen bereits bestätigten Wert überschreiben würden.
+  const confirmedConflictRows = useMemo(
+    () => approvableRows.filter(overwritesConfirmed),
+    [approvableRows]
+  )
+  // Alle freigabefähigen Zeilen ohne die kritischen Überschreibungen.
+  const safeRows = useMemo(
+    () => approvableRows.filter((row) => !overwritesConfirmed(row)),
+    [approvableRows]
   )
 
   async function loadHistory() {
@@ -137,8 +168,8 @@ export function ImportManager() {
     }
   }
 
-  async function approveAll() {
-    if (!detail) return
+  async function runApproval(rows: ImportRow[]) {
+    if (!detail || rows.length === 0) return
     setIsLoading(true)
     setError(null)
     setMessage(null)
@@ -146,17 +177,28 @@ export function ImportManager() {
       const response = await fetch(`/api/imports/${detail.run.id}/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rowIds: approvableRows.map((row) => row.id) }),
+        body: JSON.stringify({ rowIds: rows.map((row) => row.id) }),
       })
       if (!response.ok) throw new Error('Freigabe fehlgeschlagen.')
       await loadDetail(detail.run.id)
       await loadHistory()
-      setMessage('G\u00fcltige Importzeilen wurden freigegeben.')
+      setMessage(`${rows.length} Importzeile${rows.length === 1 ? '' : 'n'} freigegeben.`)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unbekannter Fehler.')
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // Einstieg \u00fcber den Freigeben-Button: W\u00fcrden best\u00e4tigte Werte \u00fcberschrieben,
+  // erst eine bewusste Best\u00e4tigung einholen; sonst direkt freigeben.
+  function requestApproval() {
+    if (!detail || approvableRows.length === 0) return
+    if (confirmedConflictRows.length > 0) {
+      setConfirmOpen(true)
+      return
+    }
+    void runApproval(approvableRows)
   }
 
   async function discardImport() {
@@ -289,7 +331,7 @@ export function ImportManager() {
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <Button onClick={approveAll} disabled={isLoading || approvableRows.length === 0}>
+                  <Button onClick={requestApproval} disabled={isLoading || approvableRows.length === 0}>
                     <CheckCircle2 className="mr-2 h-4 w-4" aria-hidden="true" />
                     {'Pr\u00fcfbare Zeilen freigeben'}
                   </Button>
@@ -378,6 +420,42 @@ export function ImportManager() {
           </Card>
         )}
       </section>
+
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Bestätigte Werte überschreiben?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmedConflictRows.length === 1
+                ? '1 Zeile ändert einen bereits bestätigten Hebesatz.'
+                : `${confirmedConflictRows.length} Zeilen ändern bereits bestätigte Hebesätze.`}{' '}
+              Diese Werte wurden bereits geprüft. Du kannst sie bewusst überschreiben
+              oder nur die unkritischen Zeilen freigeben.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setConfirmOpen(false)
+                void runApproval(safeRows)
+              }}
+              disabled={safeRows.length === 0}
+            >
+              {`Nur unkritische freigeben (${safeRows.length})`}
+            </Button>
+            <AlertDialogAction
+              onClick={() => {
+                setConfirmOpen(false)
+                void runApproval(approvableRows)
+              }}
+            >
+              {`Bestätigte überschreiben (${approvableRows.length})`}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
