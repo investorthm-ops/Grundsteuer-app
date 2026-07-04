@@ -108,6 +108,8 @@ Der MVP ist technisch vorzeigbar und für Pilotkunden grundsätzlich nutzbar. Di
 - Admins sehen unter `/admin/pilotstart` eine Startzentrale für Pilotkunden-Onboarding und Datenqualität.
 - Die Preisseite `/preise` zeigt die Tarife Solo und Kanzlei als kaufbereite Angebotsseite.
 - Die GENESIS-Automation unterstützt den wöchentlichen Import für NRW und Hessen.
+- Automatische Datenimporte landen vor der Produktivübernahme in der Admin-Freigabepipeline.
+- Ein regelmäßiger Keep-alive-Workflow überwacht Supabase und schützt das Free-Projekt vor Inaktivität.
 - Rechtliche Seiten sind strukturell vorhanden.
 
 Noch nicht produktionsfinal sind Impressum, AGB, Datenschutzdetails, Hosting-/AV-Dokumentation und die finale Datenabdeckung.
@@ -147,4 +149,6 @@ Diese Funktionen sind für V1 bewusst nicht im Scope:
 1. Produktionskonfiguration prüfen: Supabase-Migrationen, Vercel ENV, Redirect URLs, E-Mail-Templates.
 2. Impressum, Datenschutz, AGB und Haftungstexte mit echten Betreiberangaben finalisieren.
 3. Datenbasis priorisieren: aktuelle 2025/2026-Hebesätze für relevante Pilotkommunen nachziehen.
-4. Stripe-Billing vorbereiten oder bewusst weiter zurückstellen, je nach Ergebnis des Pilotkunden-Tests.
+4. Die dokumentierten P0-Regressionsfälle schrittweise als API-/Browser-Tests automatisieren.
+5. PROJ-18 (PDF-Beratungsreport) auf Basis des vorhandenen Tech Designs implementieren.
+6. Stripe-Billing vorbereiten oder bewusst weiter zurückstellen, je nach Ergebnis des Pilotkunden-Tests.

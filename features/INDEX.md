@@ -29,7 +29,7 @@
 | PROJ-15 | Stripe-Billing Integration | Planned | [PROJ-15-stripe-billing.md](PROJ-15-stripe-billing.md) | 2026-05-30 |
 | PROJ-16 | Preisseite (/preise) mit Tarifen Solo und Kanzlei | Deployed | [PROJ-16-preisseite.md](PROJ-16-preisseite.md) | 2026-05-30 |
 | PROJ-17 | GENESIS-Automation (wöchentlicher Import NRW + Hessen) | Deployed | — | 2026-05-31 |
-| PROJ-18 | Beratungsreport als PDF (Kanzlei-Mehrwert) | In Progress | [PROJ-18-beratungsreport-pdf.md](PROJ-18-beratungsreport-pdf.md) | 2026-06-02 |
+| PROJ-18 | Beratungsreport als PDF (Kanzlei-Mehrwert) | Planned | [PROJ-18-beratungsreport-pdf.md](PROJ-18-beratungsreport-pdf.md) | 2026-06-02 |
 
 <!-- Add features above this line -->
 
