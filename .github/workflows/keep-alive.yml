@@ -1,41 +1,62 @@
 name: Supabase Keep-alive
 
-# Hält das Supabase-Free-Projekt aktiv. Ohne regelmäßige DB-Aktivität pausiert
-# der Free-Plan nach ~1 Woche automatisch und die Live-App ist ohne Daten.
-# Der Ping ruft den Health-Endpunkt der Produktions-App auf, der eine minimale
-# DB-Leseabfrage ausführt.
+# Verhindert die Supabase-Free-Plan-Auto-Pause.
+#
+# Laut offizieller Supabase-Doku (Project Pausing) pausiert ein Free-Projekt
+# nach 7 Tagen, wenn es NICHT "a few user requests to the database each day"
+# erhaelt. Der fruehere Rhythmus (alle 3 Tage, Ping ueber die Vercel-App) war
+# ZU SELTEN -> das Projekt pausierte am 2026-06-27 trotz "erfolgreicher" Pings,
+# weil an 4-5 von 7 Tagen gar keine DB-Aktivitaet stattfand.
+#
+# Fix: MEHRMALS TAEGLICH (alle 6h = 4x/Tag) eine echte DB-Abfrage DIREKT gegen
+# die Supabase-REST-API absetzen (nicht ueber Vercel, um Caching-/Deploy-
+# Abhaengigkeiten auszuschliessen). Das erfuellt die dokumentierte Anforderung
+# "a few user requests to the database each day".
+#
+# Hinweis: Es gibt keinen oeffentlichen Restore-API-Endpunkt. Dieser Workflow
+# kann ein bereits pausiertes Projekt NICHT aufwecken (das geht nur manuell
+# ueber das Dashboard). Er verhindert das Pausieren, solange das Projekt aktiv
+# ist. Einzige garantierte Alternative laut Supabase: Upgrade auf Pro.
+#
+# Benoetigt nur bestehende Secrets: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY.
 
 on:
   schedule:
-    # Alle 3 Tage um 06:30 UTC — deutlich innerhalb des ~7-Tage-Pause-Fensters,
-    # mit Reserve falls ein Lauf fehlschlägt.
-    - cron: '30 6 */3 * *'
+    - cron: '0 */6 * * *'   # alle 6 Stunden = 4x taeglich (00/06/12/18 UTC)
   workflow_dispatch:
 
 jobs:
   ping:
-    name: Health-Ping
+    name: DB-Ping
     runs-on: ubuntu-latest
     steps:
-      - name: Produktions-Health-Endpunkt aufrufen
+      - name: Direkte Supabase-DB-Abfrage
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
-          # Hinweis: Nach dem Domain-Umzug (grundsteuermonitor.de) hier die URL anpassen.
-          URL="https://grundsteuer-app.vercel.app/api/health"
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ]; then
+            echo "::error::SUPABASE_URL oder SUPABASE_SERVICE_ROLE_KEY fehlt."
+            exit 1
+          fi
+
+          URL="${SUPABASE_URL%/}/rest/v1/municipalities?select=id&limit=1"
           attempts=5
 
           for attempt in $(seq 1 "$attempts"); do
-            if code=$(curl -sS --connect-timeout 10 --max-time 30 -o response.txt -w "%{http_code}" "$URL"); then
-              if [ "$code" = "200" ] && jq -e '.ok == true and .db == "up"' response.txt > /dev/null; then
-                echo "Keep-alive erfolgreich (Versuch $attempt/$attempts)."
-                cat response.txt
-                exit 0
-              fi
-            else
-              code="000"
+            code=$(curl -sS --connect-timeout 10 --max-time 30 \
+              -o response.txt -w "%{http_code}" \
+              -H "apikey: $SUPABASE_KEY" \
+              -H "Authorization: Bearer $SUPABASE_KEY" \
+              "$URL" || echo "000")
+
+            if [ "$code" = "200" ]; then
+              echo "Keep-alive erfolgreich (Versuch $attempt/$attempts, HTTP $code)."
+              exit 0
             fi
 
             echo "::warning::Keep-alive-Versuch $attempt/$attempts fehlgeschlagen (HTTP $code)."
-            head -c 500 response.txt 2>/dev/null || true
+            head -c 300 response.txt 2>/dev/null || true
             echo
 
             if [ "$attempt" -lt "$attempts" ]; then
@@ -43,5 +64,5 @@ jobs:
             fi
           done
 
-          echo "::error::Keep-alive-Health-Check nach $attempts Versuchen fehlgeschlagen."
+          echo "::error::Keep-alive nach $attempts Versuchen fehlgeschlagen (DB evtl. pausiert - Dashboard pruefen)."
           exit 1
