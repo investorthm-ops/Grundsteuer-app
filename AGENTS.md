@@ -1,12 +1,12 @@
-# AI Coding Starter Kit
+# GrundsteuerMonitor
 
-> A Next.js template with an AI-powered development workflow using specialized skills for Requirements, Architecture, Frontend, Backend, QA, and Deployment.
+> Monitoring- und Vergleichs-App für kommunale Hebesätze (Grundsteuer A/B, Gewerbesteuer) in Deutschland. Gebaut mit einem Skill-Workflow: Requirements, Architecture, Frontend, Backend, QA, Deployment.
 
 ## Tech Stack
 
 - **Framework:** Next.js 16 (App Router), TypeScript
 - **Styling:** Tailwind CSS + shadcn/ui (copy-paste components)
-- **Backend:** Supabase (PostgreSQL + Auth + Storage) - optional
+- **Backend:** Supabase (PostgreSQL + Auth + Storage)
 - **Deployment:** Vercel
 - **Validation:** Zod + react-hook-form
 - **State:** React useState / Context API
