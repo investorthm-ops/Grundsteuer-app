@@ -14,7 +14,7 @@ Quellen:
 Verwendung (stdio, für Claude Desktop / Cowork):
   python grundsteuer_import_mcp.py
 
-Umgebungsvariablen:
+Umgebungsvariablen (alternativ aus .env.local im Projekt-Root, siehe _load_env_local):
   GENESIS_USERNAME        Destatis GENESIS-Online Nutzername (kostenlose Registrierung)
   GENESIS_PASSWORD        Destatis GENESIS-Online Passwort
   SUPABASE_URL            Supabase Projekt-URL (optional, für Direktimport)
@@ -30,6 +30,7 @@ import os
 import re
 import zipfile
 from enum import Enum
+from pathlib import Path
 from typing import Any, Optional
 
 import httpx
@@ -66,6 +67,35 @@ STATISTIKPORTAL_XLSX = (
     "Publikationen/Downloads-Realsteuern/hebesaetze-realsteuern-8148001227005.xlsx"
     "?__blob=publicationFile"
 )
+
+def _load_env_local() -> None:
+    """Zugangsdaten aus .env.local im Projekt-Root nachladen.
+
+    Gleiches Muster wie scripts/nrw_bdst_scraper.py. Bereits gesetzte
+    Umgebungsvariablen haben Vorrang (setdefault), damit die MCP-Konfiguration
+    weiterhin funktioniert. Zweck: Die Zugangsdaten muessen nicht mehr in der
+    MCP-Konfiguration stehen, wo sie in der Prozess-Kommandozeile fuer jeden
+    lokalen Prozess sichtbar waeren.
+    """
+    env_path = Path(__file__).resolve().parent.parent / ".env.local"
+    if not env_path.exists():
+        return
+    for line in env_path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, val = line.partition("=")
+        os.environ.setdefault(key.strip(), val.strip())
+    # .env.local nutzt die Next.js-Namen; daraus die hier erwarteten ableiten.
+    for target, source in (
+        ("SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_URL"),
+        ("SUPABASE_SERVICE_KEY", "SUPABASE_SERVICE_ROLE_KEY"),
+    ):
+        if not os.environ.get(target) and os.environ.get(source):
+            os.environ[target] = os.environ[source]
+
+
+_load_env_local()
 
 GENESIS_USERNAME = os.environ.get("GENESIS_USERNAME", "")
 GENESIS_PASSWORD = os.environ.get("GENESIS_PASSWORD", "")
